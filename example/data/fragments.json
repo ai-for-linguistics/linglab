@@ -28,9 +28,6 @@
       "lean": [
         "lean/Linglab/Toy/Base.lean",
         "lean/Linglab/Toy/Raw.lean"
-      ],
-      "agda": [
-        "agda/Linglab/Toy/Base.agda"
       ]
     },
     "checks": [
@@ -70,8 +67,7 @@
       ],
       "lean": [
         "lean/Linglab/Theory.lean"
-      ],
-      "agda": []
+      ]
     },
     "checks": [
       {

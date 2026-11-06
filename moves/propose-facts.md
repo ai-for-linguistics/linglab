@@ -1,3 +1,8 @@
+---
+name: linglab-propose-facts
+description: "Propose candidate facts (minimal pairs, elicitation lists) that separate tied theories in a linglab project, marked as low-confidence proposals, never as data. Use when several theories tie and new data is needed to tell them apart."
+---
+
 # propose-facts
 
 **Use when** several theories tie, and you need data that tells them apart.

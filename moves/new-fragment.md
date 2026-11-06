@@ -1,3 +1,8 @@
+---
+name: linglab-new-fragment
+description: "Build a new fragment for a linglab project: models, values, connectives, operators over other worlds, predicates, quantifiers and modals in python/principles.py, written down in data/fragments.json. Use when a topic or paper needs its own atoms, models or semantics beyond the default connectives."
+---
+
 # Move: build a new fragment
 
 **When.** A topic or paper needs its own atoms, models and semantics (the toy example is a template: `utils/example/python/principles.py`).
@@ -18,7 +23,7 @@
 - *Model constraints.* `b.constrain(fn)`: models failing it are dropped for that theory.
 
 **Quantifiers and modals.** The shared syntax has predicates, terms, binders and modals (INTERFACE.md section 1). Recipe:
-1. *Models with structure.* `@base_models` yields dicts that may hold a domain and relations under keys you choose, say `vals['domain']` (a tuple of individuals) and `vals['Student']`, `vals['Passed']` (frozensets). Non-scalar entries are not atoms. Worlds are just models: `T.worlds()` is the shared list.
+1. *Models with structure.* `@base_models` yields dicts that may hold a domain and relations under keys you choose, say `vals['domain']` (a tuple of individuals) and `vals['Student']`, `vals['Passed']` (frozensets). Non-scalar entries are not atoms. Worlds are just models: `T.worlds()` is the shared list. A domain makes the list a bound, not every model: declare it, `@base_models(scope="domain size <= 3")` (and `scope := "domain size ≤ 3"` on the Lean `Theory`), so verdicts are reported as "exhaustive within domain size <= 3" and proofs as computations within that bound.
 2. *Predicates.* `b.predicate("Passed", lambda T, m, d: int(d in m.vals["Passed"]), arity=1)`.
 3. *Binders.* `b.operator("some", fn)` (also `every`, `no`, `exists`, `forall`, or your own such as `most`). `fn(T, m, x, R, S)` gets the variable name and the subformulas; evaluate the body under an assignment with `T.value(m, S, T.bind(x, d))`. Values are memoized per model and per value of the free variables.
 4. *Modals.* `b.operator("may", fn)` with `fn(T, m, a)`: range over worlds with `T.value(w, a) for w in T.worlds()` (restrict them with an accessibility of your own). Inside an operator, `T.value` keeps the current variable assignment.
@@ -39,7 +44,7 @@ def p_may_fc(b):
 # fact: {"type":"entailment","spec":{"premises":[["may",["or","p","q"]]],"conclusion":["may","p"]}}
 # "some students passed": ["some","?x",["Student","?x"],["Passed","?x"]]
 ```
-Without `P-MAY-FC`, a classical `may` (some world) with the entailment above fails or holds depending on the accessibility you give it: compare the two theories. A theory that defines no predicate `Passed`, or no `some`, simply leaves those facts out of scope. `linglab check` validates the sentences (arities, bound variables) and warns when no principle defines a head a fact uses. Lean and Agda carry the same syntax (`some`, `pred`, `must`, ...); their `translate` returns `none` for what they do not know.
+Without `P-MAY-FC`, a classical `may` (some world) with the entailment above fails or holds depending on the accessibility you give it: compare the two theories. A theory that defines no predicate `Passed`, or no `some`, simply leaves those facts out of scope. `linglab check` validates the sentences (arities, bound variables) and warns when no principle defines a head a fact uses. Lean carries the same syntax (`some`, `pred`, `must`, ...); its `translate` returns `none` for what they do not know.
 
 **Pitfalls.** Helper code outside a tagged chunk is not counted in the size metrics: put shared helpers inside one chunk (or give them their own principle) so complexity is not understated. A theory that lacks an operator cannot translate sentences using it: those cells are `out of scope`, not failures, which is usually what you want. Check cheap things first: run `linglab check`, then `linglab run` on one fact.
 

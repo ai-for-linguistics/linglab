@@ -14,3 +14,7 @@ python3 bin/linglab.py site
 The site is built in `dist/site/`. Pushes to `main` publish it with GitHub Pages. Build outputs are ignored.
 
 Keep results honest about their evidence and verification. Preserve existing project data when adding features. Document data-format changes and migrations in `CHANGELOG.md`.
+
+## Assistant playbooks
+
+Keep `moves/` usable as plain Markdown for any assistant. Claude Code copies are optional: `init --claude-skills` or `skills`. Do not make normal initialization, checks, or report generation depend on a vendor-specific skill loader.

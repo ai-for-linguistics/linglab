@@ -162,7 +162,8 @@ run("synthetic marks", () => {
   const cls = ctx.window.__linglab.mxCls;
   const F = { id: "F", contested: false }, T = { id: "T" };
   const has = (p, c) => new RegExp("(^| )" + c + "( |$)").test(cls(F, T, p));
-  ["lean", "agda"].forEach(k => { if (!has({ outcome: "pass", kind: k }, "proof")) fail("proof class missing for " + k); });
+  ["lean"].forEach(k => { if (!has({ outcome: "pass", kind: k }, "proof")) fail("proof class missing for " + k); });
+  ["lean"].forEach(k => { if (has({ outcome: "pass", kind: k, bounded: true }, "proof")) fail("a proof over a bounded model list must not get the dot: " + k); });
   ["python"].forEach(k => { if (has({ outcome: "pass", kind: k }, "proof") || has({ outcome: "pass", kind: k }, "inf")) fail("python must carry neither mark"); });
   ["human", "paper-claim", "user-claim", "llm-judged", "zzcustom"].forEach(k => { if (!has({ outcome: "pass", kind: k }, "inf")) fail("informal class missing for " + k); });
   if (cls(F, { id: "RAW", generated: "listing" }, { outcome: "pass", kind: "human" }).includes("inf")) fail("Raw Facts cell must not use informal styling");
@@ -374,6 +375,21 @@ run("plot bounds for all proxies and filters", () => {
   }
   sel("ex-llm", "1"); sel("ex-system", "1"); sel("ex-cont", "all");
   if (!n) console.warn("note: no plot rendered for the bounds check (no metrics data?)");
+});
+run("cross-check registry overrides match the Python pooling rule", () => {
+  for (const [computed, conflict] of [[undefined, true], [[], false], [["lean"], false]]) {
+    const data = JSON.parse(JSON.stringify(SYN));
+    data.registry = data.registry || {};
+    if (computed === undefined) delete data.registry.computed_kinds;
+    else data.registry.computed_kinds = computed;
+    data.results = [{fact:"F1", theory:"T1", kind:"lean", outcome:"pass"},
+                    {fact:"F1", theory:"T1", kind:"python", outcome:"fail"}];
+    const b = boot(withData(data), null);
+    if (b.err) throw b.err;
+    b.route("#matrix");
+    const cell = b.els["mx-body"].innerHTML.match(/<td[^>]*data-cell="F1\|T1"[^>]*aria-label="([^"]*)"/);
+    if (!cell || /\bconflict\b/.test(cell[1]) !== conflict) fail("computed_kinds override ignored: " + JSON.stringify(computed));
+  }
 });
 run("scenario empty project", () => {
   const b = boot(withData({}), katexStub);

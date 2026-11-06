@@ -1,3 +1,8 @@
+---
+name: linglab-check
+description: "Validate a linglab project's data and compute verdicts for its fact-by-theory cells, climbing the ladder informal, Python runner, Lean. Use in a linglab project after facts, principles or theories are added or changed, when cells are pending, or when a cell should be firmed up; covers the linglab check, run, lean, metrics, listing and report commands."
+---
+
 # check
 
 **Use when** facts, principles or theories were added or changed, or a cell should be firmed up.
@@ -7,16 +12,16 @@
 **Produce** entries in `data/results.json`. The ladder of effort:
 1. **Informal**: an argument or countermodel by hand, as `llm-judged` or `human` with reasons. Fast; seeds the code.
 2. **Python**: `python3 utils/bin/linglab.py run [--theory T] [--fact F] [--bound N] [--force]`. The runner is model-major and resumable; a counterexample decides a claim at once; `bound` says exhaustive or first n models.
-3. **Lean** (or Agda): follow `prove.md` (statement first, countermodel first, parallel tracks, time-box), then run `python3 utils/bin/linglab.py lean`. Names: `F01` proves the claim, `F01_fail` its negation.
+3. **Lean**: follow `utils/moves/prove.md` (statement first, countermodel first, parallel tracks, time-box), then run `python3 utils/bin/linglab.py lean`. Names: `F01` proves the claim, `F01_fail` its negation; the claim must be the fact's spec (the run lists theorems it did not credit, and why).
 
-Other verifiers (Rocq/Coq, Isabelle, ...): implement `docs/INTERFACE.md`, add the name to the ladder in `custom/registry.json`.
+Other verifiers (Rocq/Coq, Isabelle, ...): implement `utils/docs/INTERFACE.md`, add the name to the ladder in `custom/registry.json`.
 
 Other commands: `check` (validate the data), `metrics` (sizes), `listing` (rebuild Raw Facts), `report`.
 
 **Pitfalls**
 - Run `check` first. Fix structure errors before running.
 - Think about loop structure before a big run: model-major, small pending set, caching, batching (sharding is not implemented yet). State the cost of a sweep.
-- A pass at a stronger rank makes weaker checks unnecessary; skip them unless asked.
+- Skip redundant checks unless asked, but treat independent Lean and Python implementations as cross-checks. Inspect disagreements, including their model scopes.
 - Never overwrite a disagreeing entry; flag it. A disagreement between kinds is information.
 - Check the statement, not just the theorem name. Check no `sorry`.
 - No Lean: label results `computed`, never `proved`.

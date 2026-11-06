@@ -1,10 +1,12 @@
-"""`linglab lean`: build the Lean workspace and turn theorems into `lean` entries.
+"""`linglab lean`: build the Lean workspace and turn checked theorems into `lean` entries.
 
-Naming convention (SPEC section 5): in `namespace T_MK`, `theorem F01` proves the claim,
-`theorem F01_fail` proves its negation. Combined with the fact's `expected`:
+Naming convention (SPEC section 5): in `namespace T_MK` (which defines `theory : Theory`), `theorem F01`
+proves the claim, `theorem F01_fail` proves its negation. Combined with the fact's `expected`:
 claim proved & expected holds -> pass; claim proved & expected fails -> fail;
 negation proved & expected fails -> pass; negation proved & expected holds -> fail.
-Namespace `Raw` (Raw.lean) maps to theory RAW: each listed claim is proved by membership -> pass.
+A name is only a candidate: each candidate's module is built, and a generated file checks that the theorem
+proves `Holds T_MK.theory <claim>` (or `Fails`), the claim written from data/statements.json, with no axiom
+beyond Lean's standard ones (see proofcheck.py). Raw Facts (namespace `Raw`) are credited by `linglab listing`.
 """
 import glob
 import os
@@ -13,7 +15,7 @@ import shutil
 import subprocess
 
 from .common import load_project, write_json, today, sort_results, facts_of, drop_kind
-from . import forbidden
+from . import forbidden, proofcheck
 
 NS = re.compile(r"^\s*namespace\s+(\S+)")
 END = re.compile(r"^\s*end\s+(\S+)\s*$")
@@ -24,7 +26,7 @@ HINT = ("Lean/Lake not found. To use the Lean checks install elan "
 
 
 def scan_theorems(root):
-    """-> [(namespace, fact id, negated, relative file)]"""
+    """-> [(full namespace, fact id, negated, relative file)]"""
     found = []
     for p in sorted(glob.glob(os.path.join(root, "lean", "**", "*.lean"), recursive=True)):
         if ".lake" in p.split(os.sep):
@@ -43,7 +45,7 @@ def scan_theorems(root):
                 continue
             m = THM.match(line)
             if m and ns:
-                found.append((ns[-1], m.group(1), bool(m.group(2)), os.path.relpath(p, root)))
+                found.append((".".join(ns), m.group(1), bool(m.group(2)), os.path.relpath(p, root)))
     return found
 
 
@@ -113,28 +115,124 @@ def run_lean(root=".", build_only=False, out=print):
     if build_only:
         return 0
     d = load_project(root)
-    norm = lambda s: s.replace("-", "_")
-    theories = {norm(t["id"]): t["id"] for t in d["theories"]}
-    theories["Raw"] = "RAW"
-    facts = {f["id"]: f for f in facts_of(d["statements"])}
+    cands, skipped = proofcheck.candidates(d, scan_theorems(root), proofcheck.lean_claim)
+    for sk in skipped:
+        out("  " + sk)
+    ok, rejected, log2 = verify(lean_dir, cands)
+    if re.search(r"declaration uses ['`]sorry['`]", log2):
+        n = drop_kind(root, "lean")
+        out("a module with fact theorems uses sorry: no lean entries recorded; %d stale lean entries removed" % n)
+        return 1
     new, seen = {}, {}
-    for ns, fid, neg, rel in scan_theorems(root):
-        tid, f = theories.get(ns.split(".")[-1]), facts.get(fid)
-        if tid is None or f is None:
-            continue
-        exp = f.get("expected", "holds") == "holds"
-        outcome = "pass" if tid == "RAW" else ("pass" if (exp != neg) else "fail")
-        key = (fid, tid)
-        if key in seen and seen[key] != (neg,):
-            out("ERROR both %s and its negation are proved in %s" % (fid, tid))
+    proofcheck.warn_complete_with_quantifiers([c for c, _ in ok], out)
+    for c, note in ok:
+        key = (c["fact"], c["theory"])
+        if key in seen and seen[key] != c["neg"]:
+            out("ERROR both %s and its negation are proved in %s" % (c["fact"], c["theory"]))
             return 1
-        seen[key] = (neg,)
-        new[key] = {"fact": fid, "theory": tid, "outcome": outcome, "kind": "lean", "who": "lake",
-                    "when": today(), "reasons": "theorem %s.%s%s builds" % (ns, fid, "_fail" if neg else ""),
-                    "ref": rel, "bound": "", "outside_fragment": False, "depends_on": "", "note": ""}
+        seen[key] = c["neg"]
+        new[key] = proofcheck.entry(c, d, "lean", "lake", "builds", note)
     results = [e for e in d["results"] if not (e["kind"] == "lean" and e.get("who") == "lake")]
     results += new.values()
     write_json(os.path.join(root, "data", "results.json"),
                sort_results(results, d["statements"], d["theories"]))
     out("%d lean entries written" % len(new))
+    if rejected:
+        out("%d theorem(s) named after a fact were NOT credited:" % len(rejected))
+        for c, why in rejected:
+            out("  %s (%s): %s" % (c["name"], c["file"], why))
+        return 1
     return 0
+
+
+STD_AXIOMS = {"propext", "Classical.choice", "Quot.sound"}
+CHECK = "linglabCheck"
+SCOPE = "linglabScope"
+
+
+def _native(ax):
+    return ax in ("Lean.ofReduceBool", "Lean.trustCompiler") or "native_decide" in ax
+
+
+def _build_modules(lean_dir, mods):
+    """Build each module explicitly (a module that Linglab.lean does not import is not built by `lake build`).
+    -> (built modules, {module: error text}, log)"""
+    if not mods:
+        return [], {}, ""
+    r = subprocess.run(["lake", "build"] + ["+" + m for m in mods], cwd=lean_dir, capture_output=True, text=True)
+    if r.returncode == 0:
+        return list(mods), {}, r.stdout + r.stderr
+    built, bad, log = [], {}, ""
+    for m in mods:                      # attribute the failure to modules, one by one
+        r = subprocess.run(["lake", "build", "+" + m], cwd=lean_dir, capture_output=True, text=True)
+        log += r.stdout + r.stderr
+        if r.returncode == 0:
+            built.append(m)
+        else:
+            err = [l for l in (r.stdout + r.stderr).splitlines() if "error" in l]
+            bad[m] = (err[0] if err else "build failed").strip()
+    return built, bad, log
+
+
+def verify(lean_dir, cands):
+    """-> ([(candidate, note)], [(candidate, why not credited)], build log of the candidates' modules)."""
+    mods = sorted({proofcheck.module_of(c["file"], "lean") for c in cands})
+    built, bad, log = _build_modules(lean_dir, mods)
+    rejected = [(c, "its module does not build: " + bad[m]) for c in cands
+                for m in [proofcheck.module_of(c["file"], "lean")] if m in bad]
+    todo = [c for c in cands if proofcheck.module_of(c["file"], "lean") in built]
+    if not todo:
+        return [], rejected, log
+    lines = ["import Linglab.Theory"] + ["import " + m for m in sorted({proofcheck.module_of(c["file"], "lean") for c in todo})]
+    first = len(lines) + 1
+    for i, c in enumerate(todo):
+        lines.append("theorem %s%d : Linglab.%s := %s" % (CHECK, i, c["statement"], c["name"]))
+        lines.append("#print axioms %s%d" % (CHECK, i))
+    units = sorted({c["unit"] for c in todo})
+    for j, u in enumerate(units):                   # what each theory's model list covers (Theory.scope)
+        lines.append('#eval IO.println ("%s %d " ++ Linglab.Theory.scope %s.theory)' % (SCOPE, j, u))
+    path = os.path.join(lean_dir, ".lake", "linglab", "Verify.lean")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
+    r = subprocess.run(["lake", "env", "lean", os.path.relpath(path, lean_dir)], cwd=lean_dir,
+                       capture_output=True, text=True)
+    text = r.stdout + r.stderr
+    errors = {}                                     # check index -> error message
+    cur = None
+    for line in text.splitlines():
+        m = re.match(r"^.*Verify\.lean:(\d+):\d+: error[^:]*: ?(.*)$", line)
+        if m:
+            k = int(m.group(1)) - first
+            cur = -1 if k < 0 else (k // 2 if k < 2 * len(todo) else "scope")
+            errors.setdefault(cur, []).append(m.group(2).strip())
+        elif line.startswith("'%s" % CHECK) or line.startswith(SCOPE + " ") or re.match(r"^\S+:\d+:\d+: ", line):
+            cur = None
+        elif cur is not None and len(errors[cur]) < 6 and line.strip():
+            errors[cur].append(line.strip())
+    axioms = {}
+    for m in re.finditer(r"'%s(\d+)' (?:depends on axioms: \[([^\]]*)\]|does not depend on any axioms)" % CHECK, text):
+        axioms[int(m.group(1))] = [a.strip() for a in (m.group(2) or "").split(",") if a.strip()]
+    scopes = {}
+    for m in re.finditer(r"^%s (\d+) (.*)$" % SCOPE, text, re.M):
+        scopes[units[int(m.group(1))]] = m.group(2).strip() or "complete"
+    ok = []
+    for i, c in enumerate(todo):
+        c["scope"] = scopes.get(c["unit"], "an unknown bound (the theory's scope could not be read)")
+        if -1 in errors:
+            rejected.append((c, "the check file failed: " + " ".join(errors[-1])[:300]))
+        elif i in errors:
+            rejected.append((c, "its statement is not the claim of data/statements.json (%s): %s"
+                             % (c["statement"], " ".join(errors[i])[:300])))
+        elif i not in axioms:
+            rejected.append((c, "not checked (no result from the check file)"))
+        else:
+            other = [a for a in axioms[i] if a not in STD_AXIOMS and not _native(a)]
+            if "sorryAx" in other:
+                rejected.append((c, "uses sorry"))
+            elif other:
+                rejected.append((c, "depends on axiom(s) " + ", ".join(other)))
+            else:
+                note = "uses native_decide: trusts compiled code, not only the kernel" if any(map(_native, axioms[i])) else ""
+                ok.append((c, note))
+    return ok, rejected, log

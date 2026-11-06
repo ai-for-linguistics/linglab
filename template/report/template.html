@@ -246,7 +246,9 @@ const FUSERS = (RAWD.fragment_users && typeof RAWD.fragment_users==="object") ? 
 const FINID = {}; D.findings.forEach(f=>FINID[f.id]=f);
 const isRaw = t => !!t && (t.generated==="listing" || t.id==="RAW");
 const REG = D.registry;
-const LADDER = arr(REG.ladder).length ? REG.ladder : ["lean","agda","python","human","paper-claim","user-claim","llm-judged"];
+const LADDER = arr(REG.ladder).length ? REG.ladder : ["lean","python","human","paper-claim","user-claim","llm-judged"];
+/* kinds computed from an implementation of the theory: cross-checks of each other (same list as pooling.py) */
+const COMPUTED = Array.isArray(REG.computed_kinds) ? REG.computed_kinds : ["lean","python"];
 /* display names of theories: `short` on the theory, else meta.short_names[id], else the full name (the full name stays in titles and cards) */
 const SHORTS = (D.meta.short_names && typeof D.meta.short_names==="object" && !Array.isArray(D.meta.short_names)) ? D.meta.short_names : {};
 const tFull = t => (t && (t.name||t.id)) || "";
@@ -344,12 +346,12 @@ function symbolsOf(s,kind){ // {tex, auto}
 function factCodeList(s){
   const c=((((D.code||{}).facts)||{})[s.id])||{}, out=[];
   const st=c.spec_text||specText(s); if(st) out.push({lang:"Spec",text:st});
-  [["lean","Lean"],["agda","Agda"]].forEach(([l,n])=>{ const xs=arr(c[l]); if(xs.length) out.push({lang:n,text:xs.map(x=>"-- "+(x.theory||"")+"\n"+(x.text||"")).join("\n\n")}); });
+  [["lean","Lean"]].forEach(([l,n])=>{ const xs=arr(c[l]); if(xs.length) out.push({lang:n,text:xs.map(x=>"-- "+(x.theory||"")+"\n"+(x.text||"")).join("\n\n")}); });
   return out;
 }
 function princCodeList(s){
   const c=((((D.code||{}).principles)||{})[s.id])||{};
-  return [["python","Python"],["lean","Lean"],["agda","Agda"]].filter(([l])=>c[l]).map(([l,n])=>({lang:n,text:c[l]}));
+  return [["python","Python"],["lean","Lean"]].filter(([l])=>c[l]).map(([l,n])=>({lang:n,text:c[l]}));
 }
 function layersHtml(s,kind){
   const sy=symbolsOf(s,kind);
@@ -362,28 +364,36 @@ function layersHtml(s,kind){
 /* ================= pooling (SPEC section 3) ================= */
 const IDX = {};
 D.results.forEach(r=>{ const k=r.fact+"|"+r.theory; (IDX[k]=IDX[k]||[]).push(r); });
-const KTAG = {lean:"L",agda:"A",python:"Py",human:"H","paper-claim":"P","user-claim":"U","llm-judged":"LLM"};
-const KFORMAL = {lean:1,agda:1,python:1};
+const KTAG = {lean:"L",python:"Py",human:"H","paper-claim":"P","user-claim":"U","llm-judged":"LLM"};
+const KFORMAL = {lean:1,python:1};
 const kTag = k => k ? (KTAG[k] || String(k).slice(0,2)) : "";
 const kInformal = k => !!k && !KFORMAL[k];
 const rankOf = e => { const i=LADDER.indexOf(e.kind); return i<0 ? LADDER.length : i; };
-/* pool one cell. opts.noLlm drops llm-judged entries. Returns {outcome, conflict, warning, entries, kind, rank}.
-   Conflict (same top rank disagrees on pass/fail): outcome = majority, tie = fail (conservative); the flag is what matters. */
+const isBounded = e => { const b=e.bound||""; return b.includes(" within ") || b.startsWith("first "); };
+/* pool one cell (same rule as pooling.py). opts.noLlm drops llm-judged entries.
+   Returns {outcome, conflict, warning, entries, kind, agree, bounded}.
+   Conflict: the top rank disagrees on pass/fail (outcome = majority, tie = fail), or two computed kinds (lean,
+   python) disagree at any ranks: inspect their implementations, translations and model scopes.
+   agree: the computed kinds that agree, when two or more do. bounded: the deciding entry holds only within a bound. */
 function pool(fid,tid,opts){
   opts = opts||{};
   let es = IDX[fid+"|"+tid] || [];
   if(opts.noLlm) es = es.filter(e=>e.kind!=="llm-judged");
   const real = es.filter(e=>e.outcome!=="pending");
-  if(!real.length) return {outcome:"pending",conflict:false,warning:false,entries:es,kind:null};
+  if(!real.length) return {outcome:"pending",conflict:false,warning:false,entries:es,kind:null,agree:[],bounded:false};
+  const comp = real.filter(e=>COMPUTED.includes(e.kind) && e.who!=="listing");
+  const cross = new Set(comp.map(e=>e.outcome)).size > 1;
+  let agree = (!cross && comp.length && (comp[0].outcome==="pass"||comp[0].outcome==="fail")) ? [...new Set(comp.map(e=>e.kind))].sort() : [];
+  if(agree.length<2) agree = [];
   const best = Math.min.apply(null, real.map(rankOf));
   const top = real.filter(e=>rankOf(e)===best);
   const dec = top.filter(e=>e.outcome==="pass"||e.outcome==="fail");
-  if(!dec.length) return {outcome:"out_of_scope",conflict:false,warning:false,entries:es,kind:top[0].kind};
+  if(!dec.length) return {outcome:"out_of_scope",conflict:cross,warning:false,entries:es,kind:top[0].kind,agree:[],bounded:false};
   const np = dec.filter(e=>e.outcome==="pass").length, nf = dec.length-np;
-  const conflict = np>0 && nf>0;
+  const conflict = (np>0 && nf>0) || cross;
   const outcome = np>nf ? "pass" : "fail";
   const warning = !conflict && real.some(e=>rankOf(e)>best && (e.outcome==="pass"||e.outcome==="fail") && e.outcome!==outcome);
-  return {outcome,conflict,warning,entries:es,kind:top[0].kind};
+  return {outcome,conflict,warning,entries:es,kind:top[0].kind,agree,bounded:dec.some(isBounded)};
 }
 /* roll-up of a group: passes iff all members pass */
 function rollup(members,tid,opts){
@@ -399,23 +409,23 @@ function rollup(members,tid,opts){
 /* ================= metrics ================= */
 const COV_DEF = [["passed","Facts passed"],["passed_over_applicable","Passed over applicable"],["confidence_weighted","Confidence-weighted passed"]];
 const SIZE_DEF = [["n_principles","Number of principles"],["n_principles_no_aux","Principles without auxiliary"],["python_chars","Python chars"],["python_gzip","Python gzip bytes"],["lean_chars","Lean chars"],["lean_gzip","Lean gzip bytes"],["python_lines","Python lines"],["python_words","Python words"],["lean_lines","Lean lines"],["lean_words","Lean words"]];
-const SIZE_IMPL = /^(n_principles|n_principles_no_aux|(python|lean|agda)_(chars|words|lines|gzip))$/;
+const SIZE_IMPL = /^(n_principles|n_principles_no_aux|(python|lean)_(chars|words|lines|gzip))$/;
 const COV_IMPL = /^(passed|passed_over_applicable|confidence_weighted)$/;
 function metricList(regKey,def,impl){
   const r = arr(REG[regKey]).map(m=>typeof m==="string"?{id:m,name:m}:m).filter(m=>m&&m.id);
   const list = r.length ? r : def.map(([id,name])=>({id,name}));
   return list.map(m=>({id:m.id,name:m.name||m.id,note:m.note||"",ok:impl.test(m.id)}));
 }
-// size metrics tied to a language are offered only when some theory has data for that language (no mention of Lean or Agda otherwise)
+// size metrics tied to a language are offered only when some theory has data for that language (no mention of Lean otherwise)
 const langHasData = l => { const M=(D.metrics||{}).theories||{}; return Object.values(M).some(x=>((x.total||{})[l])); };
 const COVM = metricList("coverage_metrics",COV_DEF,COV_IMPL),
-  SIZEM = metricList("size_metrics",SIZE_DEF,SIZE_IMPL).filter(m=>{ const g=/^(python|lean|agda)_/.exec(m.id); return !g || langHasData(g[1]); });
+  SIZEM = metricList("size_metrics",SIZE_DEF,SIZE_IMPL).filter(m=>{ const g=/^(python|lean)_/.exec(m.id); return !g || langHasData(g[1]); });
 const mOf = t => { const M=D.metrics||{}; return isRaw(t) ? (M.raw || (M.theories||{})[t.id]) : (M.theories||{})[t.id]; };
 function sizeOf(t,mid){
   const m = mOf(t)||{};
   if(mid==="n_principles"){ if(m.n_principles!=null) return m.n_principles; return isRaw(t) ? FACTS.length : arr(t.principles).length; }
   if(mid==="n_principles_no_aux"){ if(m.n_principles_no_aux!=null) return m.n_principles_no_aux; if(isRaw(t)) return FACTS.length; return arr(t.principles).filter(p=>!(BYID[p]&&BYID[p].auxiliary)).length; }
-  const g = /^(python|lean|agda)_(chars|words|lines|gzip)$/.exec(mid);
+  const g = /^(python|lean)_(chars|words|lines|gzip)$/.exec(mid);
   if(g){ const v=((m.total||{})[g[1]]||{})[g[2]]; return v==null?null:v; }
   return null;
 }
@@ -529,7 +539,7 @@ function cellInfo(key,full){
   const f=BYID[a], p=pool(a,tid);
   let h=`<b>${esc(f?f.id+" "+(f.name||""):a)}</b> × <b>${esc(tn)}</b>: ${outBadge(p.outcome)}`;
   if(p.kind) h+=` <span class="mut small">from ${esc(p.kind)}</span>`;
-  if(p.conflict) h+=` <span class="badge fail">conflict: entries at the same rank disagree</span>`;
+  if(p.conflict) h+=` <span class="badge fail">conflict: entries at the same rank, or two implementations, disagree</span>`;
   if(p.warning) h+=` <span class="badge out_of_scope">warning: a weaker kind disagrees</span>`;
   if(!p.entries.length) h+=`<div class="mut small">No entries yet (pending).</div>`;
   h+=p.entries.slice().sort((x,y)=>rankOf(x)-rankOf(y)).map(e=>entryHtml(e,full)).join("");
@@ -748,7 +758,7 @@ function renderPrinciples(){
 
 /* ================= Translations ================= */
 const CODE = D.code||{}, CPR = CODE.principles||{}, CFA = CODE.facts||{};
-const TR_LANG = [["python","Python"],["lean","Lean"],["agda","Agda"]];
+const TR_LANG = [["python","Python"],["lean","Lean"]];
 const trKey = () => "linglab-translations:"+(D.meta.title||"");
 function trLoad(){ try{ const v=JSON.parse(localStorage.getItem(trKey())||"{}"); if(v&&typeof v==="object") S.tr.ck=v; }catch(e){} }
 function trSave(){ try{ localStorage.setItem(trKey(),JSON.stringify(S.tr.ck)); }catch(e){} }
@@ -759,7 +769,7 @@ function trCodeOf(r){
   const id=r.s.id;
   if(r.kind==="principle"){ const c=CPR[id]||{}; return TR_LANG.filter(([l])=>c[l]).map(([l,n])=>({lang:n,theory:"",text:c[l]})); }
   const c=CFA[id]||{}; let out=[];
-  [["lean","Lean"],["agda","Agda"]].forEach(([l,n])=>arr(c[l]).forEach(x=>out.push({lang:n,theory:x.theory,text:x.text})));
+  [["lean","Lean"]].forEach(([l,n])=>arr(c[l]).forEach(x=>out.push({lang:n,theory:x.theory,text:x.text})));
   return out;
 }
 const P_TR = r => {
@@ -786,7 +796,7 @@ function trRowHtml(r){
   } else {
     const c=CFA[id]||{}, st=c.spec_text||specText(s);
     right = st ? `<div class="lang">Spec (read by the Python runner)</div>${preBlock(st)}` : '<p class="empty">No formal spec.</p>';
-    [["lean","Lean"],["agda","Agda"]].forEach(([l,n])=>{
+    [["lean","Lean"]].forEach(([l,n])=>{
       const xs=arr(c[l]); if(!xs.length) return;
       right+=`<details><summary class="small">${n} theorems (${xs.length})</summary><div class="in">${xs.map(x=>`<div class="lang">${esc(x.theory)}</div>${preBlock(x.text)}`).join("")}</div></details>`;
     });
@@ -836,7 +846,7 @@ function renderTranslations(){
    conflicting results (cross), controversial fact (yellow cross in the header, paler). Theories grouped by family when there are two or more families,
    facts grouped by kind (fact.kind, else fact.type). Everything the old tooltips and rows showed is in the docked panel (click a square or a bar). */
 const MXK = {pass:"pass",fail:"fail",out_of_scope:"oos",pending:"pend"};
-const PROOFK = {}; (arr(REG.proof_kinds).length ? REG.proof_kinds : ["lean","agda"]).forEach(k=>PROOFK[k]=1);
+const PROOFK = {}; (arr(REG.proof_kinds).length ? REG.proof_kinds : ["lean"]).forEach(k=>PROOFK[k]=1);
 const KT = (D.meta.fact_kinds && typeof D.meta.fact_kinds==="object" && !Array.isArray(D.meta.fact_kinds)) ? D.meta.fact_kinds : {};
 const FAMS = (D.meta.family_short && typeof D.meta.family_short==="object" && !Array.isArray(D.meta.family_short)) ? D.meta.family_short : {};
 const famName = f => (typeof FAMS[f]==="string" && FAMS[f].trim()) || f;
@@ -886,7 +896,7 @@ function mxBar(c,w,tid){
 function mxCls(f,t,p){
   let c = "cell "+MXK[p.outcome];
   if(f.contested) c+=" con";
-  if(p.kind && PROOFK[p.kind]) c+=" proof"; else if(p.kind && !isRaw(t) && kInformal(p.kind)) c+=" inf";
+  if(p.kind && PROOFK[p.kind] && !p.bounded) c+=" proof"; else if(p.kind && !isRaw(t) && kInformal(p.kind)) c+=" inf";
   if(p.conflict||p.warning) c+=" flag";
   return c;
 }
@@ -898,12 +908,12 @@ const conTick = f => f.contested ? `<span class="con-q xm" style="--c:var(--vamb
 const factTitle = f => f.id+(f.name?": "+f.name:"")+(f.text?". "+trunc(f.text,240):"");
 function mxLegend(){
   const sw = (bg,inner,title) => `<i class="sw" style="background:${bg};${inner?"position:relative":""}">${inner||""}</i>`;
-  const proofs = Object.keys(PROOFK).filter(k=>LADDER.includes(k)||k==="lean"||k==="agda");
+  const proofs = Object.keys(PROOFK).filter(k=>LADDER.includes(k)||k==="lean");
   const dot = `<i style="position:absolute;left:50%;top:50%;margin:-2.5px 0 0 -2.5px;width:5px;height:5px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.35)"></i>`;
   const xx = `<i class="xm" style="position:absolute;left:50%;top:50%;margin:-3.5px 0 0 -3.5px"></i>`;
   const cl1 = `<div class="mxv-legend"><span><i class="sw" style="background:var(--vok)"></i>pass</span><span><i class="sw" style="background:var(--vbad)"></i>fail</span><span title="the theory cannot express the fact, or does not cover it"><i class="sw" style="background:var(--voos)"></i>out of scope</span><span><i class="sw" style="background:var(--card);box-shadow:inset 0 0 0 1px var(--line)"></i>pending</span></div>`;
-  const cl2 = `<div class="mxv-legend"><span title="a machine-checked proof settles this cell (${esc(proofs.join(", "))})">${sw("var(--vok)",dot)}${esc(proofs.map(k=>k.charAt(0).toUpperCase()+k.slice(1)).join(" / ")||"proof")}</span>`+
-    `<span title="conflicting results: entries at the same rank disagree, or a weaker kind of evidence disagrees with the displayed outcome">${sw("var(--vok)",xx)}conflicting results</span>`+
+  const cl2 = `<div class="mxv-legend"><span title="a machine-checked proof over a complete model list settles this cell (${esc(proofs.join(", "))}); a proof over a bounded list gets no dot">${sw("var(--vok)",dot)}${esc(proofs.map(k=>k.charAt(0).toUpperCase()+k.slice(1)).join(" / ")||"proof")}</span>`+
+    `<span title="conflicting results: entries at the same rank disagree, two implementations (Lean, Python) disagree, or a weaker kind of evidence disagrees with the displayed outcome">${sw("var(--vok)",xx)}conflicting results</span>`+
     `<span title="informal evidence: a person, a paper, a claim or an LLM reading, not a run or a proof">${sw("var(--vok) repeating-linear-gradient(135deg, rgba(255,255,255,.75) 0 2px, transparent 2px 5px)","")}informal evidence</span></div>`;
   const cl3 = `<div class="mxv-legend"><span><i class="sw" style="background:var(--bg);box-shadow:inset 0 0 0 1px var(--line);position:relative"><i class="xm" style="--c:var(--vamb);position:absolute;left:50%;top:50%;margin:-3.5px 0 0 -3.5px"></i></i>controversial fact</span>`+
     (TH.some(isRaw)?`<span title="Raw Facts: the baseline theory made of all the facts"><i class="sw" style="background:var(--rawbg);box-shadow:inset 0 0 0 1px var(--raw)"></i>baseline: Raw Facts</span>`:"")+`</div>`;
@@ -1022,8 +1032,8 @@ function panelPrinciples(f,t){
 }
 function panelTest(f,t){
   const p = pool(f.id,t.id), ent = p.entries.slice().sort((x,y)=>rankOf(x)-rankOf(y));
-  let h = `<div class="kv2"><b>Verdict</b><span>${outBadge(p.outcome)}${p.conflict?` <span class="badge fail">conflict: entries at the same rank disagree</span>`:""}${p.warning?` <span class="badge out_of_scope">warning: a weaker kind disagrees</span>`:""}</span>`+
-    `<b>Method</b><span>${p.kind?`${esc(p.kind)}${PROOFK[p.kind]?" (machine-checked proof)":kInformal(p.kind)&&!isRaw(t)?" (informal evidence, not a run or a proof)":""}`:'<span class="mut">no entry yet</span>'}</span></div>`;
+  let h = `<div class="kv2"><b>Verdict</b><span>${outBadge(p.outcome)}${p.conflict?` <span class="badge fail">conflict: entries at the same rank, or two implementations, disagree</span>`:""}${p.warning?` <span class="badge out_of_scope">warning: a weaker kind disagrees</span>`:""}${(p.agree||[]).length?` <span class="badge pass">cross-checked: ${esc(p.agree.join(" and "))} agree</span>`:""}</span>`+
+    `<b>Method</b><span>${p.kind?`${esc(p.kind)}${PROOFK[p.kind]?(p.bounded?" (machine-checked over a bounded model list: a computation within that bound, not a general proof)":" (machine-checked proof over a complete model list)"):kInformal(p.kind)&&!isRaw(t)?" (informal evidence, not a run or a proof)":""}`:'<span class="mut">no entry yet</span>'}</span></div>`;
   if(p.outcome==="out_of_scope"){ const why = (p.entries.find(e=>e.outcome==="out_of_scope"&&e.scope)||{}).scope;
     h += `<p class="small">Out of scope${why?" ("+esc(({fragment:"fragment",no_prediction:"no prediction",primitive:"primitive"})[why]||why)+")":""}: ${why?esc(SCOPE_WORDS[why]||why)+".":"the theory cannot express the fact (its translation fails), or the entry says it lies outside the fragment."} It is not counted as applicable and is not a failure.</p>`; }
   if(p.outcome==="fail") h += `<p class="small">Not met: the expected outcome (${esc(f.expected||"holds")}) was not obtained; the reasons below give the countermodel or the argument.</p>`;
@@ -1031,7 +1041,7 @@ function panelTest(f,t){
   const c = (CFA[f.id]||{});
   // proof statements of the theory's family (a modified or revised theory shares the formalization of its source); the theory's own first
   const fam = t.family||"", inFam = x => x.theory===t.id || (fam!=="" && THID[x.theory] && (THID[x.theory].family||"")===fam);
-  [["lean","Lean"],["agda","Agda"]].forEach(([l,n])=>{
+  [["lean","Lean"]].forEach(([l,n])=>{
     const xs = arr(c[l]).filter(inFam).sort((a,b)=>(b.theory===t.id?1:0)-(a.theory===t.id?1:0));
     if(!xs.length) return;
     const own = xs.some(x=>x.theory===t.id);
@@ -1104,7 +1114,7 @@ function fragBlock(fid,cur,open){
   const defs=arr(f.defs);
   if(defs.length) h+=`<div class="wrap"><table><tr><th>name</th><th>in words</th><th>symbols</th></tr>${defs.map(d=>`<tr><td><b>${esc(d.label||"")}</b></td><td class="small">${esc(d.text||"")}</td><td>${d.notation?texHtml(d.notation):""}</td></tr>`).join("")}</table></div>`;
   const files=f.files&&typeof f.files==="object"?f.files:{};
-  const langs=["python","lean","agda"].concat(Object.keys(files).filter(k=>!["python","lean","agda"].includes(k)));
+  const langs=["python","lean"].concat(Object.keys(files).filter(k=>!["python","lean"].includes(k)));
   const fl=langs.filter(l=>arr(files[l]).length);
   if(fl.length) h+=`<div><b class="small">Files</b>${fl.map(l=>`<div class="small mut" style="margin-top:4px">${esc(l)}</div>${arr(files[l]).map(fileHtml).join("")}`).join("")}</div>`;
   h+=`<p class="small"><b>${others.length?"also used by":"used by"}</b>: ${others.length?others.map(x=>lk(x)).join(", "):"this theory only"}</p>`;
@@ -1194,7 +1204,7 @@ function pointsFor(xm,ym){
 }
 function metricSelect(list,key,axis,cur,cls){
   const opt = m => `<option value="${esc(m.id)}"${m.id===cur?" selected":""}${m.ok?"":" disabled"} title="${esc(m.note)}">${esc(m.name)}${m.ok?"":" (not implemented)"}</option>`;
-  const lang = m => { const g=/^(python|lean|agda)_/.exec(m.id); return g?g[1][0].toUpperCase()+g[1].slice(1):(/^n_principles/.test(m.id)?"Principles":"Other"); };
+  const lang = m => { const g=/^(python|lean)_/.exec(m.id); return g?g[1][0].toUpperCase()+g[1].slice(1):(/^n_principles/.test(m.id)?"Principles":"Other"); };
   const gl = [...new Set(list.map(lang))];
   const body = gl.length>=2 ? gl.map(g=>`<optgroup label="${esc(g)}">${list.filter(m=>lang(m)===g).map(opt).join("")}</optgroup>`).join("") : list.map(opt).join("");
   return `<select class="pill${cls?" "+cls:""}" data-in="ex-${key}-${axis}">${body}</select>`;
@@ -1267,7 +1277,7 @@ function paretoLegend(){
     `<div class="small mut pareto-key"><span><svg width="22" height="8" style="vertical-align:middle"><line x1="0" y1="4" x2="22" y2="4" stroke="var(--acc)" stroke-width="2.4" stroke-dasharray="6 4"/></svg> observed frontier</span> &nbsp; <span><svg width="12" height="10" style="vertical-align:middle"><rect width="12" height="10" fill="var(--acc)" fill-opacity=".18"/></svg> dominated</span></div>`;
 }
 function lengthTable(){
-  const ts=selTheories(), cols=["python","lean","agda"].filter(langHasData).flatMap(l=>[[l,"chars"],[l,"gzip"],[l,"lines"]]);
+  const ts=selTheories(), cols=["python","lean"].filter(langHasData).flatMap(l=>[[l,"chars"],[l,"gzip"],[l,"lines"]]);
   const v=(t,l,f)=>{ const x=((mOf(t)||{}).total||{})[l]; return x&&x[f]!=null?x[f]:null; };
   if(!ts.length||!ts.some(t=>mOf(t))) return ph("the length table: size of each theory in Python and in Lean (needs data/metrics.json, built by linglab metrics).");
   return `<div class="wrap"><table><tr><th>theory</th>${cols.map(c=>`<th>${c[0]} ${c[1]}</th>`).join("")}<th>lean / python chars</th></tr>`+ts.map(t=>{ const py=v(t,"python","chars"), le=v(t,"lean","chars");
@@ -1376,11 +1386,11 @@ function renderGuide(){
     ask("Add a tab that compares two theories fact by fact.")+
     ask("Replace this report with a one-page summary for a talk.")+
     ask("Use a different proof system for the formal checks."));
-  h+=sec("Glossary: outcomes",`<table><tr><td>${outBadge("pass")}</td><td>The fact's expected outcome was met (an expected-fail fact passes when the claim fails).</td></tr><tr><td>${outBadge("fail")}</td><td>The expected outcome was not met. The reasons (a countermodel, an argument) are in the entries.</td></tr><tr><td>${outBadge("out_of_scope")}</td><td>The theory cannot express the fact (its translation fails), makes no prediction for its type, or its source leaves the fact to a mechanism the theory does not include (the fact <code>uses</code> a notion missing from the theory's <code>primitives</code>). Not counted as applicable, not a failure.</td></tr><tr><td>${outBadge("pending")}</td><td>Nothing decided yet (no entry, or the checker does not implement this fact type).</td></tr><tr><td>⚑ conflict</td><td>Entries at the same ladder rank disagree. Shown, never blocking; the cell displays the majority (tie: fail).</td></tr><tr><td>⚠ warning</td><td>A weaker kind of entry disagrees with the displayed outcome.</td></tr></table>`);
-  const KDESC={lean:"a proof checked by Lean",agda:"a proof checked by Agda",python:"a run of the checker on models up to a stated bound",human:"a person's judgment (may flag that it is outside the fragment)","paper-claim":"what a paper says (with its presence: in source, mentioned not tested, ...)","user-claim":"what you told the agent","llm-judged":"an LLM's reading, to be checked; the weakest kind"};
+  h+=sec("Glossary: outcomes",`<table><tr><td>${outBadge("pass")}</td><td>The fact's expected outcome was met (an expected-fail fact passes when the claim fails).</td></tr><tr><td>${outBadge("fail")}</td><td>The expected outcome was not met. The reasons (a countermodel, an argument) are in the entries.</td></tr><tr><td>${outBadge("out_of_scope")}</td><td>The theory cannot express the fact (its translation fails), makes no prediction for its type, or its source leaves the fact to a mechanism the theory does not include (the fact <code>uses</code> a notion missing from the theory's <code>primitives</code>). Not counted as applicable, not a failure.</td></tr><tr><td>${outBadge("pending")}</td><td>Nothing decided yet (no entry, or the checker does not implement this fact type).</td></tr><tr><td>⚑ conflict</td><td>Entries at the same ladder rank disagree, or two implementations of the theory (Lean, Python) disagree at any rank: Check whether their implementations, translations, and model scopes match. Shown, never blocking; the cell displays the verdict of the strongest rank (the majority within it; a tie gives fail).</td></tr><tr><td>cross-checked</td><td>Two or more implementations (Lean, Python) give the same verdict.</td></tr><tr><td>bound</td><td>What a computed verdict covers: "exhaustive" means the implementation declares its model list complete and checked all of it; "exhaustive within …" or "first n models" means the theory's model list is bounded (for example by a domain size): the verdict is a computation within that bound, not a general proof, and a proof kind then gets no dot.</td></tr><tr><td>⚠ warning</td><td>A weaker kind of entry disagrees with the displayed outcome.</td></tr></table>`);
+  const KDESC={lean:"a proof checked by Lean (a general proof only when the theory's model list is complete; see bound)",python:"a run of the checker on models up to a stated bound",human:"a person's judgment (may flag that it is outside the fragment)","paper-claim":"what a paper says (with its presence: in source, mentioned not tested, ...)","user-claim":"what you told the agent","llm-judged":"an LLM's reading, to be checked; the weakest kind"};
   h+=sec("Glossary: kinds of evidence (strongest first)",`<p class="small">Current ladder: ${LADDER.map(esc).join(" &gt; ")}. The displayed outcome of a cell is the outcome of the strongest kind that has an entry. In the matrix each cell carries the tag of that kind; informal kinds have a dashed border.</p><table>${LADDER.map(k=>`<tr><td><b>${esc(k)}</b> <span class="kk${kInformal(k)?" informal":""}">${esc(kTag(k))}</span></td><td>${esc(KDESC[k]||"a custom kind added in this project's ladder")}${kInformal(k)?" (informal)":""}</td></tr>`).join("")}</table>`);
   h+=sec("Glossary: objects",`<ul class="small"><li><b>Fact</b>: an empirical datum with code and an expected outcome. <b>Principle</b>: a theoretical assumption with code. Both are statements with quotes, origins, confidence and relations.</li><li><b>Theory</b>: a set of principles. <b>Auxiliary</b>: needed but not distinguishing. <b>Vocabulary</b>: a principle that implements a shared notion (felicity, entailment).</li><li><b>Raw Facts</b>: the theory made of all the facts; full coverage, maximal size; the baseline to beat.</li><li><b>Coverage / complexity</b>: facts passed against size (principles, code length); less complex is better. A good theory passes many facts with few principles.</li></ul>`);
-  h+=sec("Glossary: layers, fragments and checks",`<ul class="small"><li><b>Layers</b>: every principle and fact can be read in <b>words</b> (the statement and its quotes), <b>symbols</b> (paper-style notation; for facts, a notation generated from the spec is marked <b>auto</b>) and <b>code</b> (Python, Lean, Agda).</li><li><b>Fragment</b>: the shared language a family of theories is stated in (syntax, models, entailment), with its definitions in words and symbols and its files. A fragment can be used by several theories.</li><li><b>Check</b>: a recorded act of comparing layers (who, when, by a person, an LLM or another route; a readback in plain English; a verdict: agrees, disagrees, partial, unclear). The latest readback is shown under the code. Checks never change a result in the matrix.</li></ul>`);
+  h+=sec("Glossary: layers, fragments and checks",`<ul class="small"><li><b>Layers</b>: every principle and fact can be read in <b>words</b> (the statement and its quotes), <b>symbols</b> (paper-style notation; for facts, a notation generated from the spec is marked <b>auto</b>) and <b>code</b> (Python, Lean).</li><li><b>Fragment</b>: the shared language a family of theories is stated in (syntax, models, entailment), with its definitions in words and symbols and its files. A fragment can be used by several theories.</li><li><b>Check</b>: a recorded act of comparing layers (who, when, by a person, an LLM or another route; a readback in plain English; a verdict: agrees, disagrees, partial, unclear). The latest readback is shown under the code. Checks never change a result in the matrix.</li></ul>`);
   h+=sec("Defaults, not rules",`<p>Everything here is a starting default. By prompting you can change test types, evidence kinds, the ladder, metrics, plots, tabs, the vocabulary, even the whole report. What can change lives in small named places in your project (<code>custom/</code>, a copy of this page), never in the downloaded toolkit. The only fixed guardrails are about honesty: every result says how it was obtained, and informal is never shown as formal.</p>`);
   // subtabs: the guide above, then the method and the technical contract (rendered from METHOD.md and docs/SPEC.md at build time)
   const docs=(RAWD.docs||[]).filter(x=>x&&x.html);

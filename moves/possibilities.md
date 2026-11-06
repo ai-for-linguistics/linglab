@@ -6,7 +6,7 @@ Not features to build now. The report is a living thing: users will propose chan
 
 **Readings.** A cell can carry an explanation of what happened (`data/readings.json`): how the proof seems to work, why a run fails. Never evidence, and never changes a verdict. Write one when you settle a cell; offer to write them for the cells a user opens most.
 
-**Probes and linking hypotheses.** Facts are observations of a few probe types (judgment, inference, comparison, scenario, preference). A theory's adapter is its linking hypothesis: how its internal notions (presupposition, implicature) predict a behaviour. Useful when two theories disagree about *what the datum means*, not only about whether it holds. See `docs/MODEL.md`.
+**Probes and linking hypotheses.** Facts are observations of a few probe types (judgment, inference, comparison, scenario, preference). A theory's adapter is its linking hypothesis: how its internal notions (presupposition, implicature) predict a behaviour. Useful when two theories disagree about *what the datum means*, not only about whether it holds. See `utils/docs/MODEL.md`.
 
 **Reasons for out of scope.** Three: the sentence is outside the theory's fragment; the theory makes no prediction for this probe; a primitive is not implemented (including one the theory's source leaves to another mechanism). Offer to record the reason when many cells are out of scope.
 

@@ -11,7 +11,7 @@ SKIP_DIRS = {".git", "dist", "__pycache__", ".lake", "build", "_build", ".claude
 SKIP_FILES = {".DS_Store", ".git"}   # ".git" can be a file (worktree pointer): never ship it
 # Tests and contributor instructions are not needed in the downloadable kit.
 SKIP_PATHS = ("python/tests", "CONTRIBUTING.md")
-SKIP_EXT = (".pyc", ".olean", ".ilean", ".trace", ".hash", ".agdai")
+SKIP_EXT = (".pyc", ".olean", ".ilean", ".trace", ".hash")
 
 
 def make_zip(out=print):

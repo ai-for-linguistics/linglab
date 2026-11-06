@@ -8,7 +8,7 @@ For the agent, and for curious humans. About two pages. Details of the contract 
 - A **theory** is a set of principles (`data/theories.json`). Principles do not belong to a family: any set can be tried, and a bad combination just breaks. The theory's notion of felicity or consequence is a principle too (flagged `vocabulary`). Assumptions that do not distinguish theories are flagged `auxiliary`.
 - A fix is a theory with a parent. Only the changed principles need new work.
 - **Raw Facts** (`RAW`) is the theory made of all the facts. It passes everything and is as large as the data. It catches facts that duplicate or contradict each other, and is the size baseline every real theory should beat.
-- The space is a table: facts are rows, theories are columns. A cell holds **entries** (outcome, kind, who, when, reasons). The page pools them with a ladder: `lean > python > human > paper-claim > user-claim > llm-judged`. The strongest kind present decides the display. Disagreement at the same rank is a **conflict**; a weaker rank that disagrees adds a warning. Both are marked, never blocking.
+- The space is a table: facts are rows, theories are columns. A cell holds **entries** (outcome, kind, who, when, reasons). The page pools them with a ladder: `lean > python > human > paper-claim > user-claim > llm-judged`. The strongest kind present decides the display. Disagreement at the same rank is a **conflict**, and so is any disagreement between two implementations of the theory (Lean, Python: they are cross-checks of each other, so one of them, or one translation of the fact, is wrong); a weaker rank that disagrees adds a warning. Both are marked, never blocking. When two implementations agree, the cell says so (cross-checked).
 - The goal is **compression**: coverage against size. The Coverage × Complexity tab shows the observed frontier of coverage against complexity, with a proxy pill on each axis, data filters and theory-group chips; a fold below has two proxy-against-proxy plots and a length table. Metrics disagree with each other, so the axes are choosable.
 
 ## The four activities
@@ -21,7 +21,7 @@ Everything can be changed by asking: fact types, kinds, metrics, ladder, plots, 
 
 ## Guardrails (these are not defaults)
 
-- **Status honesty.** Every result says how it was obtained. Findings use `proved` (Lean, builds, no `sorry`), `computed` (finite models, with the bound stated), `argued`, `literature`, `open`. "Not found" is about the search space: write it so. "Consistent" needs a model; "inconsistent" needs a proof.
+- **Status honesty.** Every result says how it was obtained. Findings use `proved` (Lean, builds, no `sorry`, over a model list the theory declares complete), `computed` (a run or a proof over a bounded model list, with the bound stated: a Lean theorem over models of domain size ≤ 3 is `computed`, not `proved`), `argued`, `literature`, `open`. "Not found" is about the search space: write it so. "Consistent" needs a model; "inconsistent" needs a proof.
 - **Informal is never shown as formal.** An `llm-judged` or `paper-claim` entry never looks like a `lean` one. A stronger result does not overwrite a weaker one.
 - **Say which fragment** a conclusion holds in, and re-check it when the fragment grows.
 - **Fact statements are reviewed.** First drafts are often wrong (many were rewritten in an earlier project). Raw Facts catches duplicate or contradictory facts, not wrong translations: the user checks the translation of each statement in the Translations tab.
@@ -70,7 +70,7 @@ See `moves/review-a-paper.md`.
 5. About a third of cells may be out of scope (plurals, modals, counting). Say so plainly.
 6. Not all theories decompose into switches. Tag code chunks with the principles they cover and measure size by chunk.
 7. Keep the ladder and flags; record the source of every claim, and whether a paper tested it.
-8. Informal verdicts match machine verdicts nearly always; proofs cost hours. Python first, Lean second.
+8. Informal verdicts match machine verdicts nearly always; proofs cost hours. Python first, Lean second. A Lean proof is a second implementation of the same finite computation, and a general proof only when the model list is complete: declare what it covers (`scope`).
 9. Complexity metrics disagree. Expose the choice.
 10. Language was not the lever; process and scope were. Lean rebuilds fast.
 11. Do not copy code between projects or hard-code names in the page. Generic rules plus exceptions kept as data.

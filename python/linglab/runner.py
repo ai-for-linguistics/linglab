@@ -192,7 +192,7 @@ def run_theory(T, facts, bound=None, cfg=None):
                 del live[key]
             if not live:
                 break
-    btxt = "exhaustive" if exhausted else "first %d models" % bound
+    btxt = vocab.bound_text(vocab.base_scope(), "exhaustive" if exhausted else "first %d models" % bound)
     for key, (f, c) in live.items():            # undecided claims take their default
         why = ("no countermodel in %d models" if c.kind == "forall" else "no witness in %d models") % n
         decided[key] = (c.kind == "forall", why, False)

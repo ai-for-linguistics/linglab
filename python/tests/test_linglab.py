@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -14,7 +15,7 @@ sys.path.insert(0, os.path.join(ROOT, "python"))
 
 from linglab import pooling  # noqa: E402
 
-LADDER = ["lean", "agda", "python", "human", "paper-claim", "user-claim", "llm-judged"]
+LADDER = ["lean", "python", "human", "paper-claim", "user-claim", "llm-judged"]
 
 
 def linglab(cwd, *args):
@@ -30,6 +31,17 @@ def copy_example():
 
 def results(p):
     return json.load(open(os.path.join(p, "data", "results.json")))
+
+
+def edit_fact(p, fid, change):
+    path = os.path.join(p, "data", "statements.json")
+    with open(path, encoding="utf-8") as f:
+        st = json.load(f)
+    for s in st:
+        if s["id"] == fid:
+            change(s)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(st, f, indent=2)
 
 
 class ExtensionApiTests(unittest.TestCase):
@@ -334,10 +346,9 @@ class LayersTests(unittest.TestCase):
 
 
 class CodeDataNoWorkspaceTests(unittest.TestCase):
-    def test_project_without_lean_and_agda(self):
+    def test_project_without_lean(self):
         d, p = copy_example()
         shutil.rmtree(os.path.join(p, "lean"))
-        shutil.rmtree(os.path.join(p, "agda"))
         from linglab import report, common
         code = report.build_code(p, common.load_project(p))
         self.assertEqual(set(code["principles"]["P-NEG"]), {"python"})
@@ -749,6 +760,78 @@ class InitTests(unittest.TestCase):
         finally:
             shutil.rmtree(d)
 
+    def test_init_installs_playbooks_as_skills(self):
+        from linglab import init
+        moves = os.path.join(ROOT, "moves")
+        names = {}
+        for fn in os.listdir(moves):
+            text = open(os.path.join(moves, fn), encoding="utf-8").read()
+            names[fn] = init.skill_name(text)
+            if names[fn]:
+                self.assertEqual(names[fn], "linglab-" + fn[:-3], fn)
+                desc = re.search(r'^description: "(.+)"$', text, re.M)
+                self.assertTrue(desc and len(desc.group(1)) <= 1024, fn)
+        self.assertEqual({fn for fn, n in names.items() if not n}, {"README.md", "possibilities.md"})
+        d = tempfile.mkdtemp()
+        try:
+            self.assertEqual(linglab(d, "init", "My Topic", "--claude-skills").returncode, 0)
+            skills = os.path.join(d, ".claude", "skills")
+            self.assertEqual(sorted(n for n in os.listdir(skills) if not n.startswith(".")), sorted(n for n in names.values() if n))
+            for fn, n in names.items():
+                if n:
+                    self.assertEqual(open(os.path.join(skills, n, "SKILL.md"), encoding="utf-8").read(),
+                                     open(os.path.join(moves, fn), encoding="utf-8").read())
+        finally:
+            shutil.rmtree(d)
+
+    def test_skills_refresh_after_toolkit_change(self):
+        d = tempfile.mkdtemp()
+        try:
+            self.assertEqual(linglab(d, "init", "My Topic", "--claude-skills").returncode, 0)
+            skills = os.path.join(d, ".claude", "skills")
+            self.assertNotIn("skills do not match", linglab(d, "check").stdout)
+            # as if utils/ were replaced: one playbook changed, one added, one retired; plus a user's own skill
+            with open(os.path.join(skills, "linglab-prove", "SKILL.md"), "a", encoding="utf-8") as f:
+                f.write("old text\n")
+            shutil.rmtree(os.path.join(skills, "linglab-check"))
+            for n in ("linglab-retired", "my-own", "linglab-my-own"):
+                os.makedirs(os.path.join(skills, n))
+                open(os.path.join(skills, n, "SKILL.md"), "w").write("---\nname: %s\n---\n" % n)
+            manifest = os.path.join(skills, ".linglab-managed.json")
+            with open(manifest, encoding="utf-8") as f:
+                managed = json.load(f)
+            with open(manifest, "w", encoding="utf-8") as f:
+                json.dump(managed + ["linglab-retired"], f)
+            r = linglab(d, "check")
+            self.assertEqual(r.returncode, 0)   # a warning, not an error
+            for s in ("outdated: linglab-prove", "missing: linglab-check", "no longer in the toolkit: linglab-retired",
+                      "linglab.py skills"):
+                self.assertIn(s, r.stdout)
+            r = linglab(d, "skills")
+            self.assertEqual(r.returncode, 0)
+            self.assertIn("updated: linglab-prove", r.stdout)
+            self.assertNotIn("skills do not match", linglab(d, "check").stdout)
+            self.assertFalse(os.path.exists(os.path.join(skills, "linglab-retired")))
+            self.assertTrue(os.path.exists(os.path.join(skills, "my-own", "SKILL.md")))
+            self.assertTrue(os.path.exists(os.path.join(skills, "linglab-my-own", "SKILL.md")))
+            self.assertIn("already match", linglab(d, "skills").stdout)
+        finally:
+            shutil.rmtree(d)
+
+
+    def test_default_project_needs_no_claude_skills(self):
+        with tempfile.TemporaryDirectory() as root:
+            self.assertEqual(linglab(root, "init", "Other Assistant").returncode, 0)
+            self.assertFalse(os.path.exists(os.path.join(root, ".claude")))
+            for fn in ("AGENTS.md", "CLAUDE.md"):
+                with open(os.path.join(root, fn)) as f:
+                    self.assertIn("BOOTSTRAP.md", f.read())
+            self.assertEqual(linglab(root, "check").returncode, 0)
+            self.assertEqual(linglab(root, "report").returncode, 0)
+            self.assertTrue(os.path.isfile(os.path.join(root, "report", "index.html")))
+            self.assertEqual(linglab(root, "skills").returncode, 0)
+            self.assertTrue(os.path.isfile(os.path.join(root, ".claude", "skills", "linglab-check", "SKILL.md")))
+
 
 class ZipTests(unittest.TestCase):
     def test_zip(self):
@@ -759,8 +842,45 @@ class ZipTests(unittest.TestCase):
         self.assertFalse([n for n in names if "__pycache__" in n or "/.git/" in n or "/dist/" in n])
 
 
-if __name__ == "__main__":
-    unittest.main()
+
+
+class ModelScopeTests(unittest.TestCase):
+    """What a finite model list covers: declared with @base_models(scope=...), reported in the entries' bound."""
+
+    def setUp(self):
+        from linglab import vocab
+        saved = (list(vocab._BASE_MODELS), vocab._SCOPE[0])
+        def restore():
+            vocab._BASE_MODELS[:] = saved[0]
+            vocab._SCOPE[0] = saved[1]
+        self.addCleanup(restore)
+
+    def test_declare_and_report(self):
+        from linglab import vocab, runner
+        @vocab.base_models
+        def plain():
+            return [{"p": 0}, {"p": 1}]
+        self.assertEqual(vocab.base_scope(), "complete")
+        @vocab.base_models(scope="domain size <= 1")
+        def small():
+            return [{"p": 0}, {"p": 1}]
+        self.assertEqual(vocab.base_scope(), "domain size <= 1")
+        self.assertIs(vocab._BASE_MODELS[0], small)
+        self.assertEqual(vocab.bound_text("complete"), "exhaustive")
+        self.assertEqual(vocab.bound_text("domain size <= 1", "first 3 models"), "first 3 models within domain size <= 1")
+        reg = {"N": vocab.Principle("N", lambda b: b.connective("not", lambda x: 1 - x))}
+        T = vocab.Theory("T", "t", ["N"], registry=reg)
+        facts = [{"id": "F1", "type": "entailment", "spec": {"premises": ["p"], "conclusion": "p"}},
+                 {"id": "F2", "type": "entailment", "spec": {"premises": [], "conclusion": "p"}}]
+        dec = runner.run_theory(T, facts)
+        self.assertEqual(dec["F1"].bound, "exhaustive within domain size <= 1")   # no countermodel among bounded models
+        self.assertEqual(dec["F2"].bound, "")                                      # a countermodel is a countermodel
+
+    def test_uses_quantifiers(self):
+        from linglab import vocab
+        self.assertTrue(vocab.uses_quantifiers({"premises": [["some", "?x", ["Student", "?x"], ["Passed", "?x"]]]}))
+        self.assertTrue(vocab.uses_quantifiers(["not", ["Passed", "a"]]))
+        self.assertFalse(vocab.uses_quantifiers({"discourse": [["and", "s", ["not", "a"]]], "x": ["may", "p"]}))
 
 
 class PoolingRuleTests(unittest.TestCase):
@@ -779,6 +899,30 @@ class PoolingRuleTests(unittest.TestCase):
         self.assertEqual(r["outcome"], "out_of_scope")
         r = P(self.E("python", "pass"), self.E("llm-judged", "fail"))
         self.assertEqual((r["outcome"], r["warnings"]), ("pass", ["llm-judged"]))
+
+    def test_implementations_cross_check(self):
+        P = lambda *es: pooling.pool(list(es), LADDER)
+        r = P(self.E("lean", "pass"), self.E("python", "fail"))
+        self.assertEqual((r["outcome"], r["conflict"], r["warnings"]), ("pass", True, []))    # was only a warning
+        r = P(self.E("lean", "pass"), self.E("python", "out_of_scope"))
+        self.assertTrue(r["conflict"])                 # one implementation cannot state what the other proves
+        r = P(self.E("lean", "pass"), self.E("python", "pass"), self.E("human", "fail"))
+        self.assertEqual((r["conflict"], r["agree"], r["warnings"]), (False, ["lean", "python"], ["human"]))
+        r = P(self.E("python", "pass"), self.E("human", "pass"))
+        self.assertEqual(r["agree"], [])               # one implementation is not a cross-check
+        r = P(dict(self.E("python", "pass"), who="listing"), self.E("lean", "fail"))
+        self.assertFalse(r["conflict"])                # Raw Facts listing entries are not an implementation
+        r = pooling.pool([self.E("lean", "pass"), self.E("python", "fail")], LADDER, computed=["lean"])
+        self.assertFalse(r["conflict"])                # the registry can narrow the list
+        r = pooling.pool([self.E("lean", "pass"), self.E("python", "fail")], LADDER, computed=[])
+        self.assertFalse(r["conflict"])                # an empty override disables cross-kind comparisons
+
+    def test_bounded(self):
+        P = lambda *es: pooling.pool(list(es), LADDER)
+        self.assertFalse(P(dict(self.E("lean", "pass"), bound="exhaustive"))["bounded"])
+        self.assertTrue(P(dict(self.E("lean", "pass"), bound="exhaustive within domain size <= 3"))["bounded"])
+        self.assertTrue(P(dict(self.E("python", "pass"), bound="first 100 models"))["bounded"])
+        self.assertFalse(P(dict(self.E("python", "fail"), bound=""))["bounded"])     # decided by a countermodel
 
     def test_summary_counts_conflict_cells(self):
         st = [{"id": "F1", "role": "fact"}]
@@ -810,6 +954,28 @@ class RunnerFreshnessTests(unittest.TestCase):
         self.assertEqual(out.returncode, 0, out.stdout)
         self.assertTrue(all(" 0 entries (" in l for l in out.stdout.splitlines() if "entries (" in l))  # nothing recomputed
         self.assertEqual(self.runner_entries(), es)
+
+    def test_declared_scope_recomputes_and_is_reported(self):
+        path = os.path.join(self.p, "python", "principles.py")
+        with open(path, encoding="utf-8") as f:
+            src = f.read()
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(src.replace("@base_models\n", '@base_models(scope="toy bound")\n'))
+        out = linglab(self.p, "run")
+        self.assertEqual(out.returncode, 0, out.stdout)
+        self.assertFalse([l for l in out.stdout.splitlines() if " 0 entries (" in l])    # every theory recomputed
+        bounds = {e["bound"] for e in self.runner_entries().values()}
+        self.assertIn("exhaustive within toy bound", bounds)
+        self.assertNotIn("exhaustive", bounds)
+
+    def test_warning_when_quantified_facts_meet_a_complete_list(self):
+        def add(d):
+            q = dict(next(s for s in d if s["id"] == "F05a"), id="F98", name="quantified")
+            q["spec"] = {"premises": [["exists", "?x", ["Passed", "?x"]]], "conclusion": "p"}
+            d.append(q)
+        self.edit_json("statements.json", add)
+        out = linglab(self.p, "run")
+        self.assertIn("facts F98 use quantifiers or predicates, but @base_models declares no scope", out.stdout)
 
     def test_changed_fact_is_recomputed(self):
         def flip(d):
@@ -895,16 +1061,10 @@ class StaleProofTests(unittest.TestCase):
         t = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, t)
         os.makedirs(os.path.join(t, "lean", ".lake"))
-        os.makedirs(os.path.join(t, "agda"))
         open(os.path.join(t, "lean", "A.lean"), "w").write(
             '-- sorry\n/- axiom x\n /- nested sorry -/ -/\ndef s := "sorry axiom"\ntheorem a : True := by sorry\naxiom bad : False\nopaque ok : Nat\n')
         open(os.path.join(t, "lean", ".lake", "B.lean"), "w").write("sorry")
         self.assertEqual(forbidden.scan_lean(t), ["lean/A.lean:5: sorry", "lean/A.lean:6: axiom"])
-        open(os.path.join(t, "agda", "A.agda"), "w").write(
-            "-- postulate\n{- postulate -}\nf = x --> y\n{-# TERMINATING #-}\npostulate z : A\ng = {! !}\n")
-        got = forbidden.scan_agda(t)
-        self.assertEqual([g.split(": ", 1)[1] for g in got],
-                         ["TERMINATING pragma", "postulate", "interaction hole {! !}"])
 
     def test_missing_folder_message(self):
         t = tempfile.mkdtemp()
@@ -914,8 +1074,6 @@ class StaleProofTests(unittest.TestCase):
         shutil.rmtree(os.path.join(proj, "lean"), ignore_errors=True)
         out = linglab(proj, "lean").stdout
         self.assertIn("no lean/ folder yet: run `python3 utils/bin/linglab.py lean --init` to create it", out)
-        shutil.rmtree(os.path.join(proj, "agda"), ignore_errors=True)
-        self.assertIn("agda --init", linglab(proj, "agda").stdout)
 
     @unittest.skipUnless(shutil.which("lake"), "lake not installed")
     def test_sorry_blocks_entries_and_removes_stale(self):
@@ -931,41 +1089,101 @@ class StaleProofTests(unittest.TestCase):
         self.assertFalse([e for e in results(p) if e["kind"] == "lean"])
         self.assertIn("stale lean entries removed", out.stdout)
 
-
-class AgdaTests(unittest.TestCase):
-    """The optional Agda workspace: scanning, metrics stripping, and (if agda is installed) the real run."""
-
-    def test_strip_and_scan(self):
-        from linglab import metrics, agdacmd
-        self.assertEqual([l for l in metrics.strip_agda(["f : A  -- note", "-- all comment", "{- block -} g = x", "a --> b"]) if l.strip()],
-                         ["f : A", " g = x", "a --> b"])
-        found = agdacmd.scan_theorems(os.path.join(os.path.dirname(__file__), "..", "..", "example"))
-        self.assertIn(("T_MK", "F02", True, os.path.join("agda", "Linglab", "Toy", "T_MK.agda")), found)
-        self.assertIn(("Raw", "F05a", False, os.path.join("agda", "Linglab", "Toy", "Raw.agda")), found)
-
-    def test_example_agda_agrees_with_lean(self):
-        rs = results(os.path.join(os.path.dirname(__file__), "..", "..", "example"))
-        cell = lambda k: {(e["fact"], e["theory"]): e["outcome"] for e in rs if e["kind"] == k}
-        self.assertTrue(cell("agda"))
-        self.assertEqual(cell("agda"), cell("lean"))
-
-    @unittest.skipUnless(shutil.which("agda"), "agda not installed")
-    def test_run_in_fresh_copy(self):
+    @unittest.skipUnless(shutil.which("lake"), "lake not installed")
+    def test_scope_of_the_theory_is_recorded(self):
         tmp, p = copy_example()
         self.addCleanup(shutil.rmtree, tmp)
-        before = [e for e in results(p) if e["kind"] != "agda"]
-        shutil.rmtree(os.path.join(p, "agda", "_build"), ignore_errors=True)
-        out = linglab(p, "agda")
+        base = os.path.join(p, "lean", "Linglab", "Toy", "Base.lean")
+        with open(base, encoding="utf-8") as f:
+            src = f.read()
+        self.assertIn("    models := ms\n", src)
+        with open(base, "w", encoding="utf-8") as f:
+            f.write(src.replace("    models := ms\n", '    models := ms\n    scope := "toy bound"\n'))
+        out = linglab(p, "lean")
         self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
-        rs = results(p)
-        self.assertEqual([e for e in rs if e["kind"] != "agda"], before)
-        self.assertEqual(len([e for e in rs if e["kind"] == "agda"]), 48)
-        linglab(p, "metrics")
-        m = json.load(open(os.path.join(p, "data", "metrics.json")))
-        self.assertGreater(m["theories"]["T-MK"]["total"]["agda"]["chars"], 100)
+        lean = [e for e in results(p) if e["kind"] == "lean"]
+        self.assertEqual({e["bound"] for e in lean}, {"exhaustive within toy bound"})
+        self.assertTrue(all("not a general proof" in e["reasons"] for e in lean))
 
-    def test_graceful_without_agda_dir(self):
-        p = tempfile.mkdtemp()
-        linglab(p, "init", "x")
-        out = linglab(os.path.join(p, "x") if os.path.isdir(os.path.join(p, "x")) else p, "agda")
-        self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
+    @unittest.skipUnless(shutil.which("lake"), "lake not installed")
+    def test_only_theorems_of_the_stated_claim_are_credited(self):
+        tmp, p = copy_example()
+        self.addCleanup(shutil.rmtree, tmp)
+        lean = os.path.join(p, "lean")
+        with open(os.path.join(lean, "Linglab.lean"), encoding="utf-8") as f:
+            root = f.read()
+        with open(os.path.join(lean, "Linglab.lean"), "w", encoding="utf-8") as f:   # T_WK is no longer imported
+            f.write(root.replace("import Linglab.Toy.T_WK\n", ""))
+        with open(os.path.join(lean, "Linglab", "Toy", "Bogus.lean"), "w", encoding="utf-8") as f:   # nor is this
+            f.write("namespace T_WK\ntheorem F04 : True := trivial\nend T_WK\n")
+        edit_fact(p, "F06", lambda f: f["spec"].update(conclusion=["or", "p", "q"]))
+        out = linglab(p, "lean")
+        self.assertEqual(out.returncode, 1, out.stdout + out.stderr)
+        self.assertIn("NOT credited", out.stdout)
+        self.assertIn("T_WK.F04 (lean/Linglab/Toy/Bogus.lean): its statement is not the claim", out.stdout)
+        lean_cells = {(e["fact"], e["theory"]) for e in results(p) if e["kind"] == "lean"}
+        self.assertNotIn(("F04", "T-WK"), lean_cells)                    # vacuous theorem: not credited
+        self.assertFalse([k for k in lean_cells if k[0] == "F06"])       # written for the old spec: not credited
+        self.assertIn(("F05a", "T-WK"), lean_cells)                      # unimported but correct: built and credited
+        self.assertEqual(len(lean_cells), 34)
+        self.assertFalse([k for k in lean_cells if k[1] == "RAW"])
+
+
+class ProofCheckTests(unittest.TestCase):
+    """Claims written from the shared syntax for the proof check, and which theorems are candidates."""
+
+    def test_render_claims(self):
+        from linglab import proofcheck as pc
+        f = {"type": "entailment", "spec": {"premises": [["every", "?x", ["Student", "?x"], ["exh", ["may", "p"]]]],
+                                            "conclusion": ["if", ["Passed", "a"], ["not", "q"]]}}
+        c = pc.claim(f)
+        self.assertEqual(pc.lean_claim(c),
+                         '(Linglab.Claim.entails [(Linglab.S.every "x" (Linglab.S.pred "Student" [Linglab.Term.var "x"]) '
+                         '(Linglab.S.op1 "exh" (Linglab.S.may (Linglab.S.atom "p"))))] (Linglab.S.imp (Linglab.S.pred "Passed" '
+                         '[Linglab.Term.const "a"]) (Linglab.S.not (Linglab.S.atom "q"))))')
+        t = pc.claim({"type": "truth", "spec": {"sentence": ["and", "s", "a"], "relation": "within", "target": 'a"b'}})
+        self.assertEqual(pc.lean_claim(t), '(Linglab.Claim.truth (Linglab.S.and (Linglab.S.atom "s") (Linglab.S.atom "a")) '
+                                           'Linglab.Rel.within (Linglab.S.atom "a\\"b"))')
+
+    def test_unstatable_and_candidates(self):
+        from linglab import proofcheck as pc
+        for f in ({"type": "preference", "spec": {}}, {"type": "felicity", "spec": {"discourse": [["most", "?x", ["P", "?x"], ["Q", "?x"]]]}},
+                  {"type": "felicity", "spec": {"discourse": ["?x"]}}):
+            with self.assertRaises(pc.Unstatable):
+                pc.claim(f)
+        d = {"statements": [{"id": "F1", "role": "fact", "type": "felicity", "spec": {"discourse": ["p"]},
+                             "parses": [{"id": "b", "spec": {"discourse": ["q"]}}]},
+                            {"id": "F2", "role": "fact", "type": "other"}],
+             "theories": [{"id": "T-A"}, {"id": "T-B", "parse_policy": "any"}]}
+        found = [("T_A", "F1", False, "lean/A.lean"), ("T_B", "F1", True, "lean/B.lean"), ("Raw", "F1", False, "lean/Raw.lean"),
+                 ("T_A", "F2", False, "lean/A.lean"), ("T_X", "F1", False, "lean/X.lean")]
+        cands, skipped = pc.candidates(d, found, pc.lean_claim)
+        self.assertEqual([(c["theory"], c["fact"]) for c in cands], [("T-A", "F1")])
+        self.assertEqual(cands[0]["statement"], 'Holds T_A.theory (Linglab.Claim.felicitous [(Linglab.S.atom "p")])')
+        self.assertEqual(len(skipped), 2)          # T_B combines parses; F2 has no claim shape; Raw and T_X are ignored
+
+
+class OldAgdaEntriesTests(unittest.TestCase):
+    """Agda support was removed; a project whose registry still lists `agda` keeps its entries valid."""
+
+    def test_old_project_still_checks_and_reports(self):
+        tmp, p = copy_example()
+        self.addCleanup(shutil.rmtree, tmp)
+        reg_p = os.path.join(p, "custom", "registry.json")
+        reg = json.load(open(reg_p, encoding="utf-8"))
+        reg["ladder"].insert(1, "agda")
+        json.dump(reg, open(reg_p, "w", encoding="utf-8"))
+        rs = results(p)
+        rs.append(dict(next(e for e in rs if e["kind"] == "python"), kind="agda", who="agda", outcome="fail"))
+        json.dump(rs, open(os.path.join(p, "data", "results.json"), "w", encoding="utf-8"))
+        r = linglab(p, "check")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual(linglab(p, "report").returncode, 0)
+        r = pooling.pool([self.E("agda", "fail"), self.E("python", "pass")], reg["ladder"])
+        self.assertEqual((r["outcome"], r["conflict"], r["warnings"]), ("fail", False, ["python"]))   # no longer an implementation
+
+    E = staticmethod(lambda kind, outcome: {"fact": "F01", "theory": "T-MK", "kind": kind, "outcome": outcome, "who": kind})
+
+
+if __name__ == "__main__":
+    unittest.main()

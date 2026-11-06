@@ -14,12 +14,6 @@
             "words": 18,
             "lines": 2,
             "gzip": 73
-          },
-          "agda": {
-            "chars": 63,
-            "words": 17,
-            "lines": 4,
-            "gzip": 65
           }
         },
         "P-AND-SK": {
@@ -34,12 +28,6 @@
             "words": 28,
             "lines": 3,
             "gzip": 84
-          },
-          "agda": {
-            "chars": 99,
-            "words": 27,
-            "lines": 5,
-            "gzip": 71
           }
         },
         "P-OR-SK": {
@@ -54,12 +42,6 @@
             "words": 28,
             "lines": 3,
             "gzip": 83
-          },
-          "agda": {
-            "chars": 93,
-            "words": 27,
-            "lines": 5,
-            "gzip": 70
           }
         },
         "P-ENT-T": {
@@ -74,12 +56,6 @@
             "words": 42,
             "lines": 2,
             "gzip": 131
-          },
-          "agda": {
-            "chars": 148,
-            "words": 45,
-            "lines": 2,
-            "gzip": 128
           }
         },
         "P-FELIC-DEF": {
@@ -94,12 +70,6 @@
             "words": 33,
             "lines": 2,
             "gzip": 117
-          },
-          "agda": {
-            "chars": 128,
-            "words": 36,
-            "lines": 2,
-            "gzip": 121
           }
         },
         "P-AUX-PRESUP": {
@@ -114,12 +84,6 @@
             "words": 13,
             "lines": 1,
             "gzip": 75
-          },
-          "agda": {
-            "chars": 89,
-            "words": 16,
-            "lines": 2,
-            "gzip": 89
           }
         }
       },
@@ -135,12 +99,6 @@
           "words": 162,
           "lines": 13,
           "gzip": 270
-        },
-        "agda": {
-          "chars": 625,
-          "words": 168,
-          "lines": 20,
-          "gzip": 290
         }
       },
       "n_principles": 6,
@@ -160,12 +118,6 @@
             "words": 18,
             "lines": 2,
             "gzip": 73
-          },
-          "agda": {
-            "chars": 63,
-            "words": 17,
-            "lines": 4,
-            "gzip": 65
           }
         },
         "P-AND-WK": {
@@ -180,12 +132,6 @@
             "words": 28,
             "lines": 3,
             "gzip": 84
-          },
-          "agda": {
-            "chars": 96,
-            "words": 27,
-            "lines": 5,
-            "gzip": 71
           }
         },
         "P-ENT-T": {
@@ -200,12 +146,6 @@
             "words": 42,
             "lines": 2,
             "gzip": 131
-          },
-          "agda": {
-            "chars": 148,
-            "words": 45,
-            "lines": 2,
-            "gzip": 128
           }
         },
         "P-FELIC-DEF": {
@@ -220,12 +160,6 @@
             "words": 33,
             "lines": 2,
             "gzip": 117
-          },
-          "agda": {
-            "chars": 128,
-            "words": 36,
-            "lines": 2,
-            "gzip": 121
           }
         },
         "P-AUX-PRESUP": {
@@ -240,12 +174,6 @@
             "words": 13,
             "lines": 1,
             "gzip": 75
-          },
-          "agda": {
-            "chars": 89,
-            "words": 16,
-            "lines": 2,
-            "gzip": 89
           }
         }
       },
@@ -261,12 +189,6 @@
           "words": 134,
           "lines": 10,
           "gzip": 257
-        },
-        "agda": {
-          "chars": 528,
-          "words": 141,
-          "lines": 15,
-          "gzip": 268
         }
       },
       "n_principles": 5,
@@ -286,12 +208,6 @@
             "words": 18,
             "lines": 2,
             "gzip": 73
-          },
-          "agda": {
-            "chars": 63,
-            "words": 17,
-            "lines": 4,
-            "gzip": 65
           }
         },
         "P-AND-MK": {
@@ -306,12 +222,6 @@
             "words": 23,
             "lines": 2,
             "gzip": 78
-          },
-          "agda": {
-            "chars": 77,
-            "words": 22,
-            "lines": 4,
-            "gzip": 68
           }
         },
         "P-OR-MK": {
@@ -326,12 +236,6 @@
             "words": 23,
             "lines": 2,
             "gzip": 77
-          },
-          "agda": {
-            "chars": 72,
-            "words": 22,
-            "lines": 4,
-            "gzip": 67
           }
         },
         "P-ENT-T": {
@@ -346,12 +250,6 @@
             "words": 42,
             "lines": 2,
             "gzip": 131
-          },
-          "agda": {
-            "chars": 148,
-            "words": 45,
-            "lines": 2,
-            "gzip": 128
           }
         },
         "P-FELIC-DEF": {
@@ -366,12 +264,6 @@
             "words": 33,
             "lines": 2,
             "gzip": 117
-          },
-          "agda": {
-            "chars": 128,
-            "words": 36,
-            "lines": 2,
-            "gzip": 121
           }
         },
         "P-AUX-PRESUP": {
@@ -386,12 +278,6 @@
             "words": 13,
             "lines": 1,
             "gzip": 75
-          },
-          "agda": {
-            "chars": 89,
-            "words": 16,
-            "lines": 2,
-            "gzip": 89
           }
         }
       },
@@ -407,12 +293,6 @@
           "words": 152,
           "lines": 11,
           "gzip": 266
-        },
-        "agda": {
-          "chars": 582,
-          "words": 158,
-          "lines": 18,
-          "gzip": 283
         }
       },
       "n_principles": 6,
@@ -432,12 +312,6 @@
             "words": 18,
             "lines": 2,
             "gzip": 73
-          },
-          "agda": {
-            "chars": 63,
-            "words": 17,
-            "lines": 4,
-            "gzip": 65
           }
         },
         "P-AND-MK": {
@@ -452,12 +326,6 @@
             "words": 23,
             "lines": 2,
             "gzip": 78
-          },
-          "agda": {
-            "chars": 77,
-            "words": 22,
-            "lines": 4,
-            "gzip": 68
           }
         },
         "P-OR-MK": {
@@ -472,12 +340,6 @@
             "words": 23,
             "lines": 2,
             "gzip": 77
-          },
-          "agda": {
-            "chars": 72,
-            "words": 22,
-            "lines": 4,
-            "gzip": 67
           }
         },
         "P-ENT-T": {
@@ -492,12 +354,6 @@
             "words": 42,
             "lines": 2,
             "gzip": 131
-          },
-          "agda": {
-            "chars": 148,
-            "words": 45,
-            "lines": 2,
-            "gzip": 128
           }
         },
         "P-FELIC-SOME": {
@@ -512,12 +368,6 @@
             "words": 33,
             "lines": 2,
             "gzip": 123
-          },
-          "agda": {
-            "chars": 130,
-            "words": 36,
-            "lines": 2,
-            "gzip": 125
           }
         },
         "P-AUX-PRESUP": {
@@ -532,12 +382,6 @@
             "words": 13,
             "lines": 1,
             "gzip": 75
-          },
-          "agda": {
-            "chars": 89,
-            "words": 16,
-            "lines": 2,
-            "gzip": 89
           }
         }
       },
@@ -553,12 +397,6 @@
           "words": 152,
           "lines": 11,
           "gzip": 270
-        },
-        "agda": {
-          "chars": 584,
-          "words": 158,
-          "lines": 18,
-          "gzip": 286
         }
       },
       "n_principles": 6,

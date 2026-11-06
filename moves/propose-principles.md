@@ -1,3 +1,8 @@
+---
+name: linglab-propose-principles
+description: "Propose fixes, variants or compressions of theories in a linglab project (new principles, smaller theories with the same coverage) and state what each gains and loses in facts. Use when a theory fails facts the user cares about, or to look for a smaller theory with the same coverage."
+---
+
 # propose-principles
 
 **Use when** a theory fails facts you care about, or you want a smaller theory with the same coverage.

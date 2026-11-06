@@ -1,3 +1,8 @@
+---
+name: linglab-read-and-plan
+description: "Answer questions about the state of a linglab project from its data files, with honest labels (kind of evidence, bound, confidence), and plan what to gather next with its cost. Use when the user asks where things stand, wants a summary, or asks what to do next."
+---
+
 # read-and-plan
 
 **Use when** the user asks a question about the state of the project, or wants a summary or a plan.

@@ -8,7 +8,7 @@ The user pasted a short prompt and the package is now in `utils/` of the project
 
 ## 1. Setup (ASK at most twice, then act)
 
-Check silently: `python3 --version`, `lake --version`, `agda --version`, `git --version`, `code --version`; whether you can write files, run commands, start sub-agents, reach the network. Do not interview the user about tools they have not mentioned. The only questions are the two below, in one message, each with your recommendation: (1) permission to install what is missing and would help; (2) only if Agda is installed too: "Use Lean (recommended) or Agda for the formal checks?"
+Check silently: `python3 --version`, `lake --version`, `git --version`, `code --version`; whether you can write files, run commands, start sub-agents, reach the network. Do not interview the user about tools they have not mentioned. The only question, with your recommendation: permission to install what is missing and would help.
 
 For anything missing that would help, ask permission before installing (say what it is, what for, how big). Never run an installer without a yes. If declined, go on and say what it means:
 
@@ -16,20 +16,19 @@ For anything missing that would help, ask permission before installing (say what
 |---|---|---|
 | Python 3 | everything scripted | nothing useful: stop, help install |
 | Lean 4 (`lake`) | machine-checked proofs | all else: results come from Python runs, people, papers and LLM judgments, each labelled as such, never `lean` (no-Lean mode) |
-| a proof assistant at all | machine-checked proofs | same no-proof mode; if Agda is installed but Lean is not, use Agda (`linglab agda`) |
 | sub-agents | parallel work | same work, one task at a time |
 | write access | the project | nothing: say so and stop |
 | network | downloading papers | papers the user drops in `literature/` |
 | git | history | everything |
 | VS Code | side-by-side view | everything (any browser opens the page) |
 
-**Proof system.** Lean is the default (it is what linglib uses). Only if Agda is installed too, ask once whether the user would prefer Agda; if Agda is not installed, do not mention it. The first time you formalize in Lean, run `python3 utils/bin/linglab.py lean --init`: it creates `lean/` with the interface only (a worked example is in `utils/example/lean/`). **Linglib mode:** when the topic is covered by linglib and the user wants Lean-checked cells, use `lean --init --linglib` instead: the workspace then depends on linglib, so its formalized theories are wrapped as adapters instead of re-implemented (`utils/extras/linglib/README.md`). Nothing is downloaded by that command. Before running `lake update`, tell the user: the project's Lean version becomes linglib's, the first fetch is about 2 GB to download (about 7 GB on disk, 5 to 20 minutes), and linglib is AI-assisted and may contain errors; ask permission, and if a Mathlib checkout at the same revision already exists on the machine, offer to copy it to skip the download. The user can ask for a different proof system at any time (it is one of the things they can ask for); `linglab agda --init` sets up an Agda workspace (from `extras/agda`) and results appear as entries of kind `agda`, ranked just below `lean`. For any other proof assistant, `docs/INTERFACE.md` is the language-neutral specification of what to implement and how results are read.
+**Proof system.** Lean (it is what linglib uses). The first time you formalize in Lean, run `python3 utils/bin/linglab.py lean --init`: it creates `lean/` with the interface only (a worked example is in `utils/example/lean/`). **Linglib mode:** when the topic is covered by linglib and the user wants Lean-checked cells, use `lean --init --linglib` instead: the workspace then depends on linglib, so its formalized theories are wrapped as adapters instead of re-implemented (`utils/extras/linglib/README.md`). Nothing is downloaded by that command. Before running `lake update`, tell the user: the project's Lean version becomes linglib's, the first fetch is about 2 GB to download (about 7 GB on disk, 5 to 20 minutes), and linglib is AI-assisted and may contain errors; ask permission, and if a Mathlib checkout at the same revision already exists on the machine, offer to copy it to skip the download. The user can ask for a different proof system at any time (it is one of the things they can ask for): `docs/INTERFACE.md` is the language-neutral specification of what to implement and how results are read.
 
 Say which capabilities are on. Record them in `brief.md` under "Decisions" (with who decided), together with which assistant and model you are (and its version if you know it), so that results can be traced to what produced them; add a line there if the assistant or model changes later. Do not repeat the interview unless something changes.
 
 ## 2. Create the project and the page
 
-Check that `utils/BOOTSTRAP.md` exists (the zip holds one folder called `linglab`: if you find `utils/linglab/`, move its contents up so that `utils/BOOTSTRAP.md` exists). Run `python3 utils/bin/linglab.py init <Name>` (add `--git` only if wanted) in the project folder. Then run `python3 utils/bin/linglab.py report` right away. Tell the user to open `report/index.html` (give the full path) in a browser, beside the chat. It is mostly empty now; say so.
+Check that `utils/BOOTSTRAP.md` exists (the zip holds one folder called `linglab`: if you find `utils/linglab/`, move its contents up so that `utils/BOOTSTRAP.md` exists). Run `python3 utils/bin/linglab.py init <Name>` (add `--git` only if wanted; add `--claude-skills` when running in Claude Code) in the project folder. Then run `python3 utils/bin/linglab.py report` right away. Tell the user to open `report/index.html` (give the full path) in a browser, beside the chat. It is mostly empty now; say so.
 
 Say the **two interfaces** message, shortly: the chat is the input, the page is the output; the page is rebuilt after each step (reload it); the user can change the page itself by asking; ask anything, any time. Point to the Guide tab. Explain the labels: pass/fail/pending/out of scope; kinds lean/python/human/paper-claim/user-claim/llm-judged; confidence; contested.
 
@@ -75,6 +74,10 @@ Pick the move that fits (`moves/README.md`). After adding or changing facts or p
 
 This package was written with one assistant's conventions in mind (a `CLAUDE.md` instructions file, `.claude/skills/`, sub-agents, named tools). You may be a different assistant. Translate silently, without asking the user: use your own project-instructions mechanism (`AGENTS.md` is read by several assistants; others use rules files), your own way of loading reusable instructions (or just open the playbooks in `utils/moves/` when needed), your own sub-agent or background mechanism (or work serially), and your own file and shell tools. Nothing in the package requires a particular assistant: it needs file access and commands. If something does not translate, say so briefly and do the closest thing.
 
-## 7b. Skills folder
+## 7b. Optional skills
 
-The playbooks are plain markdown in `utils/moves/`. If your harness loads skills from a folder (for example `.claude/skills/`), copy them there. Otherwise open them on demand. Do not ask the user about this.
+The playbooks in `utils/moves/` are the source and work with any assistant. Open the relevant playbook when its situation comes up; no skill loader is required.
+
+In Claude Code, use `init --claude-skills` when creating a project, or run `python3 utils/bin/linglab.py skills` in an existing project. This installs copies in `.claude/skills/<name>/SKILL.md`. After replacing `utils/`, the same `skills` command refreshes installed copies; `check` warns if they are stale. Only toolkit-managed copies are retired; unrelated skills are preserved.
+
+For other assistants, leave these optional copies uninstalled and continue through `AGENTS.md` and `utils/moves/`, or adapt the playbooks to that assistant's own skill mechanism.

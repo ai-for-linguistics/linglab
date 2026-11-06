@@ -1,24 +1,18 @@
 """Static scan of proof files for things that make a green build untrustworthy.
 
-Lean: `sorry`, `axiom` declarations. Agda: `postulate`, interaction holes `{! ... !}`,
-`TERMINATING` / `NON_TERMINATING` pragmas. Comments and string literals are ignored."""
+Lean: `sorry`, `axiom` declarations. Comments and string literals are ignored."""
 import glob
 import os
 import re
 
 
-def blank(text, line_comment, nested_open="/-", nested_close="-/", keep_pragmas=False, agda=False):
+def blank(text, line_comment, nested_open="/-", nested_close="-/"):
     """Return `text` with comments and string literals replaced by spaces (newlines kept, so
-    line numbers stay valid). With keep_pragmas, `{-# ... #-}` is kept as code (Agda)."""
+    line numbers stay valid)."""
     out, i, n = [], 0, len(text)
     while i < n:
         c = text[i]
-        if keep_pragmas and text.startswith("{-#", i):
-            j = text.find("#-}", i)
-            j = n if j < 0 else j + 3
-            out.append(text[i:j])
-            i = j
-        elif text.startswith(nested_open, i):
+        if text.startswith(nested_open, i):
             depth, j = 1, i + len(nested_open)
             while j < n and depth:
                 if text.startswith(nested_open, j):
@@ -31,8 +25,7 @@ def blank(text, line_comment, nested_open="/-", nested_close="-/", keep_pragmas=
                     j += 1
             out.append(re.sub(r"[^\n]", " ", text[i:j]))
             i = j
-        elif text.startswith(line_comment, i) and (
-                not agda or (i + 2 >= n or text[i + 2].isspace()) and (i == 0 or text[i - 1].isspace())):
+        elif text.startswith(line_comment, i):
             j = text.find("\n", i)
             j = n if j < 0 else j
             out.append(" " * (j - i))
@@ -51,9 +44,6 @@ def blank(text, line_comment, nested_open="/-", nested_close="-/", keep_pragmas=
 
 
 LEAN_BAD = [(re.compile(r"\bsorry\b"), "sorry"), (re.compile(r"\baxiom\b"), "axiom")]
-AGDA_BAD = [(re.compile(r"\bpostulate\b"), "postulate"), (re.compile(r"\{!"), "interaction hole {! !}"),
-            (re.compile(r"\bNON_TERMINATING\b"), "NON_TERMINATING pragma"),
-            (re.compile(r"\bTERMINATING\b"), "TERMINATING pragma")]
 
 
 def _scan(root, folder, ext, skip, bad, **kw):
@@ -73,8 +63,3 @@ def _scan(root, folder, ext, skip, bad, **kw):
 def scan_lean(root):
     """-> ["lean/File.lean:12: sorry", ...]"""
     return _scan(root, "lean", ".lean", (".lake",), LEAN_BAD, line_comment="--")
-
-
-def scan_agda(root):
-    return _scan(root, "agda", ".agda", ("_build", ".git"), AGDA_BAD, line_comment="--",
-                 nested_open="{-", nested_close="-}", keep_pragmas=True, agda=True)

@@ -1,3 +1,8 @@
+---
+name: linglab-make-a-view
+description: "Build a custom view of a linglab project's data: a changed report page, a table, plot or tab, or another format (slides, a LaTeX note, a handout, a CSV) under custom/. Use when the user wants to see the data differently from the default report."
+---
+
 # make-a-view
 
 **Use when** the user wants a different table, plot, tab, or a document: slides, a LaTeX note, a handout, a CSV.

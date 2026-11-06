@@ -53,6 +53,12 @@ A conflict means two results of the same strength disagree. A warning means a we
 - If costs worry you: "What would this cost in compute and tokens?" before you say go.
 - Nothing is published or shared unless you say so.
 
+## Optional Claude Code skills
+
+The toolkit works with any assistant that can read files and run commands. The playbooks in `utils/moves/` remain plain Markdown; a skill loader is not required.
+
+In Claude Code, ask the assistant to run `python3 utils/bin/linglab.py skills`. New projects can use `init --claude-skills`. Run `skills` again after updating the toolkit to refresh its copies; unrelated skills are preserved.
+
 ## Stop and resume
 
 Stop whenever you like. Everything is in the folder. Later, open the assistant in the project folder and say: "Read utils/BOOTSTRAP.md". `AGENTS.md` and `CLAUDE.md` in the folder do this automatically in most assistants.

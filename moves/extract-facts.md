@@ -1,3 +1,8 @@
+---
+name: linglab-extract-facts
+description: "Turn the data in a paper (judgments, examples, claims about data) into facts in a linglab project's data/statements.json, with spec, expected outcome, confidence and page-and-quote origins. Use when a paper in literature/ contains examples or judgments that should become rows of the matrix."
+---
+
 # extract-facts
 
 **Use when** a paper (target, data or background) contains judgments, examples or claims about data.

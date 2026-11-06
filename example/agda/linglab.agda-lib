@@ -1,3 +1,0 @@
-name: linglab
-include: .
-flags: --safe --without-K

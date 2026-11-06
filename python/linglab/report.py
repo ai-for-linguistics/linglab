@@ -6,7 +6,7 @@ import re
 import textwrap
 
 from .common import load_project, TOOLKIT, facts_of
-from . import metrics, leancmd, agdacmd, latex
+from . import metrics, leancmd, latex
 
 MAX_SNIPPET = 12
 
@@ -166,8 +166,7 @@ def _chunk_text(lines):
 def principle_code(root):
     res = {}
     for lang, sub, ext, skip in (("python", "python", ".py", ("__pycache__",)),
-                                 ("lean", "lean", ".lean", (".lake",)),
-                                 ("agda", "agda", ".agda", ("_build",))):
+                                 ("lean", "lean", ".lean", (".lake",))):
         tag = metrics.PY_TAG if lang == "python" else metrics.LEAN_TAG
         for p in _files(root, sub, ext, skip):
             try:
@@ -181,7 +180,7 @@ def principle_code(root):
     return res
 
 
-def _snippet(lines, i, lang):
+def _snippet(lines, i):
     first = lines[i]
     ind = len(first) - len(first.lstrip())
     out = [first.rstrip()]
@@ -189,53 +188,43 @@ def _snippet(lines, i, lang):
         if not l.strip() or len(out) >= MAX_SNIPPET:
             break
         cur = len(l) - len(l.lstrip())
-        if lang == "lean" and cur <= ind:
-            break
-        if lang == "agda" and cur <= ind and not re.match(r"\s*F\d+[A-Za-z]*?(_fail)?\s+=", l):
+        if cur <= ind:
             break
         out.append(l.rstrip())
     return textwrap.dedent("\n".join(out))
 
 
 def fact_code(root, d):
-    """-> {fact id: {spec_text, lean: [{theory, text}], agda: [...]}}"""
+    """-> {fact id: {spec_text, lean: [{theory, text}]}}"""
     res = {}
     theories = {t["id"].replace("-", "_"): t["id"] for t in d["theories"]}
     for f in facts_of(d["statements"]):
-        res[f["id"]] = {"spec_text": spec_text(f), "lean": [], "agda": []}
+        res[f["id"]] = {"spec_text": spec_text(f), "lean": []}
         na = latex.notation_auto(f)
         if na:
             res[f["id"]]["notation_auto"] = na
-    for lang, sub, ext, skip, scan in (
-            ("lean", "lean", ".lean", (".lake",), "ns"), ("agda", "agda", ".agda", agdacmd.SKIP_DIRS, "mod")):
-        for p in _files(root, sub, ext, skip):
-            try:
-                lines = open(p, encoding="utf-8").read().splitlines()
-            except (OSError, UnicodeDecodeError):
+    for p in _files(root, "lean", ".lean", (".lake",)):
+        try:
+            lines = open(p, encoding="utf-8").read().splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+        ctx = []
+        for i, line in enumerate(lines):
+            if line.lstrip().startswith("--"):
                 continue
-            ctx = []
-            for i, line in enumerate(lines):
-                if line.lstrip().startswith("--"):
-                    continue
-                if lang == "lean":
-                    m = leancmd.NS.match(line)
-                    if m:
-                        ctx.append(m.group(1)); continue
-                    m = leancmd.END.match(line)
-                    if m and ctx and ctx[-1] == m.group(1):
-                        ctx.pop(); continue
-                    m = leancmd.THM.match(line)
-                else:
-                    m = agdacmd.MOD.match(line)
-                    if m:
-                        ctx = [m.group(1).split(".")[-1]]; continue
-                    m = agdacmd.SIG.match(line)
-                if not m or not ctx or m.group(1) not in res:
-                    continue
-                tid = theories.get(ctx[-1].split(".")[-1])
-                if tid is None:
-                    continue
-                res[m.group(1)][lang].append({"theory": tid, "text": _snippet(lines, i, lang)})
+            m = leancmd.NS.match(line)
+            if m:
+                ctx.append(m.group(1)); continue
+            m = leancmd.END.match(line)
+            if m and ctx and ctx[-1] == m.group(1):
+                ctx.pop(); continue
+            m = leancmd.THM.match(line)
+            if not m or not ctx or m.group(1) not in res:
+                continue
+            tid = theories.get(ctx[-1].split(".")[-1])
+            if tid is None:
+                continue
+            res[m.group(1)]["lean"].append({"theory": tid, "text": _snippet(lines, i)})
     return res
 
 

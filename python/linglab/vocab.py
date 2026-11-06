@@ -20,6 +20,7 @@ or connective is (head, *args), a binder is (head, "?x", *subformulas), a predic
 _PRINCIPLES = {}      # id -> Principle
 _PROPERTIES = {}      # name -> fn(theory) -> bool
 _BASE_MODELS = []     # [fn() -> iterable of dict atom->value]
+_SCOPE = ["complete"]  # what the base models cover: "complete", or how they are bounded
 
 
 class Principle:
@@ -35,10 +36,39 @@ def principle(pid):
     return deco
 
 
-def base_models(fn):
-    """Decorator: the project's generator of candidate valuations (dicts atom -> value)."""
-    _BASE_MODELS[:] = [fn]
-    return fn
+def base_models(fn=None, *, scope="complete"):
+    """Decorator: the project's generator of candidate valuations (dicts atom -> value).
+    `scope` says what the list covers: "complete" when it contains every model the theories admit (as in a
+    propositional fragment), otherwise how it is bounded, for example @base_models(scope="domain size <= 3").
+    A verdict that depends on having seen every model is then reported as "exhaustive within <scope>"."""
+    def deco(f):
+        _BASE_MODELS[:] = [f]
+        _SCOPE[0] = scope or "complete"
+        return f
+    return deco(fn) if fn is not None else deco
+
+
+def base_scope():
+    return _SCOPE[0]
+
+
+def bound_text(scope, base="exhaustive"):
+    """"exhaustive" for a complete model list, else "exhaustive within <scope>" (same for "first n models")."""
+    return base if scope in ("", "complete") else "%s within %s" % (base, scope)
+
+
+def uses_quantifiers(s):
+    """True if a shared-syntax sentence (or a list or dict of them) has a binder or a predicate application:
+    its truth depends on a domain, which a finite model list usually bounds."""
+    if isinstance(s, dict):
+        return any(uses_quantifiers(v) for v in s.values())
+    if not isinstance(s, list) or not s:
+        return False
+    if isinstance(s[0], str):
+        if s[0] in RESERVED_BINDERS or (s[0] not in RESERVED_ARITY and all(isinstance(a, str) for a in s[1:]) and len(s) > 1):
+            return True
+        return any(uses_quantifiers(a) for a in s[1:])
+    return any(uses_quantifiers(a) for a in s)
 
 
 def property_check(name):

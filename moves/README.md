@@ -2,6 +2,8 @@
 
 Tips, not procedures. Open one when its situation comes up. Each has: when to use it, what to read, what to produce, pitfalls, a prompt the user can paste.
 
+A playbook that starts with skill frontmatter (`name: linglab-<file name>`, and a `description` saying what it does and when to use it) can be installed with `linglab init --claude-skills` or `linglab skills` as a Claude Code skill (`.claude/skills/<name>/SKILL.md` in the project); `linglab skills` refreshes the installed copies after the toolkit is replaced. Give a new playbook frontmatter unless it is not a situation-triggered procedure (like this index and `possibilities.md`). Inside a playbook, refer to another one by its path from the project root (`utils/moves/prove.md`): the installed copies live elsewhere.
+
 - `extract-facts.md`: data from a paper into facts.
 - `extract-principles-and-theories.md`: a paper's assumptions into principles and theories.
 - `propose-principles.md`: new or repaired principles, compression.

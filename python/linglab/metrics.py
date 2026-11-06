@@ -49,11 +49,6 @@ def strip_lean(lines):
     return [re.sub(r"--.*$", "", l).rstrip() for l in text.splitlines()]
 
 
-def strip_agda(lines):
-    text = re.sub(r"\{-.*?-\}", "", "\n".join(lines), flags=re.S)
-    return [re.sub(r"(^|\s)--(\s.*)?$", "", l).rstrip() for l in text.splitlines()]
-
-
 def measure(lines):
     text = "\n".join(l for l in lines if l.strip())
     return {"chars": len(text), "words": len(text.split()), "lines": len([l for l in lines if l.strip()]),
@@ -78,24 +73,12 @@ def collect(root):
     return py, lean
 
 
-def collect_agda(root):
-    """-> {file stem: {pid: lines}} for the tagged chunks of agda/**/*.agda (optional workspace)."""
-    agda = {}
-    for p in sorted(glob.glob(os.path.join(root, "agda", "**", "*.agda"), recursive=True)):
-        if "_build" in p.split(os.sep):
-            continue
-        stem = os.path.splitext(os.path.basename(p))[0]
-        for pid, ls in chunks(p, LEAN_TAG).items():  # same `-- BEGIN principle:` tag
-            agda.setdefault(stem, {}).setdefault(pid, []).extend(strip_agda(ls))
-    return agda
-
-
-def theory_metrics(t, py, lean, no_aux_ids, agda=None):
+def theory_metrics(t, py, lean, no_aux_ids):
     """Per-principle and total sizes for theory t. Lean chunks come from the file named
     after the theory (T-MK -> T_MK.lean); a principle with no chunk there falls back to
     a chunk of the same id in any other file."""
     stem = t["id"].replace("-", "_")
-    res, tot = {}, {"python": [], "lean": [], "agda": []}
+    res, tot = {}, {"python": [], "lean": []}
     for pid in t.get("principles", []):
         r = {}
         if pid in py:
@@ -107,12 +90,6 @@ def theory_metrics(t, py, lean, no_aux_ids, agda=None):
         if lc is not None:
             r["lean"] = measure(lc)
             tot["lean"] += lc
-        ac = (agda or {}).get(stem, {}).get(pid)
-        if ac is None:
-            ac = next((c[pid] for s, c in sorted((agda or {}).items()) if pid in c), None)
-        if ac is not None:
-            r["agda"] = measure(ac)
-            tot["agda"] += ac
         res[pid] = r
     total = {k: measure(v) for k, v in tot.items() if v}
     ids = t.get("principles", [])
@@ -120,7 +97,7 @@ def theory_metrics(t, py, lean, no_aux_ids, agda=None):
             "n_principles_no_aux": len([i for i in ids if i not in no_aux_ids])}
 
 
-def raw_metrics(root, d, lean, agda=None):
+def raw_metrics(root, d, lean):
     """Raw Facts: python = the facts' claims serialized (what a listing must state);
     lean = chunks tagged principle:RAW if the Lean workspace has them."""
     facts = [s for s in d["statements"] if s.get("role") == "fact"]
@@ -130,9 +107,6 @@ def raw_metrics(root, d, lean, agda=None):
     rl = [l for c in lean.values() for l in c.get("RAW", [])]
     if rl:
         r["total"]["lean"] = measure(rl)
-    ra = [l for c in (agda or {}).values() for l in c.get("RAW", [])]
-    if ra:
-        r["total"]["agda"] = measure(ra)
     return r
 
 
@@ -140,10 +114,9 @@ def write_metrics(root="."):
     d = load_project(root)
     py, lean = collect(root)
     aux = {s["id"] for s in d["statements"] if s.get("auxiliary")}
-    agda = collect_agda(root)
-    out = {"theories": {}, "raw": raw_metrics(root, d, lean, agda)}
+    out = {"theories": {}, "raw": raw_metrics(root, d, lean)}
     for t in d["theories"]:
         if not t.get("generated"):
-            out["theories"][t["id"]] = theory_metrics(t, py, lean, aux, agda)
+            out["theories"][t["id"]] = theory_metrics(t, py, lean, aux)
     write_json(os.path.join(root, "data", "metrics.json"), out)
     return out

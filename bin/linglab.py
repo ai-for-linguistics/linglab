@@ -9,7 +9,7 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "python"))
 
-from linglab import agdacmd, check, init, leancmd, listing, metrics, report, runcmd, zipper  # noqa: E402
+from linglab import check, init, leancmd, listing, metrics, report, runcmd, zipper  # noqa: E402
 
 
 def main(argv=None):
@@ -18,7 +18,9 @@ def main(argv=None):
     p = sub.add_parser("init", help="create a project in the current folder")
     p.add_argument("name")
     p.add_argument("--git", action="store_true")
+    p.add_argument("--claude-skills", action="store_true", help="also install optional Claude Code playbook skills")
     sub.add_parser("check", help="validate data files")
+    sub.add_parser("skills", help="install or refresh the playbooks as Claude Code skills (.claude/skills/)")
     p = sub.add_parser("run", help="run the Python checker")
     p.add_argument("--theory")
     p.add_argument("--fact")
@@ -28,9 +30,6 @@ def main(argv=None):
     p.add_argument("--build-only", action="store_true")
     p.add_argument("--init", action="store_true", help="copy the toolkit's Lean workspace into lean/ of the project (first use)")
     p.add_argument("--linglib", action="store_true", help="with --init: linglib mode (depend on linglib; asks nothing, downloads nothing)")
-    p = sub.add_parser("agda", help="(optional) typecheck agda/ and record theorems as entries")
-    p.add_argument("--build-only", action="store_true")
-    p.add_argument("--init", action="store_true", help="copy the toolkit's Agda workspace into agda/ of the project (first use)")
     sub.add_parser("metrics", help="measure tagged principle chunks")
     sub.add_parser("listing", help="build Raw Facts")
     p = sub.add_parser("report", help="build report/index.html")
@@ -41,19 +40,17 @@ def main(argv=None):
     a = ap.parse_args(argv)
     root = "."
     if a.cmd == "init":
-        return init.init_project(a.name, root, a.git)
+        return init.init_project(a.name, root, a.git, claude_skills=a.claude_skills)
     if a.cmd == "check":
         return check.run_check(root)
+    if a.cmd == "skills":
+        return init.update_skills(root)
     if a.cmd == "run":
         return runcmd.run_project(root, a.theory, a.fact, a.bound, a.force)
     if a.cmd == "lean":
         if a.init:
             return leancmd.init_lean(root, linglib=a.linglib)
         return leancmd.run_lean(root, a.build_only)
-    if a.cmd == "agda":
-        if a.init:
-            return agdacmd.init_agda(root)
-        return agdacmd.run_agda(root, a.build_only)
     if a.cmd == "metrics":
         metrics.write_metrics(root)
         print("wrote data/metrics.json")

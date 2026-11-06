@@ -6,7 +6,7 @@ import datetime
 TOOLKIT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 DEFAULT_REGISTRY = {
-    "ladder": ["lean", "agda", "python", "human", "paper-claim", "user-claim", "llm-judged"],
+    "ladder": ["lean", "python", "human", "paper-claim", "user-claim", "llm-judged"],
     "outcomes": ["pass", "fail", "pending", "out_of_scope"],
     "fact_types": ["entailment", "felicity", "truth", "preference", "consistency", "property", "other"],
     "coverage_metrics": [], "size_metrics": [], "views": [],

@@ -17,9 +17,13 @@ structure Theory where
   name : String
   /-- the theory's own formulas -/
   Form : Type
-  /-- the models (a complete finite list; model constraints are already applied) -/
+  /-- the models (a finite list; model constraints are already applied; see `scope`) -/
   Model : Type
   models : List Model
+  /-- what `models` covers: "complete" when it is every model the theory admits (a propositional
+  fragment), otherwise how it is bounded, for example "domain size ≤ 3". A verdict over a bounded
+  list is a computation within that bound, not a general proof; `linglab lean` records it so. -/
+  scope : String := "complete"
   /-- shared syntax -> own formula; `none` = not expressible -/
   translate : S → Option Form
   /-- the formula is true in the model -/

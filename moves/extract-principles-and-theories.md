@@ -1,3 +1,8 @@
+---
+name: linglab-extract-principles-and-theories
+description: "Turn a paper's assumptions into principles of a linglab project (words, LaTeX notation, tagged code chunks, readback checks) and its theory into a column, with the fragment it is stated over. Use when a paper proposes or assumes a theory that should become a column in data/theories.json."
+---
+
 # extract-principles-and-theories
 
 **Use when** a paper proposes or assumes a theory, and you want it as a column.

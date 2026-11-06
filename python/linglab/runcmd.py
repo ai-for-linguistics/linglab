@@ -23,15 +23,18 @@ def principle_code(root):
     return {k: "\n".join(v) for k, v in code.items()}
 
 
-def cell_digest(fact, theory, code, bound):
+def cell_digest(fact, theory, code, bound, scope="complete"):
     """sha1 of everything a runner entry depends on: the fact's claim, the theory's ordered principles,
-    their Python code and the bound. A cell is recomputed when its digest differs (stored as `digest`)."""
+    their Python code, the bound and the declared scope of the base models. A cell is recomputed when its
+    digest differs (stored as `digest`)."""
     payload = {"type": fact.get("type"), "spec": fact.get("spec"), "expected": fact.get("expected", "holds"),
                "context": fact.get("context"), "parses": fact.get("parses"), "uses": fact.get("uses"),
                "theory_cfg": {k: theory.get(k) for k in ("predicts", "primitives", "parse_policy")},
                "picks": (theory.get("picks") or {}).get(fact.get("id")), "principles": list(theory.get("principles", [])),
                "code": [code.get(p, "") for p in theory.get("principles", [])],
                "bound": bound if bound is not None else ""}
+    if scope != "complete":                 # only when declared, so that existing digests stay valid
+        payload["scope"] = scope
     return hashlib.sha1(json.dumps(payload, sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()
 
 
@@ -40,6 +43,7 @@ def load_principles(root):
     if not os.path.exists(path):
         return None
     vocab._PRINCIPLES.clear()
+    vocab._SCOPE[0] = "complete"
     spec = importlib.util.spec_from_file_location("project_principles", path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
@@ -65,10 +69,16 @@ def run_project(root=".", theory=None, fact=None, bound=None, force=False, out=p
     have = {(e["fact"], e["theory"]): e.get("digest") for e in results
             if e["kind"] == "python" and e.get("who") == "runner" and e["outcome"] != "pending"}
     n_new = 0
+    scope = vocab.base_scope()
+    quant = [f["id"] for f in facts if vocab.uses_quantifiers([f.get("spec")] + [x.get("spec") for x in f.get("parses") or []])]
+    if scope == "complete" and quant:
+        out("warning: facts %s use quantifiers or predicates, but @base_models declares no scope, so their verdicts are "
+            "reported as exhaustive. If the models bound the domain, say so: @base_models(scope=\"domain size <= 3\")"
+            % ", ".join(quant[:5]) + (" ..." if len(quant) > 5 else ""))
     for t in d["theories"]:
         if t.get("generated") or theory not in (None, t["id"]):
             continue
-        digests = {f["id"]: cell_digest(f, t, code, bound) for f in facts}
+        digests = {f["id"]: cell_digest(f, t, code, bound, scope) for f in facts}
         # a cell is skipped only when its stored digest equals the current one (no digest = stale)
         pend = [f for f in facts if force or have.get((f["id"], t["id"])) != digests[f["id"]]]
         if not pend:
@@ -91,7 +101,8 @@ def run_project(root=".", theory=None, fact=None, bound=None, force=False, out=p
     write_json(os.path.join(root, "data", "results.json"),
                sort_results(results, d["statements"], d["theories"]))
     metrics.write_metrics(root)
-    s = pooling.summary(d["statements"], d["theories"], results, d["registry"]["ladder"])
+    s = pooling.summary(d["statements"], d["theories"], results, d["registry"]["ladder"],
+                        computed=d["registry"].get("computed_kinds"))
     for tid, c in s.items():
         out("  %-10s passed %d / applicable %d (of %d facts)" % (tid, c["passed"], c["applicable"], c["total"]))
     return 0

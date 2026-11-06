@@ -1,3 +1,8 @@
+---
+name: linglab-review-a-paper
+description: "Review whether a paper's theory is as claimed, in a linglab formalization: translation sheet, worked examples, an independent critic, Literal and Corrected versions, its theorems, all facts, ablation of its principles. Use when the user wants a paper's theory checked or audited."
+---
+
 # review-a-paper
 
 **Use when** the user wants to know whether a paper's theory is as claimed, in our formalization.

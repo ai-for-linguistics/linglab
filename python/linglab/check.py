@@ -184,6 +184,21 @@ def check_display_options(meta, reg, ladder, E):
             E("custom/registry.json", "proof_kinds", "must be a list of kinds of the ladder")
 
 
+def check_skills(root, W):
+    """Warn when installed linglab skills no longer match utils/moves/ (the toolkit was replaced). Projects
+    without installed linglab skills are not warned: they may use another assistant."""
+    from .init import skills_status, MANAGED_SKILLS
+    sk = os.path.join(root, ".claude", "skills")
+    if not os.path.isfile(os.path.join(sk, MANAGED_SKILLS)):
+        return
+    stale, missing, removed = skills_status(root)
+    parts = ["%s: %s" % (k, ", ".join(v)) for k, v in (("outdated", stale), ("missing", missing),
+                                                      ("no longer in the toolkit", removed)) if v]
+    if parts:
+        W(".claude/skills", "-", "skills do not match utils/moves/ (%s): run `python3 utils/bin/linglab.py skills`"
+          % "; ".join(parts))
+
+
 def run_check(root=".", out=print):
     d = load_project(root)
     errors, warnings = [], []
@@ -427,8 +442,8 @@ def run_check(root=".", out=print):
         if e.get("kind") == "paper-claim" and e.get("presence") not in (None, "") + tuple(PRESENCE):
             E("data/results.json", w, "presence %r unknown" % e.get("presence"))
         b = e.get("bound", "")
-        if b and not re.match(r"^(exhaustive|first \d+ models|size<=\d+)$", b):
-            E("data/results.json", w, "bound %r must be exhaustive or first n models" % b)
+        if b and not re.match(r"^(exhaustive|first \d+ models|size<=\d+)( within .+)?$", b):
+            E("data/results.json", w, "bound %r must be exhaustive or first n models (optionally followed by 'within <scope>')" % b)
     for r in d["findings"]:
         i = r.get("id", "?")
         if r.get("status") not in FINDING_STATUS:
@@ -452,6 +467,7 @@ def run_check(root=".", out=print):
         if (r.get("fact"), r.get("theory")) in seen_rd:
             E("data/readings.json", w, "two readings for the same cell")
         seen_rd.add((r.get("fact"), r.get("theory")))
+    check_skills(root, W)
     # informational summaries (not warnings, one line each)
     infos = []
     pr = [s for s in st if s.get("role") == "principle"]
@@ -459,7 +475,8 @@ def run_check(root=".", out=print):
     no_code = [s["id"] for s in pr if not any((s.get("code") or {}).values())]
     real = [t for t in th if not t.get("generated")]
     no_fr = [t.get("id", "?") for t in real if not t.get("fragments")]
-    formal = {e.get("fact") for e in d["results"] if e.get("kind") in ("lean", "agda")}
+    proof_kinds = d["registry"].get("proof_kinds") or ["lean"]
+    formal = {e.get("fact") for e in d["results"] if e.get("kind") in proof_kinds}
     no_rb = [s["id"] for s in st if s.get("role") == "fact" and s.get("id") in formal
              and not any(isinstance(c, dict) and c.get("what") == "readback" for c in s.get("checks") or [])]
     for n, ids_, msg in ((len(no_not), no_not, "principle(s) without notation"),

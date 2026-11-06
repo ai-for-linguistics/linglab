@@ -16,4 +16,6 @@ Bring a question, some papers, or your own judgments. The assistant organizes fa
 
 Use an assistant that can read and write files and run commands. Its usual credits or API costs apply. AI results can be wrong and can vary between runs: check translations and evidence before drawing conclusions.
 
+Claude Code users can also install the playbooks as optional skills; other assistants use the same plain instructions. See the [guide](GUIDE.md).
+
 [Guide](GUIDE.md) · [Worked example](example/) · [Contributing](CONTRIBUTING.md) · [Contributors](AUTHORS.md) · [MIT license](LICENSE)
