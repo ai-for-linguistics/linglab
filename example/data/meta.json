@@ -1,0 +1,21 @@
+{
+  "title": "Presupposition projection, toy",
+  "question": "Which small combination of connective tables and a felicity notion accounts for the toy filtering facts with the fewest principles?",
+  "scope": "Propositional fragment with one presupposition trigger (a, presupposing s). Three-valued models. No quantifiers, no context update.",
+  "suggestions": ["Add a Weak Kleene disjunction and see which facts T-WK gains.", "Add a fact separating Middle Kleene from a symmetric theory."],
+  "goals": ["Compare Strong, Weak and Middle Kleene on the filtering facts.", "Show the pending, out of scope and conflict states."],
+  "papers": [
+    {"id": "Kleene 1952", "title": "Introduction to Metamathematics", "role": "background", "have": false, "note": "Source of the Strong and Weak Kleene tables."},
+    {"id": "Peters 1979", "title": "A truth-conditional formulation of Karttunen's account of presupposition", "role": "proposal", "have": false, "note": "Middle Kleene, left to right."},
+    {"id": "Beaver and Krahmer 2001", "title": "A partial account of presupposition projection", "role": "target", "have": false, "note": "Comparison of the trivalent accounts."}
+  ],
+  "params": [
+    {"id": "consequence", "name": "Consequence relation", "options": ["truth-preserving", "strict-tolerant"], "chosen": "truth-preserving", "note": "Entailment is checked as truth preservation (P-ENT-T)."}
+  ],
+  "paper": {"title": "A partial account of presupposition projection", "authors": "Beaver, Krahmer", "year": 2001, "url": ""},
+  "fact_kinds": {"felicity": "Felicity: filtering", "entailment": "Entailment", "consistency": "Consistency", "truth": "Truth conditions", "other": "Open questions", "preference": "Preference between readings"},
+  "theory_kinds": {"original": "Source", "fix": "Modified", "creative": "New"},
+  "takeaways": [],
+  "limits": ["Toy fragment: results say nothing about real presupposition data.", "Preference facts are not implemented in the beta runner."],
+  "updated": "2026-10-09"
+}

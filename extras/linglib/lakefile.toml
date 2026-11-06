@@ -1,0 +1,11 @@
+name = "linglab"
+defaultTargets = ["Linglab"]
+
+[[require]]
+name = "linglib"
+git = "https://github.com/linglib-community/linglib"
+rev = "v4.34.0"
+
+[[lean_lib]]
+name = "Linglab"
+globs = ["Linglab.Syntax", "Linglab.Theory", "Linglab.Theories.+"]

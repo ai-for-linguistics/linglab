@@ -1,0 +1,21 @@
+{
+  "ladder": ["lean", "agda", "python", "human", "paper-claim", "user-claim", "llm-judged"],
+  "outcomes": ["pass", "fail", "pending", "out_of_scope"],
+  "fact_types": ["entailment", "felicity", "truth", "preference", "consistency", "property", "other"],
+  "layers": [{"id": "core", "name": "Core facts"}, {"id": "disputed", "name": "Disputed facts"}],
+  "coverage_metrics": [
+    {"id": "passed", "name": "Facts passed", "note": "number of facts with displayed pass"},
+    {"id": "passed_over_applicable", "name": "Passed / applicable", "note": "out of scope facts are not counted as applicable"},
+    {"id": "confidence_weighted", "name": "Confidence-weighted", "note": "each passed fact counts its confidence"}
+  ],
+  "size_metrics": [
+    {"id": "n_principles", "name": "Principles", "note": "number of principles"},
+    {"id": "n_principles_no_aux", "name": "Principles without auxiliary", "note": ""},
+    {"id": "python_chars", "name": "Python characters", "note": "tagged chunks, comments and blanks stripped"},
+    {"id": "python_gzip", "name": "Python gzip bytes", "note": ""},
+    {"id": "lean_chars", "name": "Lean characters", "note": "tagged chunks, comments and blanks stripped"},
+    {"id": "lean_gzip", "name": "Lean gzip bytes", "note": ""},
+    {"id": "agda_chars", "name": "Agda characters", "note": "tagged chunks, comments and blanks stripped (optional)"},
+    {"id": "agda_gzip", "name": "Agda gzip bytes", "note": ""}
+  ]
+}

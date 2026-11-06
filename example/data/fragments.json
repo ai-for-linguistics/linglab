@@ -1,0 +1,90 @@
+[
+  {
+    "id": "FR-TOY",
+    "name": "Toy presupposition fragment",
+    "summary": "Sentences are built from the atoms s (there is a king), p, q and a (the king is bald) with not, and, or. A model gives each atom a value true, false or undefined; a is undefined exactly when there is no king. All four theories of this project share this fragment and differ only in the connective tables and the felicity notion.",
+    "notation": "\\mathcal{L} ::= s \\mid p \\mid q \\mid a \\mid \\neg\\mathcal{L} \\mid \\mathcal{L}\\land\\mathcal{L} \\mid \\mathcal{L}\\lor\\mathcal{L}",
+    "defs": [
+      {
+        "label": "values",
+        "text": "Three truth values: 1 (true), 0 (false), # (undefined).",
+        "notation": "V=\\{1,0,\\#\\}"
+      },
+      {
+        "label": "models",
+        "text": "A model assigns s, p, q a classical value and a any value in V; the auxiliary constraint keeps only models where a is undefined when s is false.",
+        "notation": "M:\\{s,p,q,a\\}\\to V,\\quad M(s),M(p),M(q)\\in\\{0,1\\}"
+      },
+      {
+        "label": "connectives",
+        "text": "not, and, or are interpreted by a truth table fixed by the theory (strong, weak or middle Kleene).",
+        "notation": "\\llbracket\\neg\\rrbracket,\\llbracket\\land\\rrbracket,\\llbracket\\lor\\rrbracket : V^k\\to V"
+      }
+    ],
+    "files": {
+      "python": [
+        "python/principles.py"
+      ],
+      "lean": [
+        "lean/Linglab/Toy/Base.lean",
+        "lean/Linglab/Toy/Raw.lean"
+      ],
+      "agda": [
+        "agda/Linglab/Toy/Base.agda"
+      ]
+    },
+    "checks": [
+      {
+        "by": "llm",
+        "who": "assistant",
+        "when": "2026-10-09",
+        "what": "readback",
+        "verdict": "agrees",
+        "readback": "The Python generator enumerates 24 valuations of s, p, q and a, with a ranging over true, false, undefined; the auxiliary principle then removes the 12 where a is defined although there is no king.",
+        "note": "",
+        "ref": "python/principles.py"
+      }
+    ],
+    "notes": "Shared by T-SK, T-WK, T-MK and T-MK-some."
+  },
+  {
+    "id": "FR-CONSEQ",
+    "name": "Consequence and felicity notions",
+    "summary": "How a discourse is evaluated against the models of the toy fragment: entailment as truth preservation, felicity as definedness. Split from FR-TOY because the felicity notion is what the theories vary (and it could be reused with another object language).",
+    "notation": "\\Gamma\\vDash C,\\qquad \\mathrm{felic}(D)",
+    "defs": [
+      {
+        "label": "entailment",
+        "text": "The conclusion is true in every model where all premises are true.",
+        "notation": "\\Gamma\\vDash C\\iff\\forall M\\,(\\llbracket\\Gamma\\rrbracket^M=1\\Rightarrow\\llbracket C\\rrbracket^M=1)"
+      },
+      {
+        "label": "felicity",
+        "text": "A predicate on discourses, defined from definedness; the theory chooses every model or some model.",
+        "notation": "\\mathrm{felic}(D)\\ \\text{defined from}\\ \\llbracket D\\rrbracket^M\\neq\\#"
+      }
+    ],
+    "files": {
+      "python": [
+        "python/principles.py"
+      ],
+      "lean": [
+        "lean/Linglab/Theory.lean"
+      ],
+      "agda": []
+    },
+    "checks": [
+      {
+        "by": "human",
+        "who": "E. Chemla",
+        "when": "2026-10-10",
+        "what": "other",
+        "verdict": "unclear",
+        "readback": "",
+        "note": "Not sure the split from FR-TOY is the right one; kept to show a theory using two fragments.",
+        "ref": ""
+      }
+    ],
+    "notes": ""
+  }
+]

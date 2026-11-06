@@ -1,0 +1,85 @@
+[
+  {
+    "id": "R1",
+    "title": "No disjunction, no F04 and F07",
+    "text": "Every theory with P-AND-WK and no weak or other disjunction principle has no disjunction: it cannot express F04 and F07 (both use 'or'), so those cells are out of scope. This is expressibility, not failure.",
+    "status": "computed",
+    "basis": "python",
+    "principles": [
+      "P-AND-WK"
+    ],
+    "facts": [
+      "F04",
+      "F07"
+    ],
+    "evidence": "T-WK: F04 and F07 are out_of_scope in data/results.json.",
+    "note": "Adding P-OR-WK would make them testable."
+  },
+  {
+    "id": "R2",
+    "title": "Order asymmetry separates Middle Kleene from Strong Kleene",
+    "text": "With felicity as definedness everywhere, T-MK and T-WK derive the infelicity of 'a and s' (F02) while T-SK does not: Strong Kleene makes 'a and s' defined, hence felicitous.",
+    "status": "computed",
+    "basis": "python",
+    "principles": [
+      "P-AND-MK",
+      "P-AND-WK",
+      "P-AND-SK",
+      "P-FELIC-DEF"
+    ],
+    "facts": [
+      "F02"
+    ],
+    "evidence": "F02: T-MK pass, T-WK pass, T-SK fail.",
+    "note": ""
+  },
+  {
+    "id": "R3",
+    "title": "Only Middle Kleene gets both orders right",
+    "text": "Weak Kleene fails F01 (it makes 's and a' undefined when there is no king) and Strong Kleene fails F02; Middle Kleene passes both. This is the order asymmetry result in the toy fragment.",
+    "status": "computed",
+    "basis": "python",
+    "principles": [
+      "P-AND-MK"
+    ],
+    "facts": [
+      "F01",
+      "F02"
+    ],
+    "evidence": "F01: T-WK fail. F02: T-SK fail. T-MK passes both.",
+    "note": ""
+  },
+  {
+    "id": "R4",
+    "title": "Felicity somewhere is too permissive",
+    "text": "Replacing P-FELIC-DEF by P-FELIC-SOME in T-MK breaks F02 and F03: any discourse defined in some model counts as felicitous, including the bare trigger. The fix loses two facts for no gain.",
+    "status": "computed",
+    "basis": "python",
+    "principles": [
+      "P-FELIC-DEF",
+      "P-FELIC-SOME"
+    ],
+    "facts": [
+      "F02",
+      "F03"
+    ],
+    "evidence": "T-MK-some: F02 fail, F03 fail.",
+    "note": "A creative variant that did not pay off; kept as a worked example of a fix."
+  },
+  {
+    "id": "R5",
+    "title": "Excluded middle fails in every trivalent theory that can state it",
+    "text": "F07 (a or not a is not valid) holds in T-SK and T-MK because a is undefined when there is no king.",
+    "status": "computed",
+    "basis": "python",
+    "principles": [
+      "P-NEG",
+      "P-AUX-PRESUP"
+    ],
+    "facts": [
+      "F07"
+    ],
+    "evidence": "F07: T-SK, T-MK, T-MK-some pass.",
+    "note": "Depends on the auxiliary constraint P-AUX-PRESUP: without it a is a free three-valued atom, but the result also holds."
+  }
+]

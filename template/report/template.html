@@ -1,0 +1,1502 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>linglab report</title>
+<style id="katex-css">/*__KATEX_CSS__*/</style>
+<style>
+:root{color-scheme:light}
+:root{--bg:#fcfcfd;--fg:#1d2742;--mut:#5b6784;--line:#d5dbe8;--card:#ffffff;--code:#f2f4f8;--acc:#3b5bc4;--onacc:#ffffff;--ok:#2f8a57;--bad:#b5413b;--warn:#9a6700;--unk:#6b7690;--okbg:#e1f2e8;--badbg:#f9e4e2;--warnbg:#fbf0d4;--unkbg:#eceff5;--raw:#6f42c1;--rawbg:#efe8fa;--vok:#3fa34d;--vbad:#c0392b;--vamb:#e0a100;--voos:#a4acbf;--band:#fff3cf;--bandfg:#7a4e00}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.62 system-ui,-apple-system,Segoe UI,sans-serif;letter-spacing:.002em}
+a{color:var(--acc);text-decoration:none}a:hover{text-decoration:underline}
+header{padding:20px 24px 0;max-width:1320px;margin:0 auto;position:relative}
+header h1{font-size:28px;line-height:1.2;margin:0;letter-spacing:-.012em;font-weight:800;padding-right:110px}
+header .sub{color:var(--mut);margin:8px 0 14px;font-size:16px}
+header .hdr-r{position:absolute;right:24px;top:20px;display:flex;gap:10px;align-items:center;font-size:12px;color:var(--mut)}
+header .hdr-r button{font-size:12px;padding:2px 8px}
+button,select,input{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+input[type=checkbox]{padding:0}
+button{cursor:pointer}
+/* warning band: one calm pale-amber band (tracked title line that scrolls away; key sentence and caveats stay, sticky at the top), then the title, then the sticky tabs */
+#bandt{background:var(--band);color:var(--bandfg);text-align:center;font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;padding:8px 16px 2px;line-height:1.3}
+#band{position:sticky;top:0;z-index:41;background:var(--band);color:var(--fg);text-align:center;border-bottom:3px solid var(--vamb);padding:0 16px 8px}
+#band .bk{font-size:16px;font-weight:700;line-height:1.3}
+#band ul{list-style:none;margin:3px auto 0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:0 18px;font-size:12.5px;line-height:1.4;max-width:1100px;color:var(--mut)}
+#band li:before{content:'\2022';font-size:1.4em;line-height:0;vertical-align:-.1em;margin-right:6px;color:var(--vamb)}
+#top{position:sticky;top:var(--bh,0px);z-index:40;background:var(--bg)}
+nav{display:flex;gap:3px;align-items:flex-end;padding:8px 0 0;border-bottom:1px solid var(--line);overflow-x:auto;white-space:nowrap;background:var(--bg)}
+nav .navin{display:flex;gap:3px;align-items:flex-end;max-width:1320px;margin:0 auto;padding:0 24px;width:100%}
+nav a{padding:8px 15px;font-size:14.7px;border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;color:var(--mut);background:var(--code);font-weight:600}
+nav a:not(.on):hover{background:var(--card);color:var(--fg);text-decoration:none}
+nav a.on{background:var(--bg);color:var(--acc);font-weight:700;border-bottom:1px solid var(--bg);margin-bottom:-1px;text-decoration:none}
+.kicker{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);margin:22px 0 6px}
+.discl p,.discl ul{font-size:14px}
+main{padding:8px 24px 60px;max-width:1320px;margin:0 auto}
+section.tab{display:none}section.tab.on{display:block}
+h2{font-size:17px;margin:18px 0 8px;letter-spacing:-.012em;font-weight:800}h3{font-size:15px;margin:14px 0 6px;letter-spacing:-.01em;font-weight:700}
+table{border-collapse:collapse;margin:8px 0;font-size:14px}
+th,td{border:1px solid var(--line);padding:4px 8px;text-align:left;vertical-align:top}
+th{background:var(--card)}
+.wrap{overflow-x:auto;max-width:100%}
+details{background:var(--card);border:1px solid var(--line);border-radius:8px;margin:8px 0}
+details>summary{cursor:pointer;padding:8px 12px;list-style-position:inside}
+details>.in{padding:2px 14px 12px}
+details details{background:var(--bg)}
+.badge{display:inline-block;font-size:12px;padding:0 7px;border-radius:10px;border:1px solid var(--line);white-space:nowrap;line-height:1.5}
+.pass,.proved{color:var(--ok);background:var(--okbg)}.fail,.open{color:var(--bad);background:var(--badbg)}
+.pending,.unknown{color:var(--unk);background:var(--unkbg)}.out_of_scope,.argued{color:var(--warn);background:var(--warnbg)}
+.computed{color:var(--acc)}.literature{color:var(--mut)}
+.mut{color:var(--mut)}.small{font-size:13px}
+.empty{color:var(--mut)}
+code,.mono{background:var(--unkbg);padding:0 4px;border-radius:4px;font-size:13px;font-family:ui-monospace,Menlo,monospace}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.sub{display:flex;gap:4px;flex-wrap:wrap;margin:8px 0}.sub button.on{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
+.askbtn{font-size:11px;padding:0 7px;margin-left:6px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--acc);cursor:pointer;vertical-align:middle}.askbtn:hover{background:var(--okbg)}
+.chip{display:inline-block;border:1px solid var(--line);border-radius:6px;padding:1px 6px;margin:2px 3px 2px 0;font-size:12px;background:var(--card);vertical-align:top}
+.chip.pass{background:var(--okbg)}.chip.fail{background:var(--badbg)}.chip.out_of_scope{background:var(--warnbg)}.chip.pending{background:var(--unkbg)}
+.entry{border:1px solid var(--line);border-radius:6px;padding:5px 8px;margin:5px 0;font-size:13px;background:var(--card)}
+.entry pre{margin:3px 0 0;white-space:pre-wrap;word-break:break-word;font:12px ui-monospace,Menlo,monospace}
+.kv td:first-child{color:var(--mut);white-space:nowrap}
+.quote{border-left:3px solid var(--line);padding-left:8px;margin:4px 0;font-size:13px}
+/* overview figures (from the linglab slides) */
+.ovf { --ovf-card:#ffffff; --ovf-ink:#1d2742; --ovf-mute:#4a5572; --ovf-line:#c9cfdd; --ovf-blue:#2f5fc4; --ovf-blue-l:#dbe6fb; --ovf-green:#1f8a5b; --ovf-green-l:#d4f0e2; --ovf-red:#c63d37; --ovf-red-l:#f8dad8; --ovf-amber:#b87800; --ovf-amber-l:#fbebc4; --ovf-grey-l:#e6e8ee; --ovf-purple:#6a49c2;
+  flex:0 1 330px; min-width:240px }
+.ovf svg.ovfig-svg { width:100%; height:auto; display:block; background:var(--ovf-card); border:1px solid var(--ovf-line); border-radius:16px }
+.ovf .t { fill:var(--ovf-ink); font-family:system-ui,sans-serif } .ovf .card { fill:var(--ovf-card); stroke:var(--ovf-line); stroke-width:2 }
+.ovf .pass { fill:var(--ovf-green-l); stroke:var(--ovf-green); stroke-width:2 } .ovf .fail { fill:var(--ovf-red-l); stroke:var(--ovf-red); stroke-width:2 }
+.ovf .pend { fill:var(--ovf-grey-l); stroke:var(--ovf-mute); stroke-width:2; stroke-dasharray:4 3 } .ovf .blue { fill:var(--ovf-blue-l); stroke:var(--ovf-blue); stroke-width:2 }
+.ovf .ln { stroke:var(--ovf-ink); stroke-width:2.5; fill:none; stroke-linecap:round; stroke-linejoin:round }
+.ovtop{display:flex;flex-wrap:wrap;gap:18px 30px;align-items:flex-start}.ovtext{flex:1 1 360px;min-width:260px;padding-top:11px}.ovq{margin:0 0 8px}
+.ovlink{display:block;text-decoration:none;color:inherit;border-radius:16px;cursor:pointer}.ovlink:hover svg.ovfig-svg,.ovlink:focus-visible svg.ovfig-svg{border-color:var(--acc);box-shadow:0 0 0 2px color-mix(in srgb,var(--acc) 30%,transparent)}
+.ovf svg.ovfig-svg{aspect-ratio:1 / 1}
+/* heatmap: Theories × Facts */
+.chip.informal{border:1.5px dashed var(--mut)}
+.klegend span.kk{display:inline-block;border:1px solid var(--line);border-radius:4px;padding:0 4px;margin:0 2px;font-size:11px}
+.klegend span.kk.informal{border:1.5px dashed var(--mut)}
+.howto{border:1px solid var(--acc);border-left:5px solid var(--acc);border-radius:6px;padding:8px 12px;margin:10px 0;font-size:13.5px;background:color-mix(in srgb,var(--acc) 8%,transparent)}.howto .kicker2{color:var(--acc);text-transform:uppercase;letter-spacing:.07em;font-size:11px}
+.mxv{margin-top:.4em}
+.mxv-ctl{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;margin:.4em 0 .6em}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;border-radius:0;background:var(--code);color:var(--mut);padding:4px 10px;font-size:13px}.seg button.on{background:var(--card);color:var(--fg);font-weight:700}
+.mxv-wrap{display:flex;flex-direction:column;gap:8px;width:max-content;min-width:100%}
+.mxv-wrap.side{flex-direction:row;align-items:flex-start;width:auto;gap:18px}
+.mxv-wrap.side .mxv-scroll{order:1}
+.mxv-legendbox{position:sticky;left:0;align-self:flex-start;display:flex;flex-direction:row;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:7px 4px;background:var(--card);z-index:8}
+.mxv-wrap.side .mxv-legendbox{order:2;position:sticky;top:calc(var(--mxtop,0px) + 10px);left:auto;flex:none;flex-direction:column;padding:6px 10px}
+.mxv-legend{display:flex;flex-direction:column;align-items:flex-start;gap:5px;font-size:12px;color:var(--mut);padding:0 14px}
+.mxv-legend:last-child{max-width:150px}
+.mxv-legend+.mxv-legend{border-left:1px solid var(--line)}
+.mxv-wrap.side .mxv-legend{padding:0}.mxv-wrap.side .mxv-legend:last-child{max-width:none}
+.mxv-wrap.side .mxv-legend+.mxv-legend{border-left:0;border-top:1px solid var(--line);margin-top:7px;padding-top:7px}
+.mxv-legend span{display:flex;align-items:flex-start;gap:6px;line-height:1.25}
+.mxv-legend .sw,.sw{display:inline-block;flex:none;width:14px;height:14px;border-radius:3px;margin-top:1px}
+.mxv-grid{border-collapse:separate;border-spacing:1px;font-size:12.5px;width:max-content;max-width:none;margin:0}
+.mxv-grid th,.mxv-grid td{padding:0;text-align:center;border:0;background:transparent}
+.mxv-grid th.rh{text-align:left;font-weight:600;white-space:nowrap;padding:0 8px 0 2px;position:sticky;left:0;background:var(--bg);z-index:3}
+.mxv-grid th.ch{font-weight:600;vertical-align:bottom}.mxv-grid th a{color:inherit;text-decoration:none}
+.mxv-grid th.kh{font-size:11px;color:var(--mut);font-weight:400;border-bottom:1px solid var(--line);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:0;padding:0 2px;text-align:left}
+.mxv-grid th.kh.narrow{max-width:none;padding:0}.mxv-grid th.kh.narrow span{display:inline-block;writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;line-height:12px;font-size:11px;max-height:100%;overflow:hidden;text-overflow:ellipsis}
+.mxv-grid th.vert{width:13px;max-width:13px;overflow:hidden}
+.mxv-grid th.vert a{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.mxv-grid th.vert a .con-q{margin:0 0 auto 0;flex:none}
+.mxv-grid th.vert a>span{line-height:12px;display:inline-block;writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;white-space:nowrap}
+.mxv-grid td.cell{cursor:pointer;border-radius:3px;position:relative;width:13px;min-width:13px;max-width:13px;height:15px;padding:0;font-weight:400}
+.mxv-grid.tr td.cell{width:34px;min-width:34px;max-width:34px;height:17px}
+.mxv-grid td.cell.pass{background:var(--vok)}.mxv-grid td.cell.fail{background:var(--vbad)}.mxv-grid td.cell.oos{background:var(--voos)}
+.mxv-grid td.cell.pend{background:var(--card);box-shadow:inset 0 0 0 1px var(--line)}
+.mxv-grid td.cell.inf{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.55) 0 2px,transparent 2px 5px)}
+.mxv-grid td.cell.proof::after{content:'';position:absolute;left:50%;top:66.67%;width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
+.mxv-grid td.cell.flag::before{content:'';position:absolute;left:50%;top:33.33%;width:6px;height:6px;margin:-3px 0 0 -3px;background:linear-gradient(45deg,transparent 38%,#fff 38% 62%,transparent 62%),linear-gradient(-45deg,transparent 38%,#fff 38% 62%,transparent 62%);filter:drop-shadow(0 0 1px rgba(0,0,0,.6))}
+.xm{display:inline-block;width:7px;height:7px;background:linear-gradient(45deg,transparent 40%,var(--c,#fff) 40% 60%,transparent 60%),linear-gradient(-45deg,transparent 40%,var(--c,#fff) 40% 60%,transparent 60%)}
+.mxv-grid td.cell.con{opacity:.42}.mxv-grid th.con a{opacity:.5}.con-q{margin-left:3px;vertical-align:middle}
+.mxv-grid td.cell:hover{outline:2px solid var(--acc);z-index:4}.mxv-grid td.cell.sel{outline:2px solid var(--fg)}
+.bar{cursor:pointer;display:inline-flex;height:9px;border-radius:3px;overflow:hidden;vertical-align:middle;background:var(--card);box-shadow:0 0 0 1px var(--line)}.bar i{display:block;height:100%}
+.mxv-grid th.gap,.mxv-grid td.gap{width:5px;min-width:5px;max-width:5px}
+.mxv-grid td.sc{padding:0 6px 0 2px;text-align:left;white-space:nowrap}
+.mxv-grid td.tot{text-align:center;padding:3px 0}
+.mxv-grid th.scorehead{font-size:11px;color:var(--mut);font-weight:400;vertical-align:bottom}
+.mxv-grid thead th{position:sticky;background:var(--bg);z-index:5}.mxv-grid tr.h1 th{top:var(--mxtop,0px)}.mxv-grid tr.h2 th{top:var(--mxtop2,0px)}
+.mxv-grid th.corner{left:0;z-index:7}
+.mxv-grid th.rh.fam{position:static;text-align:left;font-size:12.5px;font-weight:700;background:var(--code);border-radius:4px;padding:1px 6px}
+.mxv-grid th.rh.fam .famtxt{position:sticky;left:6px;display:inline-block;padding-right:8px}
+.mxv-grid th.fam.ch{font-weight:700;white-space:nowrap;padding:0 6px;background:var(--code);border-radius:4px}
+.mxv-grid td.kh2{white-space:nowrap;text-align:left;font-size:11.5px;color:var(--mut);background:var(--code);padding:2px 6px;border-radius:3px;overflow:visible;max-width:0}
+.mxv-grid th.rh.cq{width:12px;min-width:12px;padding:0;left:0}.mxv-grid th.rh.idc{left:12px}
+.mxv-grid .fnm{font-weight:400;font-size:11.5px}
+.mxv-grid th.rawr a{color:var(--raw)}.mxv-grid th.rh.rawr{background:var(--rawbg)}
+.mxv-grid th.vert.rawr{background:var(--rawbg)}
+.mxv-spacer{height:50vh}
+th.flash,td.flash{outline:2px solid var(--acc)}
+/* Coverage × Complexity */
+.pareto-ui{display:grid;grid-template-columns:minmax(0,35fr) minmax(240px,300px) minmax(32px,30fr) auto minmax(0,35fr);gap:18px 0;align-items:start}
+.pareto-left{grid-column:2;min-width:240px;align-self:start;position:sticky;top:calc(var(--mxtop,0px) + 12px);display:flex;flex-direction:column;gap:12px}
+.pareto-side{display:flex;flex-direction:column;gap:12px;font-size:13.5px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--card);min-width:0}
+.pareto-side>*+*{border-top:1px solid var(--line);padding-top:10px}
+.pareto-main{grid-column:4;--pw:min(640px,calc(100vh - var(--mxtop,0px) - 200px));--pwc:max(300px,var(--pw));position:relative;box-sizing:border-box;flex:none;width:calc(var(--pwc) + 30px);padding-left:30px;max-width:100%}
+.pp-yrot{position:absolute;left:0;top:calc(var(--ylen) + var(--pwc) * 14 / 460 - 1px);line-height:1;width:var(--ylen);--ylen:min(330px,calc(var(--pwc) - 30px));transform:rotate(-90deg);transform-origin:left top;display:flex;align-items:center;justify-content:flex-end;gap:8px;font-size:15px}
+.pp-yrot select.pill{flex:1 1 auto;min-width:0;max-width:178px}
+@media (max-width:980px){.pareto-ui{display:block}.pareto-left{position:static;max-width:420px;margin-bottom:18px}.pareto-main{max-width:100%}}
+.pareto-h{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);font-weight:800;margin-bottom:4px}.pareto-lh{text-transform:none;letter-spacing:0;font-weight:400;color:var(--mut);font-size:12px;margin-left:4px}
+.pp-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 0;color:var(--mut);font-size:12.5px}
+select.pill{appearance:none;-webkit-appearance:none;box-sizing:border-box;font:inherit;font-size:13px;color:var(--fg);background-color:transparent;border:1px solid var(--line);border-radius:14px;height:26px;padding:0 24px 0 10px;cursor:pointer;text-overflow:ellipsis;max-width:100%;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1.2l4 4 4-4' fill='none' stroke='%2366665f' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center}
+select.pill:hover{border-color:var(--mut)}select.pill:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 2px color-mix(in srgb,var(--acc) 30%,transparent)}
+select.pill.sm{height:23px;font-size:12.5px;max-width:62%}
+.pp-ctl{display:flex;flex-direction:row;align-items:center;gap:8px;font-size:15px;width:auto}.pp-ctl select.pill{width:178px;flex:none}.pp-lab{font-weight:600}.pp-ar{color:var(--fg);font-weight:400}.pp-x{margin:4px 3% 0 auto;justify-content:flex-end}
+.pareto-svg{width:100%;height:auto;aspect-ratio:1/1;display:block}
+.pareto-leg{display:flex;flex-wrap:wrap;align-items:center;gap:5px}.pareto-key{margin-top:6px}
+.pareto-lg{white-space:nowrap;font-size:12px;color:var(--fg);background:transparent;border:1px solid var(--line);border-radius:14px;padding:2px 8px;cursor:pointer}.pareto-lg.off{opacity:.45;text-decoration:line-through;border-style:dashed}
+/* docked panel and its folds */
+details.mxs{padding:0 12px 6px;margin:.4em 0}details.mxs>summary{padding:6px 0;font-weight:600;font-size:13.5px;margin:0}
+.kv2{display:grid;grid-template-columns:max-content 1fr;gap:2px 12px;margin:.3em 0;font-size:13.5px}.kv2>b{color:var(--mut);font-weight:600}
+#pop h4{margin:0 28px 4px 0;font-size:15px}
+table.mxsum{margin:.4em 0}table.mxsum th,table.mxsum td{padding:3px 10px}table.mxsum thead th{background:var(--code)}
+/* plots */
+svg.plot{width:100%;max-width:760px;height:auto;background:var(--card);border:1px solid var(--line);border-radius:8px}
+svg.plot text{fill:var(--fg);font:11px system-ui,sans-serif}
+svg.plot .ax{stroke:var(--mut);stroke-width:1}svg.plot .gr{stroke:var(--line);stroke-width:1}
+svg.plot .pt{fill:var(--acc);stroke:var(--card);stroke-width:1.5;cursor:pointer}
+svg.plot .pt.front{fill:var(--ok)}svg.plot .pt.raw{fill:var(--raw);stroke:var(--fg)}
+svg.plot .fl{fill:none;stroke:var(--ok);stroke-width:1.5;stroke-dasharray:5 3}
+svg.plot .lab{fill:var(--mut)}svg.plot .lab.raw{fill:var(--raw);font-weight:700}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.tlist{max-height:200px;overflow:auto;border:1px solid var(--line);border-radius:6px;padding:4px 8px;columns:2 200px}
+.tlist label{display:block;font-size:13px}
+/* overlays */
+#tip{position:fixed;z-index:50;max-width:380px;background:var(--card);border:1px solid var(--acc);border-radius:8px;padding:6px 8px;font-size:12px;display:none;pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.25)}
+#pop{position:fixed;z-index:60;left:0;right:0;bottom:0;max-height:46vh;overflow:auto;background:var(--card);color:var(--fg);border-top:2px solid var(--acc);padding:10px 16px 16px;display:none;box-shadow:0 -6px 20px rgba(0,0,0,.28);font-size:14px;line-height:1.45}
+#pop .x{position:absolute;right:12px;top:6px}
+#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:6px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:80}#toast.on{opacity:.95}
+footer{padding:16px;border-top:1px solid var(--line);color:var(--mut);font-size:12px;text-align:center}
+.guideask{display:flex;gap:8px;align-items:flex-start;margin:6px 0}.guideask .t{flex:1;background:var(--unkbg);border-radius:6px;padding:4px 8px;font-size:13px}
+.flash{outline:2px solid var(--acc)}
+/* translations */
+.trrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:14px}
+@media (max-width:760px){.trrow{grid-template-columns:minmax(0,1fr)}}
+.trcode .lang{font-size:12px;color:var(--mut);margin:6px 0 2px;font-weight:600}
+.trcode pre{margin:0;padding:6px 8px;background:var(--unkbg);border-radius:6px;overflow-x:auto;font:12px/1.45 ui-monospace,Menlo,monospace;white-space:pre;max-width:100%}
+.trck{white-space:nowrap}.trck input{margin-right:4px}
+details.trdone>summary{opacity:.6}
+/* layers, checks, fragments */
+.layers{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;margin:6px 0}
+.layers>.lay{flex:1 1 250px;min-width:0}
+.lay h4{margin:0 0 3px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--mut)}
+:root[data-layer=words] .layered .lay-s,:root[data-layer=words] .layered .lay-c,:root[data-layer=symbols] .layered .lay-w,:root[data-layer=symbols] .layered .lay-c,:root[data-layer=code] .layered .lay-w,:root[data-layer=code] .layered .lay-s{display:none}
+.layertog{display:inline-flex;gap:0;margin:0 6px}.layertog button{border-radius:0;margin-left:-1px}.layertog button:first-child{border-radius:6px 0 0 6px;margin-left:0}.layertog button:last-child{border-radius:0 6px 6px 0}.layertog button.on{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
+.tex{font-size:1.02em}.tex .mono,.texraw{white-space:pre-wrap;word-break:break-word}
+.ctabs .ctb{display:flex;gap:4px;margin-bottom:3px}.ctabs .ctb button{font-size:12px;padding:0 8px}.ctabs .ctb button.on{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
+.cpane{display:none}.cpane.on{display:block}
+.docpane{max-width:60rem;line-height:1.5}.docpane h1{font-size:1.3em}.docpane h2{font-size:1.1em;margin-top:1.2em}.docpane pre{max-height:none;white-space:pre-wrap}.docpane code{font:12px ui-monospace,Menlo,monospace}
+.cpane pre,.fpre{margin:0;padding:6px 8px;background:var(--unkbg);border-radius:6px;overflow:auto;max-height:260px;font:12px/1.45 ui-monospace,Menlo,monospace;white-space:pre;max-width:100%}
+.reading{margin-top:6px;padding:4px 8px;border-left:3px solid var(--acc);background:var(--unkbg);border-radius:0 6px 6px 0;font-size:13px}
+.prow{border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin:8px 0;background:var(--card)}
+.prhead{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.frag{border-left:3px solid var(--acc)}
+table.ck{font-size:12px}
+.autotag{font-size:11px;color:var(--mut);border:1px dashed var(--mut);border-radius:8px;padding:0 5px;margin-left:4px}
+.tr3{grid-template-columns:minmax(0,1fr) minmax(0,.9fr) minmax(0,1.3fr)}
+@media (max-width:760px){.tr3{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:600px){main{padding:8px 12px 40px}header{padding:14px 12px 0}header h1{font-size:22px;padding-right:0}header .hdr-r{position:static;margin-bottom:6px}th,td{padding:3px 4px}nav .navin{padding:0 12px}}
+.cardsep{border:0;border-top:1px solid var(--line);margin:2.2em 0 1.2em}.cardshead{margin:0 0 .5em}
+#t-cards,[id^="c-"],[id^="r-"]{scroll-margin-top:calc(var(--mxtop,0px) + 10px)}
+</style>
+</head>
+<body>
+<div id="bandt"></div><div id="band"></div>
+<header><div class="hdr-r"><span id="upd"></span></div><h1 id="ttl">Report</h1><p class="sub" id="subttl"></p></header>
+<div id="top"><nav id="nav"></nav></div>
+<main>
+<section class="tab" id="t-overview"></section>
+<section class="tab" id="t-empirical"></section>
+<section class="tab" id="t-principles"><div id="pr-top"></div><div id="t-cards"></div></section>
+<section class="tab" id="t-matrix"></section>
+<section class="tab" id="t-pareto"></section>
+<section class="tab" id="t-translations"></section>
+<section class="tab" id="t-findings"></section>
+<section class="tab" id="t-guide"></section>
+</main>
+<footer id="foot"></footer>
+<div id="tip"></div><div id="pop"></div><div id="toast"></div>
+<script id="katex-js">/*__KATEX_JS__*/</script>
+<script>
+const DATA = /*__DATA__*/null;
+</script>
+<script>
+(function(){
+"use strict";
+/* ================= data and helpers ================= */
+const RAWD = (typeof DATA==="object" && DATA) || {};
+const arr = x => Array.isArray(x) ? x : [];
+const D = {meta: RAWD.meta||{}, statements: arr(RAWD.statements), theories: arr(RAWD.theories), results: arr(RAWD.results),
+  findings: arr(RAWD.findings), readings: arr(RAWD.readings), fragments: arr(RAWD.fragments), metrics: RAWD.metrics||{}, registry: RAWD.registry||{}, code: RAWD.code||{}};
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const trunc = (s,n) => { s=String(s==null?"":s); return s.length>n ? s.slice(0,n)+"…" : s; };
+const ph = t => `<p class="empty">Here goes ${esc(t)}</p>`;
+const badge = (t,c) => `<span class="badge ${esc(c||t)}">${esc(t)}</span>`;
+const ST = D.statements, TH = D.theories;
+const FACTS = ST.filter(s=>s.role==="fact" || (!s.role && /^F/.test(s.id||"")));
+const PRIN = ST.filter(s=>s.role==="principle" || (!s.role && /^P/.test(s.id||"")));
+const BYID = {}; ST.forEach(s=>BYID[s.id]=s);
+const THID = {}; TH.forEach(t=>THID[t.id]=t);
+const FRAGS = D.fragments, FRID = {}; FRAGS.forEach(f=>{ if(f&&f.id) FRID[f.id]=f; });
+const FUSERS = (RAWD.fragment_users && typeof RAWD.fragment_users==="object") ? RAWD.fragment_users : {};
+const FINID = {}; D.findings.forEach(f=>FINID[f.id]=f);
+const isRaw = t => !!t && (t.generated==="listing" || t.id==="RAW");
+const REG = D.registry;
+const LADDER = arr(REG.ladder).length ? REG.ladder : ["lean","agda","python","human","paper-claim","user-claim","llm-judged"];
+/* display names of theories: `short` on the theory, else meta.short_names[id], else the full name (the full name stays in titles and cards) */
+const SHORTS = (D.meta.short_names && typeof D.meta.short_names==="object" && !Array.isArray(D.meta.short_names)) ? D.meta.short_names : {};
+const tFull = t => (t && (t.name||t.id)) || "";
+const tShort = t => { if(!t) return ""; const s = (typeof t.short==="string" && t.short.trim()) || (typeof SHORTS[t.id]==="string" && SHORTS[t.id].trim()) || ""; return s; };
+const tName = t => tShort(t) || tFull(t);
+/* running text: a theory's full name is replaced by its short code (the places that define the codes, the theory cards and the origin table, keep the full name) */
+const CODEMAP = TH.filter(t=>tShort(t) && tShort(t)!==tFull(t) && tFull(t).length>=3).map(t=>[tFull(t),tShort(t)]).sort((a,b)=>b[0].length-a[0].length)
+  .map(([n,c])=>[new RegExp("(^|[^\\w-])"+n.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"(?![\\w-])","g"),c]);
+const codify = s => { s = String(s==null?"":s); CODEMAP.forEach(([rx,c])=>{ s = s.replace(rx,(m,a)=>a+c); }); return s; };
+const txt = s => esc(codify(s));
+const nm = id => (BYID[id]&&BYID[id].name) || (THID[id]&&tName(THID[id])) || (FINID[id]&&FINID[id].title) || id;
+const OUTNAME = {pass:"pass",fail:"fail",pending:"pending",out_of_scope:"out of scope"};
+const SYM = {pass:"✓",fail:"✗",pending:"…",out_of_scope:"∅"};
+const outBadge = o => badge(OUTNAME[o]||o, o);
+function lk(id,label){
+  let tab = BYID[id] ? (BYID[id].role==="principle"?"principles":"empirical") : THID[id] ? "cards" : FINID[id] ? "findings" : null;
+  const t = label==null ? nm(id) : label;
+  return tab ? `<a href="#${tab}:${encodeURIComponent(id)}">${esc(t)}</a>` : esc(t);
+}
+const askBtn = t => `<button class="askbtn" data-ask="${esc(t)}" title="copy a ready prompt to paste into the chat">ask</button>`;
+let toastTimer=null;
+function toast(msg){ const el=$("toast"); el.textContent=msg; el.classList.add("on"); if(toastTimer) clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove("on"),2200); }
+function copyText(t,msg){
+  const fb = () => { try{ window.prompt("Copy this:",t); }catch(e){} };
+  try{ if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(()=>toast(msg||"Prompt copied: paste it into the chat"),fb); return; } }catch(e){}
+  fb();
+}
+
+/* ================= LaTeX (KaTeX is optional) ================= */
+const rawTex = src => `<span class="mono texraw">${esc(src)}</span>`;
+function tex(el,src){ // render src into el; on any problem show the raw source
+  try{ const k=(typeof window!=="undefined")?window.katex:null;
+    if(k && typeof k.render==="function"){ k.render(String(src),el,{throwOnError:false,displayMode:false}); return true; } }catch(e){}
+  try{ el.innerHTML=rawTex(src); }catch(e){}
+  return false;
+}
+const TEXMEMO = {};
+function texHtml(src){
+  if(src==null || String(src).trim()==="") return "";
+  src=String(src);
+  if(TEXMEMO[src]!=null) return TEXMEMO[src];
+  let out=rawTex(src);
+  try{
+    const k=(typeof window!=="undefined")?window.katex:null;
+    if(k && typeof k.render==="function" && typeof document.createElement==="function"){
+      const el=document.createElement("span");
+      if(tex(el,src) && String(el.innerHTML||"")!=="") out=`<span class="tex">${el.innerHTML}</span>`;
+    }
+  }catch(e){ out=rawTex(src); }
+  return (TEXMEMO[src]=out);
+}
+
+/* ================= checks log ================= */
+const CH_CLS = {agrees:"pass",disagrees:"fail",partial:"out_of_scope",unclear:"pending"};
+const verdBadge = v => badge(v||"unclear", CH_CLS[v]||"pending");
+function chSorted(cs){ return arr(cs).filter(c=>c&&typeof c==="object").map((c,i)=>({c,i})).sort((a,b)=>String(a.c.when||"").localeCompare(String(b.c.when||""))||a.i-b.i).map(x=>x.c); }
+const chLatest = cs => { const x=chSorted(cs); return x.length?x[x.length-1]:null; };
+const chReading = cs => { const x=chSorted(cs).filter(c=>(c.by==="llm"||c.by==="human")&&c.readback); return x.length?x[x.length-1]:null; };
+function chSummary(cs){
+  const x=chSorted(cs); if(!x.length) return `<span class="badge pending" title="no check recorded">unchecked</span>`;
+  const n={}; x.forEach(c=>{ const b=c.by||"other"; n[b]=(n[b]||0)+1; });
+  const last=x[x.length-1];
+  return `<span class="badge ${CH_CLS[last.verdict]||"pending"}" title="checks log">checked: ${Object.keys(n).map(k=>n[k]+" "+esc(k)).join(", ")}, last: ${esc(last.verdict||"unclear")}</span>`;
+}
+function chLog(cs,label){
+  const x=chSorted(cs);
+  const body = x.length ? `<div class="wrap"><table class="ck"><tr><th>by</th><th>who</th><th>when</th><th>what</th><th>verdict</th><th>note</th></tr>${x.map(c=>`<tr><td>${esc(c.by||"")}</td><td>${esc(c.who||"")}</td><td>${esc(c.when||"")}</td><td>${esc(c.what||"")}</td><td>${verdBadge(c.verdict)}</td><td class="small">${esc(c.note||"")}${c.ref?` <span class="mut">ref: ${esc(c.ref)}</span>`:""}${c.readback?`<details><summary class="small">reading of the code</summary><div class="in">${esc(c.readback)}</div></details>`:""}</td></tr>`).join("")}</table></div>` : `<p class="empty small">No check recorded yet. Ask the agent to read the code back in words, or tick the row in Translations.</p>`;
+  return `<details><summary><b>${esc(label||"Checks")}</b> ${chSummary(cs)}</summary><div class="in">${body}</div></details>`;
+}
+
+/* ================= layers: words | symbols | code ================= */
+const S_LAYER = {v:"all"};
+function layerToggle(){
+  return `<span class="layertog" title="which layers to show">${["words","symbols","code","all"].map(v=>`<button data-layer="${v}" class="${S_LAYER.v===v?"on":""}">${v}</button>`).join("")}</span>`;
+}
+function setLayer(v){
+  S_LAYER.v=v;
+  try{ document.documentElement.setAttribute("data-layer",v); }catch(e){}
+  try{ Array.from(document.querySelectorAll("[data-layer]")).forEach(b=>{ if(b.classList) b.classList.toggle("on",b.getAttribute("data-layer")===v); }); }catch(e){}
+}
+function codeTabs(list){ // list: [{lang,text}], only non-empty
+  const l=list.filter(c=>c&&c.text!=null&&String(c.text).trim()!=="");
+  if(!l.length) return `<p class="empty small">no code yet</p>`;
+  return `<div class="ctabs"><div class="ctb">${l.map((c,i)=>`<button data-ctab="${i}" class="${i?"":"on"}">${esc(c.lang)}</button>`).join("")}</div>${l.map((c,i)=>`<div class="cpane${i?"":" on"}" data-cpane="${i}"><pre>${esc(c.text)}</pre></div>`).join("")}</div>`;
+}
+function readingHtml(s){
+  const r=chReading(s.checks); if(!r) return "";
+  return `<div class="reading"><b>Reading of the code</b> <span class="mut small">(${esc(r.by||"")}${r.who?" "+esc(r.who):""}${r.when?", "+esc(r.when):""}${r.verdict?", ":""}${r.verdict?esc(r.verdict):""})</span><br>${esc(r.readback)}</div>`;
+}
+function symbolsOf(s,kind){ // {tex, auto}
+  if(s.notation) return {src:s.notation,auto:false};
+  if(kind==="fact"){ const c=(((D.code||{}).facts)||{})[s.id]||{}; if(c.notation_auto) return {src:c.notation_auto,auto:true}; }
+  return null;
+}
+function factCodeList(s){
+  const c=((((D.code||{}).facts)||{})[s.id])||{}, out=[];
+  const st=c.spec_text||specText(s); if(st) out.push({lang:"Spec",text:st});
+  [["lean","Lean"],["agda","Agda"]].forEach(([l,n])=>{ const xs=arr(c[l]); if(xs.length) out.push({lang:n,text:xs.map(x=>"-- "+(x.theory||"")+"\n"+(x.text||"")).join("\n\n")}); });
+  return out;
+}
+function princCodeList(s){
+  const c=((((D.code||{}).principles)||{})[s.id])||{};
+  return [["python","Python"],["lean","Lean"],["agda","Agda"]].filter(([l])=>c[l]).map(([l,n])=>({lang:n,text:c[l]}));
+}
+function layersHtml(s,kind){
+  const sy=symbolsOf(s,kind);
+  const words=`<p>${esc(s.text||"")}</p>`+(kind==="principle"?[s.auxiliary?badge("auxiliary","out_of_scope"):"",s.vocabulary?badge("vocabulary","computed"):""].join(" ").trim().replace(/^(.+)$/,"<p>$1</p>"):"")+(arr(s.origins).length?s.origins.map(o=>`<div class="quote">${esc(o.source||"")}${o.page?" p. "+esc(o.page):""}${o.quote?": “"+esc(o.quote)+"”":""}</div>`).join(""):"");
+  const sym=sy?`<div>${texHtml(sy.src)}${sy.auto?'<span class="autotag" title="generated from the fact spec">auto</span>':""}</div>`:`<p class="empty small">no notation yet</p>`;
+  const code=codeTabs(kind==="fact"?factCodeList(s):princCodeList(s))+readingHtml(s);
+  return `<div class="layers layered"><div class="lay lay-w"><h4>words</h4>${words}</div><div class="lay lay-s"><h4>symbols</h4>${sym}</div><div class="lay lay-c"><h4>code</h4>${code}</div></div>`;
+}
+
+/* ================= pooling (SPEC section 3) ================= */
+const IDX = {};
+D.results.forEach(r=>{ const k=r.fact+"|"+r.theory; (IDX[k]=IDX[k]||[]).push(r); });
+const KTAG = {lean:"L",agda:"A",python:"Py",human:"H","paper-claim":"P","user-claim":"U","llm-judged":"LLM"};
+const KFORMAL = {lean:1,agda:1,python:1};
+const kTag = k => k ? (KTAG[k] || String(k).slice(0,2)) : "";
+const kInformal = k => !!k && !KFORMAL[k];
+const rankOf = e => { const i=LADDER.indexOf(e.kind); return i<0 ? LADDER.length : i; };
+/* pool one cell. opts.noLlm drops llm-judged entries. Returns {outcome, conflict, warning, entries, kind, rank}.
+   Conflict (same top rank disagrees on pass/fail): outcome = majority, tie = fail (conservative); the flag is what matters. */
+function pool(fid,tid,opts){
+  opts = opts||{};
+  let es = IDX[fid+"|"+tid] || [];
+  if(opts.noLlm) es = es.filter(e=>e.kind!=="llm-judged");
+  const real = es.filter(e=>e.outcome!=="pending");
+  if(!real.length) return {outcome:"pending",conflict:false,warning:false,entries:es,kind:null};
+  const best = Math.min.apply(null, real.map(rankOf));
+  const top = real.filter(e=>rankOf(e)===best);
+  const dec = top.filter(e=>e.outcome==="pass"||e.outcome==="fail");
+  if(!dec.length) return {outcome:"out_of_scope",conflict:false,warning:false,entries:es,kind:top[0].kind};
+  const np = dec.filter(e=>e.outcome==="pass").length, nf = dec.length-np;
+  const conflict = np>0 && nf>0;
+  const outcome = np>nf ? "pass" : "fail";
+  const warning = !conflict && real.some(e=>rankOf(e)>best && (e.outcome==="pass"||e.outcome==="fail") && e.outcome!==outcome);
+  return {outcome,conflict,warning,entries:es,kind:top[0].kind};
+}
+/* roll-up of a group: passes iff all members pass */
+function rollup(members,tid,opts){
+  const ps = members.map(f=>pool(f.id,tid,opts));
+  let outcome;
+  if(ps.some(p=>p.outcome==="fail")) outcome="fail";
+  else if(ps.every(p=>p.outcome==="out_of_scope")) outcome="out_of_scope";
+  else if(ps.some(p=>p.outcome==="pending")) outcome="pending";
+  else outcome="pass";
+  return {outcome,conflict:ps.some(p=>p.conflict),warning:ps.some(p=>p.warning),members:ps,entries:[].concat.apply([],ps.map(p=>p.entries)),kind:ps.filter(p=>p.kind).sort((a,b)=>rankOf({kind:b.kind})-rankOf({kind:a.kind})).map(p=>p.kind)[0]||null};
+}
+
+/* ================= metrics ================= */
+const COV_DEF = [["passed","Facts passed"],["passed_over_applicable","Passed over applicable"],["confidence_weighted","Confidence-weighted passed"]];
+const SIZE_DEF = [["n_principles","Number of principles"],["n_principles_no_aux","Principles without auxiliary"],["python_chars","Python chars"],["python_gzip","Python gzip bytes"],["lean_chars","Lean chars"],["lean_gzip","Lean gzip bytes"],["python_lines","Python lines"],["python_words","Python words"],["lean_lines","Lean lines"],["lean_words","Lean words"]];
+const SIZE_IMPL = /^(n_principles|n_principles_no_aux|(python|lean|agda)_(chars|words|lines|gzip))$/;
+const COV_IMPL = /^(passed|passed_over_applicable|confidence_weighted)$/;
+function metricList(regKey,def,impl){
+  const r = arr(REG[regKey]).map(m=>typeof m==="string"?{id:m,name:m}:m).filter(m=>m&&m.id);
+  const list = r.length ? r : def.map(([id,name])=>({id,name}));
+  return list.map(m=>({id:m.id,name:m.name||m.id,note:m.note||"",ok:impl.test(m.id)}));
+}
+// size metrics tied to a language are offered only when some theory has data for that language (no mention of Lean or Agda otherwise)
+const langHasData = l => { const M=(D.metrics||{}).theories||{}; return Object.values(M).some(x=>((x.total||{})[l])); };
+const COVM = metricList("coverage_metrics",COV_DEF,COV_IMPL),
+  SIZEM = metricList("size_metrics",SIZE_DEF,SIZE_IMPL).filter(m=>{ const g=/^(python|lean|agda)_/.exec(m.id); return !g || langHasData(g[1]); });
+const mOf = t => { const M=D.metrics||{}; return isRaw(t) ? (M.raw || (M.theories||{})[t.id]) : (M.theories||{})[t.id]; };
+function sizeOf(t,mid){
+  const m = mOf(t)||{};
+  if(mid==="n_principles"){ if(m.n_principles!=null) return m.n_principles; return isRaw(t) ? FACTS.length : arr(t.principles).length; }
+  if(mid==="n_principles_no_aux"){ if(m.n_principles_no_aux!=null) return m.n_principles_no_aux; if(isRaw(t)) return FACTS.length; return arr(t.principles).filter(p=>!(BYID[p]&&BYID[p].auxiliary)).length; }
+  const g = /^(python|lean|agda)_(chars|words|lines|gzip)$/.exec(mid);
+  if(g){ const v=((m.total||{})[g[1]]||{})[g[2]]; return v==null?null:v; }
+  return null;
+}
+function factOk(fa,o){ // the data filters of Coverage × Complexity
+  if(!o.system && fa.about==="system") return false;
+  if(o.noContested && fa.contested) return false;
+  if(o.onlyContested && !fa.contested) return false;
+  if(o.kind && factKind(fa)!==o.kind) return false;
+  if(o.layer && factLayer(fa)!==o.layer) return false;
+  return true;
+}
+function covStats(t,o){
+  let n=0,p=0,f=0,oos=0,pend=0,conf=0;
+  FACTS.forEach(fa=>{
+    if(!factOk(fa,o)) return;
+    const r = pool(fa.id,t.id,{noLlm:!o.llm});
+    n++;
+    if(r.outcome==="pass"){p++; conf += (fa.confidence==null?1:fa.confidence);}
+    else if(r.outcome==="fail") f++; else if(r.outcome==="out_of_scope") oos++; else pend++;
+  });
+  return {n,passed:p,failed:f,oos,pending:pend,confidence_weighted:conf,passed_over_applicable:(n-oos)>0?p/(n-oos):0};
+}
+function metricValue(t,mid,o){
+  if(COV_IMPL.test(mid)) return covStats(t,o)[mid];
+  if(SIZE_IMPL.test(mid)) return sizeOf(t,mid);
+  return null;
+}
+const metricName = mid => { const m=COVM.concat(SIZEM).find(x=>x.id===mid); return m?m.name:mid; };
+const fmtN = v => v==null ? "" : (Number.isInteger(v) ? String(v) : String(Math.round(v*100)/100));
+
+/* ================= state ================= */
+const S = {
+  mx:{tr:0,selEl:null},
+  pop:null,
+  em:{q:"",type:"",about:"",cont:false},
+  pr:{q:""},
+  tr:{q:"",un:false,ck:{}},
+  au:{t:null},
+  fi:{status:"",q:""},
+  ex:{llm:true,system:true,cont:"all",kind:"",layer:"",groups:{},sel:null,q:"",
+      a:{x:"n_principles",y:"passed"}, b:{x:"n_principles",y:"python_chars"}, c:{x:"passed",y:"passed_over_applicable"}}
+};
+S.ex.sel = {}; TH.forEach(t=>S.ex.sel[t.id]=true);
+S.au.t = TH.length ? TH[0].id : null;
+
+/* ================= prompts ================= */
+const P = {
+  fact: f => `Look at fact ${f.id} ("${f.name||""}") in data/statements.json. Check its statement, expected outcome, spec and origins, and tell me whether you would change anything and why. Do not edit before I confirm.`,
+  prin: p => `Look at principle ${p.id} ("${p.name||""}"). Which facts does it help or hurt, in which theories? Is it really needed, or could a simpler variant do the same job? Propose options, do not edit yet.`,
+  theory: t => `Audit theory ${t.id} ("${t.name||""}"): which facts does it fail and why, which principles look idle, and what is the smallest change that would fix the most failures?`,
+  cell: (f,t) => `Explain the cell ${f} × ${t}: list all its entries, show the countermodel or proof, say whether the outcome is credible, and if entries disagree propose how to settle it.`,
+  finding: f => `Check finding ${f.id} ("${f.title||""}"): is the evidence enough for its status (${f.status||"?"})? What would upgrade it?`
+};
+
+/* ================= formatting of specs ================= */
+function fmtS(s){
+  if(typeof s==="string") return s;
+  if(!Array.isArray(s)) return JSON.stringify(s);
+  const op=s[0];
+  if(op==="not") return "¬"+fmtS(s[1]);
+  const sym={and:"∧",or:"∨",if:"→"}[op];
+  if(sym && s.length===3) return "("+fmtS(s[1])+" "+sym+" "+fmtS(s[2])+")";
+  return op+"("+s.slice(1).map(fmtS).join(", ")+")";
+}
+const fmtL = l => arr(l).length ? arr(l).map(fmtS).join(" ; ") : "(none)";
+function specText(f){
+  const sp=f.spec; if(!sp) return "";
+  switch(f.type){
+    case "entailment": return fmtL(sp.premises)+"  ⊨  "+fmtS(sp.conclusion);
+    case "felicity": return "felicitous: "+fmtL(sp.discourse);
+    case "consistency": return "consistent: "+fmtL(sp.premises);
+    case "truth": return fmtS(sp.sentence)+"  "+(sp.relation||"equals")+"  "+fmtS(sp.target);
+    case "preference": return fmtS(sp.sentence)+": "+fmtS(sp.preferred)+" preferred over "+fmtS(sp.over);
+    case "property": return "property check: "+(sp.check||"");
+    default: return JSON.stringify(sp);
+  }
+}
+const HOW = {
+  entailment:"In every model, if the premises hold (the theory's entailment notion) the conclusion must hold. A runner searches models for a countermodel; Lean proves or refutes the claim.",
+  felicity:"The discourse must be felicitous (the theory's notion) in the null context.",
+  consistency:"There must be a model where all premises are true.",
+  truth:"The truth set of the sentence must equal / lie within / include the truth set of the target.",
+  preference:"A declared preference between readings; the beta runner does not test it, so it stays pending unless reported.",
+  property:"A property of the system itself (about: system), checked by code registered in the project.",
+  other:"No formal spec: the results come from reports (human, paper claim, user claim, LLM reading)."
+};
+
+/* ================= tooltips and entries ================= */
+const SCOPE_WORDS = {fragment:"the sentence cannot be stated in the theory", no_prediction:"the theory makes no prediction for this kind of fact", primitive:"the fact uses a notion the theory does not implement (or its source leaves to another mechanism)"};
+function entryHtml(e,full){
+  const r = e.reasons ? (full ? `<pre>${esc(e.reasons)}</pre>` : `<div class="mut">${esc(trunc(e.reasons,140))}</div>`) : "";
+  const bits = [];
+  if(e.bound) bits.push("bound: "+e.bound);
+  if(e.presence) bits.push("presence: "+e.presence);
+  if(e.depends_on) bits.push("depends on: "+e.depends_on);
+  if(e.outside_fragment) bits.push("outside fragment");
+  if(e.scope) bits.push("out of scope: "+(SCOPE_WORDS[e.scope]||e.scope));
+  if(e.parses && typeof e.parses==="object") bits.push("parses: "+Object.keys(e.parses).map(k=>k+" "+String(e.parses[k]).replace(/_/g," ")).join(", "));
+  if(e.ref) bits.push("ref: "+e.ref);
+  return `<div class="entry"><span class="badge">${esc(e.kind)}</span> ${outBadge(e.outcome)} <span class="mut">${esc(e.who||"")} ${esc(e.when||"")}</span>`+
+    (bits.length?`<div class="mut">${esc(bits.join(" · "))}</div>`:"")+r+(e.note?`<div class="mut">note: ${esc(e.note)}</div>`:"")+`</div>`;
+}
+function cellInfo(key,full){
+  const [a,tid]=key.split("|"); const t=THID[tid]; const tn=t?tName(t):tid;
+  if(a.indexOf("G:")===0){
+    const gid=a.slice(2), mem=FACTS.filter(f=>f.group===gid), ro=rollup(mem,tid);
+    let h=`<b>Group ${esc(gid)}</b> × <b>${esc(tn)}</b>: ${outBadge(ro.outcome)} <span class="mut small">(roll-up: passes iff all members pass)</span>`;
+    mem.forEach((f,i)=>{ const p=ro.members[i]; h+=`<div class="small">${full?lk(f.id,f.id+" "+(f.name||"")):esc(f.id)} ${outBadge(p.outcome)}${p.conflict?" conflict":""}${p.warning?" warning":""}</div>`; if(full) h+=p.entries.map(e=>entryHtml(e,false)).join(""); });
+    return h;
+  }
+  const f=BYID[a], p=pool(a,tid);
+  let h=`<b>${esc(f?f.id+" "+(f.name||""):a)}</b> × <b>${esc(tn)}</b>: ${outBadge(p.outcome)}`;
+  if(p.kind) h+=` <span class="mut small">from ${esc(p.kind)}</span>`;
+  if(p.conflict) h+=` <span class="badge fail">conflict: entries at the same rank disagree</span>`;
+  if(p.warning) h+=` <span class="badge out_of_scope">warning: a weaker kind disagrees</span>`;
+  if(!p.entries.length) h+=`<div class="mut small">No entries yet (pending).</div>`;
+  h+=p.entries.slice().sort((x,y)=>rankOf(x)-rankOf(y)).map(e=>entryHtml(e,full)).join("");
+  return h;
+}
+function showPop(key,el){ // the docked panel: a cell (fact | theory) or a bar (bar | theory); the same square again closes it
+  if(S.pop===key && $("pop").style.display==="block"){ popClose(); return; }
+  const [a,tid]=key.split("|"), t=THID[tid], f=BYID[a];
+  if(a==="bar"){ if(t) popOpen(panelBar(t),key,null); return; }
+  if(f && t && a.indexOf("G:")!==0){ popOpen(panelCell(f,t),key,el); return; }
+  const ask = a.indexOf("G:")===0 ? P.cell(a.slice(2),tid) : P.cell(a,tid);
+  popOpen(`${cellInfo(key,true)}<div class="row">${askBtn(ask)}</div>`,key,null);
+}
+
+/* ================= tabs ================= */
+/* the five tabs of the comparison page first, then the toolkit's own (Translations, Findings, Guide). The theory cards are not a tab:
+   they are the last block of Theoretical Space (#cards and #cards:ID open that tab and scroll to the block). */
+const TABS=[["overview","Overview"],["empirical","Empirical Space"],["principles","Theoretical Space"],["matrix","Theories \u00d7 Facts"],["pareto","Coverage \u00d7 Complexity"],["translations","Translations"],["findings","Findings"],["guide","Instructions"]];
+$("nav").innerHTML = `<div class="navin">`+TABS.map(([k,n])=>`<a href="#${k}" data-tab="${k}">${n}</a>`).join("")+`</div>`;
+function show(k){
+  TABS.forEach(([x])=>$("t-"+x).classList.toggle("on",x===k));
+  Array.from(document.querySelectorAll("#nav a")).forEach(a=>a.classList.toggle("on",a.getAttribute("data-tab")===k));
+}
+function openCard(id){
+  const el=$("c-"+id); if(!el) return;
+  let n=el; while(n){ if(n.tagName==="DETAILS") n.open=true; n=n.parentNode; }
+  if(el.scrollIntoView) el.scrollIntoView({block:"start"});
+  el.classList.add("flash"); setTimeout(()=>el.classList.remove("flash"),1800);
+}
+function route(){
+  const h=(typeof location!=="undefined"&&location.hash||"").replace(/^#/,"");
+  const i=h.indexOf(":"); let tab=i<0?h:h.slice(0,i); let id=i<0?"":decodeURIComponent(h.slice(i+1));
+  if(tab==="audits") tab="cards";
+  if(tab==="explorer") tab="pareto";
+  const toCards = tab==="cards";
+  if(toCards) tab="principles";                 // the theory cards are the last block of Theoretical Space
+  if(!TABS.some(t=>t[0]===tab)) tab="overview";
+  popClose();                                  // any navigation closes the docked panel
+  show(tab);
+  const y = HIST.y; HIST.y = null;             // back button: the scroll position stored before the move
+  if(toCards){
+    if(THID[id]){ S.au.t=id; renderAudit(); }
+    if(y!=null) toPos(y); else { const b=$("t-cards"); try{ setTimeout(()=>{ if(b&&b.scrollIntoView) b.scrollIntoView({block:"start"}); },30); }catch(e){} }
+    return;
+  }
+  if(!id){ toPos(y); return; }
+  if(tab==="matrix"){ stick(); const r=$("r-"+id)||$("col-"+id); if(r){ if(r.scrollIntoView) r.scrollIntoView({block:"center",inline:"center"}); if(r.classList){ r.classList.add("flash"); setTimeout(()=>r.classList.remove("flash"),1800); } } else toPos(y); }
+  else if(tab==="translations"){ openCard("tr-"+id); }
+  else openCard(id);
+}
+/* history: the position of the page is stored (replaceState) before a navigation and restored by the back button */
+const HIST = {y:null,cur:0};
+function toPos(y){ try{ if(typeof window.scrollTo==="function") setTimeout(()=>window.scrollTo(0,y==null?0:y),30); }catch(e){} }
+function saveY(){ try{ if(history&&history.replaceState) history.replaceState({y:window.scrollY||window.pageYOffset||0},""); }catch(e){} }
+
+/* ================= Overview ================= */
+/* the two figures of the linglab slides (facts × theories × verifiers loop; coverage against complexity), static, linked to their tabs */
+const FIG_LOOP = `<svg class="ovfig-svg" viewBox="-6.2 -14.9 292.3 292.3" role="img" aria-label="Facts and theories are checked by verifiers; the results feed back to facts and theories"><defs><marker id="ovf-ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#ed7d31"/></marker></defs><rect x="52" y="8" width="150" height="38" rx="4" class="blue"/><text x="127" y="33" text-anchor="middle" font-size="16" font-weight="700" class="t">Theories</text><rect x="8" y="50" width="38" height="150" rx="4" class="blue"/><text transform="translate(33 125) rotate(-90)" text-anchor="middle" font-size="16" font-weight="700" class="t">Facts</text><rect x="52" y="50" width="150" height="150" rx="4" fill="var(--ovf-grey-l)"/><g opacity=".5"><rect x="60" y="58" width="28" height="16" rx="3" class="pass"/><rect x="94" y="58" width="28" height="16" rx="3" class="pass"/><rect x="128" y="58" width="28" height="16" rx="3" class="fail"/><rect x="162" y="58" width="28" height="16" rx="3" class="pass"/><rect x="60" y="80" width="28" height="16" rx="3" class="pass"/><rect x="94" y="80" width="28" height="16" rx="3" class="fail"/><rect x="128" y="80" width="28" height="16" rx="3" class="pass"/><rect x="162" y="80" width="28" height="16" rx="3" class="pass"/></g><text x="127" y="128" text-anchor="middle" font-size="18" font-weight="700" class="t">Verifiers</text><text x="127" y="150" text-anchor="middle" font-size="12" class="t">Lean, Python, people</text><path d="M202 125H240V27H206" fill="none" stroke="#ed7d31" stroke-width="3" stroke-dasharray="9 6" marker-end="url(#ovf-ar)"/><text x="246" y="80" font-size="11" class="t">grow</text><path d="M127 200V238H27V204" fill="none" stroke="#ed7d31" stroke-width="3" stroke-dasharray="9 6" marker-end="url(#ovf-ar)"/><text x="62" y="252" font-size="11" class="t">grow</text></svg>`;
+const FIG_PLOT = `<svg class="ovfig-svg" viewBox="-5.8 -10.8 449.6 449.6" role="img" aria-label="Scatter plot in a square plotting area with complexity on the horizontal axis and coverage on the vertical axis, each axis with a change-proxy dropdown; a stepped Pareto frontier; Raw Facts is at the top right, the most complex and most covering">
+      <defs><marker id="ovf-am" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--ovf-red)"/></marker></defs>
+      <path d="M92 20V350H422" class="ln"/>
+      <text x="104" y="50" font-size="16" font-weight="700" class="t" style="fill:var(--ovf-red)">best</text>
+      <path d="M152 106L120 68" class="ln" style="stroke:var(--ovf-red);stroke-width:2.5" marker-end="url(#ovf-am)"/>
+      <path d="M116 279H160V232H222V138H372V92" fill="none" stroke="var(--ovf-green)" stroke-width="3" stroke-dasharray="7 5"/>
+      <text x="290" y="158" font-size="13" class="t" style="fill:var(--ovf-green)">frontier</text>
+      <circle cx="372" cy="79" r="11" style="fill:var(--ovf-purple);stroke:var(--ovf-ink);stroke-width:2"/><text x="358" y="62" font-size="14" class="t" text-anchor="end">Raw Facts (baseline)</text>
+      <circle cx="222" cy="138" r="10" class="pass"/><text x="236" y="118" font-size="14" class="t">Theory 3</text>
+      <circle cx="160" cy="232" r="10" class="pass"/><text x="140" y="212" font-size="14" class="t">Theory 2</text>
+      <circle cx="116" cy="279" r="10" class="pass"/><text x="130" y="304" font-size="14" class="t">Theory 1</text>
+      <circle cx="276" cy="185" r="10" class="pend"/><text x="290" y="206" font-size="14" class="t">Theory 4</text>
+      <circle cx="222" cy="279" r="10" class="pend"/><text x="236" y="299" font-size="14" class="t">Theory 5</text>
+      <text x="257" y="374" text-anchor="middle" font-size="15" class="t">Complexity &#8594;</text>
+      <g class="dd"><rect x="157" y="382" width="200" height="26" rx="6" class="card"/><text x="257" y="400" text-anchor="middle" font-size="13" class="t">change proxy &#9662;</text></g>
+      <g transform="translate(30 185) rotate(-90)"><text x="0" y="0" text-anchor="middle" font-size="15" class="t">Coverage &#8594;</text><g class="dd"><rect x="-100" y="8" width="200" height="26" rx="6" class="card"/><text x="0" y="26" text-anchor="middle" font-size="13" class="t">change proxy &#9662;</text></g></g>
+    </svg>`;
+function countBy(a,f){ const c={}; a.forEach(x=>{const k=f(x); c[k]=(c[k]||0)+1;}); return Object.entries(c).map(([k,v])=>`${v} ${esc(k)}`).join(", ")||"none"; }
+function winners(){
+  const o={llm:true,system:true,noContested:false}, ts=TH.filter(t=>!isRaw(t));
+  if(!ts.length) return "";
+  let h="";
+  COVM.filter(m=>m.ok).forEach(m=>{
+    const vals=ts.map(t=>[t,metricValue(t,m.id,o)]); const best=Math.max.apply(null,vals.map(v=>v[1]));
+    h+=`<li><b>${esc(m.name)}</b>: ${vals.filter(v=>v[1]===best).map(v=>lk(v[0].id,tName(v[0]))).join(", ")} (${fmtN(best)})</li>`;
+  });
+  const pts=ts.map(t=>({t,x:sizeOf(t,"n_principles"),y:metricValue(t,"passed",o)})).filter(p=>p.x!=null);
+  const fr=pareto(pts);
+  if(fr.length) h+=`<li><b>Pareto frontier (facts passed against number of principles)</b>: ${fr.map(p=>lk(p.t.id,tName(p.t))+` (${fmtN(p.y)} / ${fmtN(p.x)})`).join(", ")}</li>`;
+  return `<ul>${h}</ul>`;
+}
+function renderOverview(){
+  const m=D.meta; let h="";
+  h+=`<div class="ovq"><b>Question.</b> ${m.question?txt(m.question):'<span class="empty">Here goes the question the project asks.</span>'}</div>`;
+  const sec=(title,body,open)=>`<details${open?" open":""}><summary><b>${title}</b></summary><div class="in">${body}</div></details>`;
+  let b="";
+  b+=m.scope?`<p><b>Scope.</b> ${txt(m.scope)}</p>`:ph("the scope of the project.");
+  if(arr(m.suggestions).length) b+=`<p><b>Strategic suggestions in force</b></p><ul>${m.suggestions.map(s=>`<li>${txt(s)}</li>`).join("")}</ul>`;
+  if(arr(m.goals).length) b+=`<p><b>Goals</b></p><ul>${m.goals.map(s=>`<li>${txt(s)}</li>`).join("")}</ul>`;
+  h+=sec("Scope and goals",b);
+  const ps=arr(m.params);
+  h+=sec(`Setup choices (${ps.length})`,ps.length?`<div class="wrap"><table><tr><th>choice</th><th>options</th><th>chosen</th><th>note</th></tr>${ps.map(p=>`<tr><td><b>${esc(p.name||p.id)}</b> <span class="mut small">${esc(p.id)}</span></td><td>${esc(arr(p.options).join(", "))}</td><td>${esc(p.chosen)}</td><td class="small">${txt(p.note||"")}</td></tr>`).join("")}</table></div>`:ph("the setup choices that change meaning (for example the consequence relation)."));
+  const pp=arr(m.papers);
+  h+=sec(`Papers (${pp.length})`,pp.length?`<div class="wrap"><table><tr><th>paper</th><th>role</th><th>PDF</th><th>note</th></tr>${pp.map(x=>`<tr><td><b>${esc(x.id)}</b> ${esc(x.title||"")}</td><td>${esc(x.role||"")}</td><td>${x.have===false?badge("missing","unknown"):badge("in literature/","pass")}</td><td class="small">${txt(x.note||"")}</td></tr>`).join("")}</table></div>`:ph("the papers (id, role: target / data / proposal / background, and whether the PDF is in literature/)."));
+  // origin of the theories: a full citation (with a link when the paper has one) for theories from a paper; the parent's CODE for derived theories
+  const paperById = {}; pp.forEach(x=>{ if(x&&x.id) paperById[x.id]=x; });
+  const originOf = t => {
+    if(isRaw(t)) return "every fact listed as a principle (baseline)";
+    if(t.parent && THID[t.parent]) return `${esc((kindLabel(t)||t.kind||"derived").toLowerCase())}, from ${lk(t.parent,tName(THID[t.parent]))}`;
+    const o = t.origin||{}, src = o.source||"";
+    if(!src) return "";
+    const pa = paperById[src];
+    if(pa){ const cite = `${esc(pa.title||src)} <span class="mut">(${esc(src)})</span>`; return (/^https?:\/\//.test(String(pa.url||"")) ? `<a href="${esc(pa.url)}" target="_blank" rel="noopener">${cite}</a>` : cite)+(o.page?" p. "+esc(o.page):""); }
+    return esc(src)+(o.page?" p. "+esc(o.page):"");
+  };
+  if(TH.length) h+=sec(`Theories (${TH.length})`,`<div class="wrap"><table><tr><th>theory</th><th>family</th><th>kind</th><th>origin</th></tr>${TH.map(t=>`<tr><td>${lk(t.id,tName(t))}${tShort(t)&&tShort(t)!==tFull(t)?` <span class="mut small">${esc(tFull(t))}</span>`:""}</td><td>${esc(t.family||"")}</td><td>${esc(t.kind||"")}</td><td class="small">${originOf(t)}</td></tr>`).join("")}</table></div>`);
+  const nEnt=D.results.length;
+  b=`<ul><li>${FACTS.length} facts (${countBy(FACTS,f=>f.type||"other")}); ${FACTS.filter(f=>f.about==="system").length} about the system; ${FACTS.filter(f=>f.contested).length} controversial</li>`+
+    `<li>${PRIN.length} principles (${PRIN.filter(p=>p.auxiliary).length} auxiliary, ${PRIN.filter(p=>p.vocabulary).length} vocabulary)</li>`+
+    `<li>${TH.length} theories (${countBy(TH,t=>t.kind||"unspecified")})</li>`+(FRAGS.length?`<li>${FRAGS.length} fragments</li>`:"")+
+    `<li>${nEnt} result entries: by kind ${countBy(D.results,r=>r.kind)}; by outcome ${countBy(D.results,r=>OUTNAME[r.outcome]||r.outcome)}</li></ul>`;
+  const cells=[]; let nc=0,nw=0,np=0;
+  FACTS.forEach(f=>TH.forEach(t=>{ const p=pool(f.id,t.id); cells.push(p); if(p.conflict)nc++; if(p.warning)nw++; if(p.outcome==="pending")np++; }));
+  b+=`<p class="small">Cells: ${cells.length}; pending ${np}; conflicts ${nc}; warnings ${nw}.</p>`;
+  h+=sec("Counts",b);
+  const tk=arr(m.takeaways);
+  h+=sec(`Take-home messages (${tk.length})`,tk.length?`<ul>${tk.map(t=>`<li>${txt(t.text)} ${t.status?badge(t.status):""} ${t.link?`<span class="small">${lk(t.link)}</span>`:""}</li>`).join("")}</ul>`:ph("the take-home messages."),tk.length>0);
+  h+=sec("Winners by metric",winners()||ph("the winners by coverage metric and the Pareto frontier (needs theories and results)."));
+  h=`<div class="ovtop"><div class="ovf"><a class="ovlink" href="#matrix" title="Go to: Theories × Facts" aria-label="Go to: Theories × Facts">${FIG_LOOP}</a></div><div class="ovf"><a class="ovlink" href="#pareto" title="Go to: Coverage × Complexity" aria-label="Go to: Coverage × Complexity">${FIG_PLOT}</a></div><div class="ovtext">${h}</div></div>`;
+  const lim=arr(m.limits);
+  h+=`<div class="discl"><div class="kicker">Disclaimers and caveats</div><p>This is a beta, produced with AI assistance. Results may be wrong: check them (especially the translation of statements into code, in the Translations tab) before drawing scientific conclusions. Amend them by hand where needed. Iterate.</p>`+(lim.length?`<p><b>Limits of this project</b></p><ul>${lim.map(x=>`<li>${txt(x)}</li>`).join("")}</ul>`:ph("the honest limits of the project."))+`</div>`;
+  h+=`<p class="small">You steer by chatting with the agent: see the <a href="#guide">Instructions</a>. ${askBtn("What can I do next? Give me options, with your recommendation.")}</p>`;
+  $("t-overview").innerHTML=h;
+}
+
+/* ================= Empirical space ================= */
+function factCard(f){
+  const ro=THID, chips=TH.map(t=>{ const p=pool(f.id,t.id); return `<span class="chip ${p.outcome}${isRaw(t)?" rawchip":kInformal(p.kind)?" informal":""}" data-cell="${esc(f.id)}|${esc(t.id)}" style="cursor:pointer" title="">${esc(tName(t))} ${SYM[p.outcome]}${p.kind?`<sub class="kt" title="${esc(p.kind)}">${esc(kTag(p.kind))}</sub>`:""}${p.conflict?"⚑":""}${p.warning?"⚠":""}</span>`; }).join("");
+  const exp=f.expected||"holds";
+  let h=layersHtml(f,"fact")+`<table class="kv">`;
+  h+=`<tr><td>type</td><td>${esc(f.type||"other")} ${f.about==="system"?badge("system","unknown"):""}</td></tr>`;
+  h+=`<tr><td>expected</td><td>${esc(exp)} <span class="mut small">(a theory passes if the claim ${exp==="fails"?"fails":"holds"})</span></td></tr>`;
+  h+=`<tr><td>context</td><td>${esc(f.context==null?"null":f.context)}</td></tr>`;
+  if(f.confidence!=null) h+=`<tr><td>confidence</td><td>${esc(f.confidence)}</td></tr>`;
+  if(f.group) h+=`<tr><td>group</td><td>${esc(f.group)}</td></tr>`;
+  if(f.contested) h+=`<tr><td>controversial</td><td>yes (yellow cross and paler row in the matrix)</td></tr>`;
+  h+=`</table>`;
+  const st=specText(f); if(st) h+=`<p><span class="mut small">Spec:</span> <span class="mono">${esc(st)}</span></p>`;
+  h+=`<p class="small"><b>How it is tested.</b> ${esc(HOW[f.type]||HOW.other)}</p>`;
+  h+=`<p class="small"><b>Pass</b> means the expected outcome was met; <b>fail</b> means it was not; <b>out of scope</b> means the theory cannot express the fact, or its source leaves it to a mechanism the theory does not include; <b>pending</b> means nothing decided yet.</p>`;
+  if(arr(f.relations).length) h+=`<p class="small"><b>Relations</b>: ${f.relations.map(r=>`${esc(r.rel)} ${lk(r.to)}${r.note?" ("+esc(r.note)+")":""}`).join("; ")}</p>`;
+  const c=f.code||{}; if(c.python||c.lean) h+=`<p class="small"><b>Code</b>: ${c.python?"python <code>"+esc(c.python)+"</code> ":""}${c.lean?"lean <code>"+esc(c.lean)+"</code>":""}</p>`;
+  if(f.notes) h+=`<p class="small">${txt(f.notes)}</p>`;
+  h+=chLog(f.checks);
+  h+=`<p class="small"><b>Results per theory</b> (hover or click a chip):</p><div>${chips||'<span class="empty">Here goes the row of results, once theories exist.</span>'}</div><div class="row">${askBtn(P.fact(f))}</div>`;
+  return `<details id="c-${esc(f.id)}"><summary><b>${esc(f.id)}</b> ${esc(f.name||"")} <span class="mut small">${esc(f.type||"")}</span> ${f.contested?badge("controversial","out_of_scope"):""} ${arr(f.checks).length?chSummary(f.checks):""}</summary><div class="in">${h}</div></details>`;
+}
+function renderEmpList(){
+  const e=S.em, q=e.q.toLowerCase();
+  const ok=f=>{
+    if(e.type && (f.type||"other")!==e.type) return false;
+    if(e.about && (f.about||"language")!==e.about) return false;
+    if(e.cont && !f.contested) return false;
+    if(q && ![f.id,f.name,f.text,f.group].join(" ").toLowerCase().includes(q)) return false;
+    return true;
+  };
+  const fs=FACTS.filter(ok), seen={}; let h="";
+  fs.forEach(f=>{
+    if(f.group){ if(seen[f.group]) return; seen[f.group]=1;
+      const mem=fs.filter(x=>x.group===f.group);
+      h+=`<details id="c-${esc(f.group)}"><summary><b>Group ${esc(f.group)}</b> <span class="mut small">${mem.length} facts</span></summary><div class="in">${mem.map(factCard).join("")}</div></details>`;
+    } else h+=factCard(f);
+  });
+  $("em-list").innerHTML = h || (FACTS.length ? '<p class="empty">No fact matches the filters.</p>' : ph("the facts: one foldable card each (statement, type, expected outcome, origins, results per theory)."));
+  $("em-n").textContent = fs.length+" of "+FACTS.length+" facts";
+}
+function renderEmpirical(){
+  const types=[...new Set(FACTS.map(f=>f.type||"other"))];
+  $("t-empirical").innerHTML=`<p class="small mut">Each data point has a confidence; one informant is one data point, not a corpus.</p><div class="row"><input id="em-q" data-in="em-q" placeholder="search facts" style="flex:1;min-width:140px"><select data-in="em-type"><option value="">all types</option>${types.map(t=>`<option>${esc(t)}</option>`).join("")}</select><select data-in="em-about"><option value="">language + system</option><option value="language">language</option><option value="system">system</option></select><label><input type="checkbox" data-in="em-cont"> controversial only</label><span class="mut small" id="em-n"></span>${layerToggle()}</div><div id="em-list"></div>`;
+  renderEmpList();
+}
+
+/* ================= Theoretical space ================= */
+function sizeOfPrinciple(pid){
+  const M=(D.metrics||{}).theories||{};
+  for(const tid in M){ const p=((M[tid]||{}).principles||{})[pid]; if(p) return p; }
+  return null;
+}
+function principleCard(p){
+  const users=TH.filter(t=>arr(t.principles).includes(p.id));
+  let h=layersHtml(p,"principle");
+  if(p.confidence!=null) h+=`<p class="small">confidence ${esc(p.confidence)}</p>`;
+  if(arr(p.relations).length) h+=`<p class="small"><b>Relations</b>: ${p.relations.map(r=>`${esc(r.rel)} ${lk(r.to)}${r.note?" ("+esc(r.note)+")":""}`).join("; ")}</p>`;
+  const sz=sizeOfPrinciple(p.id);
+  if(sz) h+=`<p class="small"><b>Code size</b>: ${["python","lean"].filter(l=>sz[l]).map(l=>`${l} ${sz[l].chars} chars / ${sz[l].gzip} gzip`).join("; ")}</p>`;
+  const c=p.code||{}; if(c.python||c.lean) h+=`<p class="small"><b>Code</b>: ${c.python?"python <code>"+esc(c.python)+"</code> ":""}${c.lean?"lean <code>"+esc(c.lean)+"</code>":""}</p>`;
+  h+=`<p class="small"><b>Used by</b>: ${users.length?users.map(t=>lk(t.id,tName(t))).join(", "):"no theory"}</p>`+chLog(p.checks);
+  if(p.notes) h+=`<p class="small">${txt(p.notes)}</p>`;
+  h+=`<div class="row">${askBtn(P.prin(p))}</div>`;
+  return `<details id="c-${esc(p.id)}"><summary><b>${esc(p.name||p.id)}</b> <span class="mut small">${esc(p.id)}</span> ${p.auxiliary?badge("auxiliary","out_of_scope"):""} ${p.vocabulary?badge("vocabulary","computed"):""} ${arr(p.checks).length?chSummary(p.checks):""}</summary><div class="in">${h}</div></details>`;
+}
+function theoryCard(t){
+  let h=`<p>${esc(t.description||"")}</p><p class="small">${t.kind?badge(t.kind,"unknown"):""} ${t.family?"family: "+esc(t.family)+" ":""}${t.parent?"parent: "+lk(t.parent)+" ":""}${isRaw(t)?badge("baseline","unknown"):""}</p>`;
+  h+=isRaw(t) ? `<p class="small">Raw Facts: every fact listed as a principle. Maximal coverage, maximal complexity: the baseline a real theory should beat.</p>` :
+    `<p class="small"><b>Principles</b>: ${arr(t.principles).map(p=>lk(p)+(BYID[p]&&BYID[p].auxiliary?" (aux)":"")).join(", ")||"none"}</p>`;
+  h+=`<p class="small"><a href="#cards:${encodeURIComponent(t.id)}">Open the theory card</a></p>`;
+  return `<details id="c-${esc(t.id)}"><summary><b>${esc(tFull(t))}</b> <span class="mut small">${tShort(t)?esc(tShort(t))+" · ":""}${esc(t.id)} · ${isRaw(t)?"all facts":arr(t.principles).length+" principles"}</span></summary><div class="in">${h}</div></details>`;
+}
+function renderPrinList(){
+  const q=S.pr.q.toLowerCase();
+  const ps=PRIN.filter(p=>!q||[p.id,p.name,p.text].join(" ").toLowerCase().includes(q));
+  $("pr-list").innerHTML = ps.length ? ps.map(principleCard).join("") : (PRIN.length?'<p class="empty">No principle matches.</p>':ph("the principles: one foldable card each (statement, quotes, relations, badges, code size)."));
+}
+function renderPrinciples(){
+  $("pr-top").innerHTML=`<h2 style="margin-top:0">Principles</h2><div class="row"><input data-in="pr-q" placeholder="search principles" style="flex:1">${layerToggle()}</div><div id="pr-list"></div><h2>Theories</h2>`+(TH.length?TH.map(theoryCard).join(""):ph("the theories, each with its bundle of principles."));
+  renderPrinList();
+}
+
+/* ================= Translations ================= */
+const CODE = D.code||{}, CPR = CODE.principles||{}, CFA = CODE.facts||{};
+const TR_LANG = [["python","Python"],["lean","Lean"],["agda","Agda"]];
+const trKey = () => "linglab-translations:"+(D.meta.title||"");
+function trLoad(){ try{ const v=JSON.parse(localStorage.getItem(trKey())||"{}"); if(v&&typeof v==="object") S.tr.ck=v; }catch(e){} }
+function trSave(){ try{ localStorage.setItem(trKey(),JSON.stringify(S.tr.ck)); }catch(e){} }
+const trRows = () => PRIN.map(p=>({kind:"principle",s:p})).concat(FACTS.map(f=>({kind:"fact",s:f})));
+const origHtml = o => arr(o).map(x=>`<div class="quote">${esc(x.source||"")}${x.page?" p. "+esc(x.page):""}${x.quote?": “"+esc(x.quote)+"”":""}</div>`).join("");
+const preBlock = t => `<pre>${esc(t)}</pre>`;
+function trCodeOf(r){
+  const id=r.s.id;
+  if(r.kind==="principle"){ const c=CPR[id]||{}; return TR_LANG.filter(([l])=>c[l]).map(([l,n])=>({lang:n,theory:"",text:c[l]})); }
+  const c=CFA[id]||{}; let out=[];
+  [["lean","Lean"],["agda","Agda"]].forEach(([l,n])=>arr(c[l]).forEach(x=>out.push({lang:n,theory:x.theory,text:x.text})));
+  return out;
+}
+const P_TR = r => {
+  const s=r.s, code=trCodeOf(r).map(c=>`--- ${c.lang}${c.theory?" ("+c.theory+")":""}\n${c.text}`).join("\n\n");
+  const extra = r.kind==="fact" ? `Type: ${s.type||"other"}; expected: ${s.expected||"holds"}; context: ${s.context==null?"null":s.context}. Spec: ${(CFA[s.id]||{}).spec_text||specText(s)}.\n` : "";
+  return `Check the translation of ${r.kind} ${s.id} ("${s.name||""}") from words into code.\nStatement in words: ${s.text||""}\n${extra}${code?"Code:\n"+code+"\n":"(No code found in the project for it: say where it should be.)\n"}\nStep 1, a translation sheet: restate the statement in words, then say in plain language what each part of the code does, and flag every place where the code says more, less or something different (scope, order of arguments, missing cases, off-by-one models, a different notion of felicity or entailment).\nStep 2, an independent critic: in a fresh sub-agent that has not seen your sheet, give it only the words and the code and ask it to find a mismatch; then compare both and tell me what to look at. Do not edit anything before I confirm.`;
+};
+function trRowHtml(r){
+  const s=r.s, id=s.id, done=!!S.tr.ck[id];
+  let left=`<p>${esc(s.text||"")}</p>`, flags="";
+  if(r.kind==="principle"){
+    flags=[s.auxiliary?badge("auxiliary","out_of_scope"):"",s.vocabulary?badge("vocabulary","computed"):""].join(" ");
+    if(flags.trim()) left+=`<p>${flags}</p>`;
+    left+=origHtml(s.origins);
+  } else {
+    const exp=s.expected||"holds";
+    left+=`<table class="kv"><tr><td>type</td><td>${esc(s.type||"other")}</td></tr><tr><td>expected</td><td>${esc(exp)}</td></tr><tr><td>context</td><td>${esc(s.context==null?"null":s.context)}</td></tr></table>`;
+    left+=origHtml(s.origins);
+  }
+  let right="";
+  if(r.kind==="principle"){
+    const cs=trCodeOf(r);
+    right = cs.length ? cs.map(c=>`<div class="lang">${esc(c.lang)}</div>${preBlock(c.text)}`).join("") : '<p class="empty">No tagged code found for this principle (check the BEGIN/END principle tags).</p>';
+  } else {
+    const c=CFA[id]||{}, st=c.spec_text||specText(s);
+    right = st ? `<div class="lang">Spec (read by the Python runner)</div>${preBlock(st)}` : '<p class="empty">No formal spec.</p>';
+    [["lean","Lean"],["agda","Agda"]].forEach(([l,n])=>{
+      const xs=arr(c[l]); if(!xs.length) return;
+      right+=`<details><summary class="small">${n} theorems (${xs.length})</summary><div class="in">${xs.map(x=>`<div class="lang">${esc(x.theory)}</div>${preBlock(x.text)}`).join("")}</div></details>`;
+    });
+  }
+  const sy=symbolsOf(s,r.kind);
+  const mid = sy ? `<div class="trsym"><div class="lang">Symbols${sy.auto?' <span class="autotag" title="generated from the fact spec">auto</span>':""}</div>${texHtml(sy.src)}</div>` : "";
+  right += readingHtml(s);
+  const title=`<label class="trck"><input type="checkbox" data-trck="${esc(id)}"${done?" checked":""}> checked</label> <b>${esc(s.name||id)}</b> <span class="mut small">${esc(id)}</span> ${flags} ${arr(s.checks).length?chSummary(s.checks):""}`;
+  return `<details id="c-tr-${esc(id)}" class="${done?"trdone":""}"><summary>${title}</summary><div class="in"><div class="trrow${sy?" tr3":""}"><div>${left}<div class="row"><button class="askbtn" data-ask="${esc(P_TR(r))}" title="copy a prompt asking for a translation sheet and an independent critic for this row">copy review prompt</button></div></div>${mid}<div class="trcode">${right}</div></div></div></details>`;
+}
+function trCount(){
+  const rows=trRows(), n=rows.filter(r=>S.tr.ck[r.s.id]).length;
+  const el=$("tr-n"); if(el) el.textContent="checked "+n+" of "+rows.length;
+}
+function trMatch(r){
+  const q=S.tr.q.toLowerCase();
+  if(S.tr.un && S.tr.ck[r.s.id]) return false;
+  return !q || [r.s.id,r.s.name,r.s.text].join(" ").toLowerCase().includes(q);
+}
+function renderTrList(){
+  const rows=trRows().filter(trMatch);
+  const sec=(kind,title,hint)=>{ const rs=rows.filter(r=>r.kind===kind), all=trRows().filter(r=>r.kind===kind);
+    return `<details><summary><b>${title}</b> <span class="mut small">${rs.length} of ${all.length}</span></summary><div class="in">${rs.length?rs.map(trRowHtml).join(""):(all.length?'<p class="empty">No row matches.</p>':ph(hint))}</div></details>`; };
+  $("tr-list").innerHTML = sec("principle","Principles","the principles: statement in words next to the code, one row each.")+sec("fact","Facts","the facts: statement in words next to the spec and the theorems, one row each.");
+  trCount();
+}
+function trExport(){
+  const today=new Date().toISOString().slice(0,10);
+  const list=trRows().filter(r=>S.tr.ck[r.s.id]).map(r=>({id:r.s.id,by:"human",who:"",when:today,what:"translation",verdict:"agrees",note:"ticked in the report"}));
+  if(!list.length){ toast("No ticked rows to export"); return; }
+  copyText("Record these checks in the data (checks field of each item):\n"+JSON.stringify(list,null,2),list.length+" ticks copied: paste them into the chat");
+}
+function trFirstPrompt(){
+  const r=trRows().find(x=>!S.tr.ck[x.s.id]&&trMatch(x)) || trRows().find(trMatch);
+  return r ? P_TR(r) : "";
+}
+function renderTranslations(){
+  trLoad();
+  $("t-translations").innerHTML=`<p><b>What is certified, and what is not.</b> Each cell of the matrix is certified by a run or a verifier. Nobody certifies that the statement in words of a principle or a fact was translated into code faithfully: that is the one thing a person must check. Read each row (words on the left, symbols in the middle when present, code on the right, with the latest reading of the code underneath), tick it when you are satisfied. Ticks are kept only in this browser. This is the main place to spot a wrong result before it becomes a conclusion.</p>
+  <div class="row"><b id="tr-n"></b><label><input type="checkbox" data-in="tr-un"> unchecked only</label><input data-in="tr-q" placeholder="search rows" style="flex:1;min-width:140px"><button data-act="trexport" title="copy the ticked rows as a list of checks, with a prompt asking the agent to record them in the data">export my ticks</button><button data-act="trprompt" title="copy a prompt asking for a translation sheet and an independent critic for the first unchecked row shown">copy a review prompt</button></div>
+  <div id="tr-list"></div>`;
+  renderTrList();
+}
+
+/* ================= Theories × Facts: the heatmap ================= */
+/* One small square per (fact, theory): colour = pooled outcome; marks = evidence kind (dot: machine-checked proof; stripes: informal evidence, not computed),
+   conflicting results (cross), controversial fact (yellow cross in the header, paler). Theories grouped by family when there are two or more families,
+   facts grouped by kind (fact.kind, else fact.type). Everything the old tooltips and rows showed is in the docked panel (click a square or a bar). */
+const MXK = {pass:"pass",fail:"fail",out_of_scope:"oos",pending:"pend"};
+const PROOFK = {}; (arr(REG.proof_kinds).length ? REG.proof_kinds : ["lean","agda"]).forEach(k=>PROOFK[k]=1);
+const KT = (D.meta.fact_kinds && typeof D.meta.fact_kinds==="object" && !Array.isArray(D.meta.fact_kinds)) ? D.meta.fact_kinds : {};
+const FAMS = (D.meta.family_short && typeof D.meta.family_short==="object" && !Array.isArray(D.meta.family_short)) ? D.meta.family_short : {};
+const famName = f => (typeof FAMS[f]==="string" && FAMS[f].trim()) || f;
+const factKind = f => (typeof f.kind==="string" && f.kind.trim()) || f.type || "other";
+const kindTitle = k => (typeof KT[k]==="string" && KT[k].trim()) || k;
+const factLayer = f => (typeof f.layer==="string" && f.layer.trim()) || (f.contested ? "contested" : "uncontested");
+const LAYER_NAME = {uncontested:"Uncontroversial", contested:"Controversial"};
+function layerList(){ // the reliability sets present among the facts: registry.layers order first, then the others in order of appearance
+  const present = []; FACTS.forEach(f=>{ const l=factLayer(f); if(!present.includes(l)) present.push(l); });
+  const given = arr(REG.layers).map(l=>typeof l==="string"?{id:l,name:l}:l).filter(l=>l&&l.id);
+  const out = []; given.forEach(l=>{ if(present.includes(l.id)) out.push({id:l.id,name:l.name||l.id}); });
+  present.forEach(l=>{ if(!out.some(x=>x.id===l)) out.push({id:l,name:LAYER_NAME[l]||l}); });
+  return out;
+}
+function mxFactGroups(){ // kinds in order of appearance; contested facts last within their kind; members of a group side by side
+  const kinds = [], by = {};
+  FACTS.forEach(f=>{ const k=factKind(f); if(!by[k]){ by[k]=[]; kinds.push(k); } by[k].push(f); });
+  return kinds.map(k=>{
+    let fs = by[k].filter(f=>!f.contested).concat(by[k].filter(f=>f.contested));
+    const seen = {}, out = [];
+    fs.forEach(f=>{ if(f.group){ if(seen[f.group]) return; seen[f.group]=1; fs.filter(x=>x.group===f.group).forEach(x=>out.push(x)); } else out.push(f); });
+    return {kind:k,title:kindTitle(k),facts:out};
+  });
+}
+function mxTheoryGroups(){ // by family when the project has two or more, otherwise flat; Raw Facts last, as the baseline
+  const non = TH.filter(t=>!isRaw(t)), raw = TH.filter(isRaw);
+  const fams = [...new Set(non.map(t=>t.family||"").filter(Boolean))];
+  const g = [];
+  if(fams.length>=2){ fams.forEach(f=>g.push({fam:famName(f),cols:non.filter(t=>(t.family||"")===f)})); const rest=non.filter(t=>!t.family); if(rest.length) g.push({fam:"no family",cols:rest}); }
+  else if(non.length) g.push({fam:"",cols:non});
+  if(raw.length) g.push({fam:fams.length>=2?"Baseline":"",cols:raw,ref:true});
+  return g;
+}
+/* kind of theory -> row label inside a family (Source / Modified / ...); meta.theory_kinds overrides. Used when it is unique within the family, else the short name */
+const TKINDS = (D.meta.theory_kinds && typeof D.meta.theory_kinds==="object" && !Array.isArray(D.meta.theory_kinds)) ? D.meta.theory_kinds : {};
+const kindLabel = t => (typeof TKINDS[t.kind]==="string" && TKINDS[t.kind].trim()) || ({original:"Source",fix:"Modified",creative:"New"})[t.kind] || "";
+function rowLabel(t,g){
+  const kl = (g.fam && !g.ref && !isRaw(t)) ? kindLabel(t) : "";
+  if(kl && g.cols.filter(x=>kindLabel(x)===kl).length===1) return `${esc(kl)} <span class="mut fnm">${esc(tName(t))}</span>`;
+  return esc(tName(t));
+}
+const mxCount = (tid,pred) => { const c={pass:0,fail:0,out_of_scope:0,pending:0}; FACTS.forEach(f=>{ if(!pred||pred(f)) c[pool(f.id,tid).outcome]++; }); return c; };
+function mxBar(c,w,tid){
+  const n=(c.pass+c.fail+c.out_of_scope+c.pending)||1, t=`pass ${c.pass} · fail ${c.fail} · out of scope ${c.out_of_scope} · pending ${c.pending} · click for the summary`;
+  return `<span class="bar" data-bar="${esc(tid)}" style="width:${w}px" title="${esc(t)}"><i style="width:${100*c.pass/n}%;background:var(--vok)"></i><i style="width:${100*c.fail/n}%;background:var(--vbad)"></i><i style="width:${100*c.out_of_scope/n}%;background:var(--voos)"></i></span>`;
+}
+function mxCls(f,t,p){
+  let c = "cell "+MXK[p.outcome];
+  if(f.contested) c+=" con";
+  if(p.kind && PROOFK[p.kind]) c+=" proof"; else if(p.kind && !isRaw(t) && kInformal(p.kind)) c+=" inf";
+  if(p.conflict||p.warning) c+=" flag";
+  return c;
+}
+function mxCell(f,t){
+  const p = pool(f.id,t.id), lab = `${f.id} × ${tName(t)}: ${OUTNAME[p.outcome]}${p.kind?" ("+p.kind+")":""}${p.conflict?", conflict":""}${p.warning?", warning":""}`;
+  return `<td class="${mxCls(f,t,p)}" data-cell="${esc(f.id)}|${esc(t.id)}" aria-label="${esc(lab)}"></td>`;
+}
+const conTick = f => f.contested ? `<span class="con-q xm" style="--c:var(--vamb)" title="controversial fact"></span>` : "";
+const factTitle = f => f.id+(f.name?": "+f.name:"")+(f.text?". "+trunc(f.text,240):"");
+function mxLegend(){
+  const sw = (bg,inner,title) => `<i class="sw" style="background:${bg};${inner?"position:relative":""}">${inner||""}</i>`;
+  const proofs = Object.keys(PROOFK).filter(k=>LADDER.includes(k)||k==="lean"||k==="agda");
+  const dot = `<i style="position:absolute;left:50%;top:50%;margin:-2.5px 0 0 -2.5px;width:5px;height:5px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.35)"></i>`;
+  const xx = `<i class="xm" style="position:absolute;left:50%;top:50%;margin:-3.5px 0 0 -3.5px"></i>`;
+  const cl1 = `<div class="mxv-legend"><span><i class="sw" style="background:var(--vok)"></i>pass</span><span><i class="sw" style="background:var(--vbad)"></i>fail</span><span title="the theory cannot express the fact, or does not cover it"><i class="sw" style="background:var(--voos)"></i>out of scope</span><span><i class="sw" style="background:var(--card);box-shadow:inset 0 0 0 1px var(--line)"></i>pending</span></div>`;
+  const cl2 = `<div class="mxv-legend"><span title="a machine-checked proof settles this cell (${esc(proofs.join(", "))})">${sw("var(--vok)",dot)}${esc(proofs.map(k=>k.charAt(0).toUpperCase()+k.slice(1)).join(" / ")||"proof")}</span>`+
+    `<span title="conflicting results: entries at the same rank disagree, or a weaker kind of evidence disagrees with the displayed outcome">${sw("var(--vok)",xx)}conflicting results</span>`+
+    `<span title="informal evidence: a person, a paper, a claim or an LLM reading, not a run or a proof">${sw("var(--vok) repeating-linear-gradient(135deg, rgba(255,255,255,.75) 0 2px, transparent 2px 5px)","")}informal evidence</span></div>`;
+  const cl3 = `<div class="mxv-legend"><span><i class="sw" style="background:var(--bg);box-shadow:inset 0 0 0 1px var(--line);position:relative"><i class="xm" style="--c:var(--vamb);position:absolute;left:50%;top:50%;margin:-3.5px 0 0 -3.5px"></i></i>controversial fact</span>`+
+    (TH.some(isRaw)?`<span title="Raw Facts: the baseline theory made of all the facts"><i class="sw" style="background:var(--rawbg);box-shadow:inset 0 0 0 1px var(--raw)"></i>baseline: Raw Facts</span>`:"")+`</div>`;
+  return `<div class="mxv-legendbox" aria-label="legend">${cl1}${cl2}${cl3}</div>`;
+}
+function mxTable(){
+  const FG = mxFactGroups(), TG = mxTheoryGroups(), allT = [].concat.apply([],TG.map(g=>g.cols)), nF = FACTS.length;
+  const famLines = TG.some(g=>g.fam);
+  let h = `<table class="mxv-grid${S.mx.tr?" tr":""}"><thead>`;
+  if(!S.mx.tr){ // theories as rows, facts as columns
+    const maxId = Math.max.apply(null,FACTS.map(f=>String(f.id).length).concat([3]));
+    const vh = Math.min(150, 14+7*maxId);
+    const GAP = '<th class="gap"></th>', GAPD = '<td class="gap"></td>';
+    const idTh = f => `<th class="ch vert${f.contested?" con":""}" id="r-${esc(f.id)}" style="height:${vh}px" title="${esc(factTitle(f))}"><a href="#empirical:${encodeURIComponent(f.id)}">${conTick(f)}<span>${esc(f.id)}</span></a></th>`;
+    const isNar = g => 6.4*g.title.length > 14*g.facts.length - 4;
+    const nar = Math.max.apply(null,FG.filter(isNar).map(g=>g.title.length).concat([0])), kh = nar? Math.min(110,10+6.5*nar):0;
+    h += `<tr class="h1"><th class="corner"></th><th class="scorehead"></th>${FG.map(g=>isNar(g)?`<th class="kh narrow" colspan="${g.facts.length}" style="height:${kh}px" title="${esc(g.title)}"><span>${esc(g.title)}</span></th>`:`<th class="kh" colspan="${g.facts.length}" title="${esc(g.title)}">${esc(g.title)}</th>`).join(GAP)}</tr>`;
+    h += `<tr class="h2"><th class="corner"></th><th class="scorehead" title="pass · fail · out of scope · pending">Σ</th>${FG.map(g=>g.facts.map(idTh).join("")).join(GAP)}</tr></thead><tbody>`;
+    TG.forEach(g=>{
+      if(g.fam) h += `<tr class="famline"><th class="rh fam" colspan="${2+nF+FG.length-1}"><span class="famtxt">${esc(g.fam)}</span></th></tr>`;
+      g.cols.forEach(t=>{
+        h += `<tr><th class="rh let${isRaw(t)?" rawr":""}" id="col-${esc(t.id)}" title="${esc(tFull(t)+(t.kind?" ("+t.kind+")":""))}"><a href="#cards:${encodeURIComponent(t.id)}">${rowLabel(t,g)}</a></th><td class="sc">${mxBar(mxCount(t.id),56,t.id)}</td>`+
+          FG.map(gf=>gf.facts.map(f=>mxCell(f,t)).join("")).join(GAPD)+`</tr>`;
+      });
+    });
+    h += `</tbody></table>`;
+  } else { // facts as rows, theories as columns grouped by family
+    const maxN = Math.max.apply(null,allT.map(t=>tName(t).length).concat([3])), vh = Math.min(150, 14+7*maxN);
+    if(famLines) h += `<tr class="h1"><th class="corner" colspan="2"></th>${TG.map(g=>`<th class="fam ch" colspan="${g.cols.length}">${esc(g.fam)}</th>`).join("")}</tr>`;
+    h += `<tr class="h2"><th class="corner" colspan="2"></th>${allT.map(t=>`<th class="ch vert${isRaw(t)?" rawr":""}" id="col-${esc(t.id)}" style="height:${vh}px" title="${esc(tFull(t)+(t.kind?" ("+t.kind+")":""))}"><a href="#cards:${encodeURIComponent(t.id)}"><span>${esc(tName(t))}</span></a></th>`).join("")}</tr></thead><tbody>`;
+    h += `<tr class="totrow"><th class="rh cq"></th><th class="rh idc" title="pass · fail · out of scope · pending">Σ</th>${allT.map(t=>`<td class="tot">${mxBar(mxCount(t.id),34,t.id)}</td>`).join("")}</tr>`;
+    FG.forEach(g=>{
+      h += `<tr><td class="cqe"></td><td class="kh2" colspan="${allT.length+1}">${esc(g.title)}</td></tr>`;
+      g.facts.forEach(f=>{
+        h += `<tr><th class="rh cq" title="${f.contested?"controversial fact":""}">${conTick(f)}</th><th class="rh idc${f.contested?" con":""}" id="r-${esc(f.id)}" title="${esc(factTitle(f))}"><a href="#empirical:${encodeURIComponent(f.id)}">${esc(f.id)}</a> <span class="mut fnm">${esc(trunc(f.name||"",26))}</span></th>`+
+          allT.map(t=>mxCell(f,t)).join("")+`</tr>`;
+      });
+    });
+    h += `</tbody></table>`;
+  }
+  return h;
+}
+function renderMatrixBody(){
+  const box = $("mx-body"); if(!box) return;
+  if(!TH.length || !FACTS.length){ box.innerHTML = ph("the matrix: theories and facts as a heatmap, one square per cell, coloured by the pooled outcome (Raw Facts included as the baseline)."); return; }
+  const w = $("mx-wrap"); if(w&&w.classList) w.classList.toggle("side",!!S.mx.tr);
+  box.innerHTML = mxTable();
+  S.mx.selEl = null; stick();
+}
+function renderMatrix(){
+  const tgl = `<span class="seg" title="which way the table is turned"><button data-mxtr="0" class="${S.mx.tr?"":"on"}">Theories × Facts</button><button data-mxtr="1" class="${S.mx.tr?"on":""}">Facts × Theories</button></span>`;
+  $("t-matrix").innerHTML = `<div class="howto">These are not scientific results, but the presentation of current (partial and faulty) capabilities; verdicts are of various types: runs, reported results and machine-checked proofs. Each cell is a (fact, theory) pair. Hover and click all parts of the table for details.</div>
+  <div class="mxv"><div class="mxv-ctl">${tgl}</div>
+  <div class="mxv-wrap${S.mx.tr?" side":""}" id="mx-wrap">${mxLegend()}<div class="mxv-scroll" id="mx-body"></div></div></div><div class="mxv-spacer" aria-hidden="true"></div>`;
+  renderMatrixBody();
+}
+// sticky headers below the page's own top block (band and tabs); the second header row below the first
+function stick(){
+  try{
+    const top = $("top"), band = $("band"), bh = (band && band.offsetHeight) || 0, H = bh + ((top && top.offsetHeight) || 0), root = document.documentElement;
+    if(!root || !root.style || !root.style.setProperty) return;
+    root.style.setProperty("--bh",bh+"px");        // the tabs stick below the band
+    root.style.setProperty("--mxtop",H+"px");      // sticky headers of the heatmap and the left column of the plot stick below both
+    const r1 = document.querySelector ? document.querySelector("#mx-body tr.h1") : null;
+    root.style.setProperty("--mxtop2",(H+((r1&&r1.offsetHeight)||0))+"px");
+  }catch(e){}
+}
+
+/* ----- the docked panel (cells and bars) ----- */
+const mxTitle = f => `${esc(f.id)}${f.name?" "+esc(f.name):""}`;
+function linkedPrinciples(f,t){ // principles of the theory's bundle that the data link to this fact: relations (either way), findings that list both
+  const bundle = arr(t.principles), out = {};
+  const add = (pid,why) => { if(bundle.includes(pid) && BYID[pid]){ (out[pid]=out[pid]||[]).push(why); } };
+  arr(f.relations).forEach(r=>{ if(r&&r.to) add(r.to,"relation of the fact: "+(r.rel||"related")); });
+  bundle.forEach(pid=>{ const p=BYID[pid]; if(p) arr(p.relations).forEach(r=>{ if(r&&r.to===f.id) add(pid,"relation of the principle: "+(r.rel||"related")); }); });
+  D.findings.forEach(x=>{ if(arr(x.facts).includes(f.id)) arr(x.principles).forEach(pid=>add(pid,"finding "+x.id)); });
+  return Object.keys(out).map(pid=>({p:BYID[pid],why:out[pid]}));
+}
+function parsesHtml(f,t){ // the candidate parses of the fact's sentence, and which the theory picks
+  const ps = arr(f.parses); if(!ps.length) return "";
+  const pol = (t&&t.parse_policy)||"first", picks = t&&t.picks&&t.picks[f.id];
+  const ids = (f.spec?["main"]:[]).concat(ps.map(x=>x.id));
+  const sel = picks&&picks.length ? picks : (pol==="first" ? ids.slice(0,1) : ids);
+  return `<p class="small"><b>Parses of the sentence</b> (${ids.length}): ${ids.map(id=>`<code>${esc(id)}</code>${sel.includes(id)?"":" <span class=\"mut\">(not used by "+esc(t?tName(t):"this theory")+")</span>"}`).join(", ")}. ${esc(t?tName(t):"The theory")} combines the parses it uses with policy <code>${esc(picks&&picks.length>1&&pol==="first"?"any":pol)}</code>; the choice belongs to the theory.</p>`;
+}
+function panelFact(f,t){
+  const exp = f.expected||"holds";
+  let h = `<div class="kv2"><b>Fact</b><span>${lk(f.id,f.id+(f.name?" "+f.name:""))}${f.contested?" "+badge("controversial","out_of_scope"):""}${f.about==="system"?" "+badge("system","unknown"):""}</span>`+
+    (f.text?`<b>Statement</b><span>${esc(f.text)}</span>`:"")+
+    `<b>Kind</b><span>${esc(kindTitle(factKind(f)))}${f.type&&f.type!==factKind(f)?` <span class="mut small">(type ${esc(f.type)})</span>`:""}</span>`+
+    `<b>Expected</b><span>${esc(exp)} <span class="mut small">(a theory passes if the claim ${exp==="fails"?"fails":"holds"})</span></span><b>Context</b><span>${esc(f.context==null?"null":f.context)}</span>`+
+    (f.confidence!=null?`<b>Confidence</b><span>${esc(f.confidence)}</span>`:"")+
+    (f.layer?`<b>Reliability set</b><span>${esc(f.layer)}</span>`:"")+`</div>`;
+  const st = specText(f); if(st) h += `<p class="small"><span class="mut">Spec:</span> <span class="mono">${esc(st)}</span></p>`;
+  h += parsesHtml(f,t);
+  const sy = symbolsOf(f,"fact"); if(sy) h += `<p>${texHtml(sy.src)}${sy.auto?'<span class="autotag" title="generated from the fact spec">auto</span>':""}</p>`;
+  if(f.group){ const mem = FACTS.filter(x=>x.group===f.group), ro = rollup(mem,t.id);
+    h += `<p class="small"><b>Group ${esc(f.group)}</b> (roll-up: passes iff all members pass): ${outBadge(ro.outcome)} · ${mem.map(x=>`${esc(x.id)} ${outBadge(pool(x.id,t.id).outcome)}`).join(", ")}</p>`; }
+  h += origHtml(f.origins);
+  if(arr(f.relations).length) h += `<p class="small"><b>Relations</b>: ${f.relations.map(r=>`${esc(r.rel)} ${lk(r.to)}${r.note?" ("+esc(r.note)+")":""}`).join("; ")}</p>`;
+  if(f.notes) h += `<p class="small mut">${txt(f.notes)}</p>`;
+  return h;
+}
+function panelPrinciples(f,t){
+  if(isRaw(t)) return `<p class="small">Raw Facts: every fact is its own principle; this cell passes by construction of the listing.</p>`;
+  const lp = linkedPrinciples(f,t), bundle = arr(t.principles), frs = arr(t.fragments);
+  let h = "";
+  const row = (p,why) => `<div class="prow small">${lk(p.id,p.name||p.id)} ${p.auxiliary?badge("auxiliary","out_of_scope"):""}${p.vocabulary?badge("vocabulary","computed"):""}${why?` <span class="mut">${esc(why)}</span>`:""}<div class="mut">${esc(trunc(p.text||"",420))}</div></div>`;
+  if(lp.length) h += `<p class="small"><b>Linked to this fact in the data</b> (${lp.length}):</p>`+lp.map(x=>row(x.p,x.why.join("; "))).join("");
+  else h += `<p class="small mut">No link between this fact and a principle of this theory is recorded in the data (relations of the fact or of a principle, findings that list both). The theory's whole bundle is listed instead.</p>`;
+  h += `<details class="mxs"><summary class="small">Whole bundle of ${esc(tName(t))} (${bundle.length} principles)</summary>${bundle.map(pid=>BYID[pid]?row(BYID[pid],""):`<div class="small"><code>${esc(pid)}</code> not found</div>`).join("")||'<p class="empty small">No principle yet.</p>'}</details>`;
+  const req = arr(typeof f.requires==="string" ? [f.requires] : f.requires);
+  if(req.length) h += `<p class="small"><b>Fragment the fact requires</b>: ${req.map(fid=>`${esc((FRID[fid]&&FRID[fid].name)||fid)} <span class="mut">${esc(fid)}</span> (${frs.includes(fid)?"declared by this theory":"not declared by this theory"})`).join(", ")}</p>`;
+  h += `<p class="small"><b>Fragment${frs.length===1?"":"s"} of ${esc(tName(t))}</b>: ${frs.length?frs.map(fid=>FRID[fid]?`${esc(FRID[fid].name||fid)} <span class="mut">${esc(fid)}</span>`:`<code>${esc(fid)}</code>`).join(", ")+` (<a href="#cards:${encodeURIComponent(t.id)}">theory card</a>)`:"none declared"}</p>`;
+  return h;
+}
+function panelTest(f,t){
+  const p = pool(f.id,t.id), ent = p.entries.slice().sort((x,y)=>rankOf(x)-rankOf(y));
+  let h = `<div class="kv2"><b>Verdict</b><span>${outBadge(p.outcome)}${p.conflict?` <span class="badge fail">conflict: entries at the same rank disagree</span>`:""}${p.warning?` <span class="badge out_of_scope">warning: a weaker kind disagrees</span>`:""}</span>`+
+    `<b>Method</b><span>${p.kind?`${esc(p.kind)}${PROOFK[p.kind]?" (machine-checked proof)":kInformal(p.kind)&&!isRaw(t)?" (informal evidence, not a run or a proof)":""}`:'<span class="mut">no entry yet</span>'}</span></div>`;
+  if(p.outcome==="out_of_scope"){ const why = (p.entries.find(e=>e.outcome==="out_of_scope"&&e.scope)||{}).scope;
+    h += `<p class="small">Out of scope${why?" ("+esc(({fragment:"fragment",no_prediction:"no prediction",primitive:"primitive"})[why]||why)+")":""}: ${why?esc(SCOPE_WORDS[why]||why)+".":"the theory cannot express the fact (its translation fails), or the entry says it lies outside the fragment."} It is not counted as applicable and is not a failure.</p>`; }
+  if(p.outcome==="fail") h += `<p class="small">Not met: the expected outcome (${esc(f.expected||"holds")}) was not obtained; the reasons below give the countermodel or the argument.</p>`;
+  h += ent.length ? ent.map(e=>entryHtml(e,true)).join("") : `<p class="empty small">No entries yet (pending).</p>`;
+  const c = (CFA[f.id]||{});
+  // proof statements of the theory's family (a modified or revised theory shares the formalization of its source); the theory's own first
+  const fam = t.family||"", inFam = x => x.theory===t.id || (fam!=="" && THID[x.theory] && (THID[x.theory].family||"")===fam);
+  [["lean","Lean"],["agda","Agda"]].forEach(([l,n])=>{
+    const xs = arr(c[l]).filter(inFam).sort((a,b)=>(b.theory===t.id?1:0)-(a.theory===t.id?1:0));
+    if(!xs.length) return;
+    const own = xs.some(x=>x.theory===t.id);
+    h += `<p class="small"><b>${n} statement${xs.length>1?"s":""}</b> ${own&&xs.length===1?"for "+esc(tName(t)):"in the formalization of "+esc(fam?famName(fam):tName(t))}${own?"":` <span class="mut">(${esc(tName(t))} has no statement of its own: it shares this formalization)</span>`}</p>`+
+      xs.map(x=>`${x.theory!==t.id&&THID[x.theory]?`<div class="small mut">${esc(tName(THID[x.theory]))}</div>`:""}<pre class="fpre">${esc(x.text)}</pre>`).join("");
+  });
+  h += `<p class="small"><b>How it is tested.</b> ${esc(HOW[f.type]||HOW.other)}</p>`;
+  h += `<p class="small mut">Pass: expected outcome met · fail: not met · out of scope: not expressible, or not covered by the theory · pending: nothing decided yet.</p>`;
+  h += `<div class="row">${askBtn(P.cell(f.id,t.id))}</div>`;
+  return h;
+}
+const READ = {}; D.readings.forEach(r=>{ READ[r.fact+"\u0001"+r.theory]=r; });
+function panelReading(f,t){ // an LLM's meta-reading of the cell: how the outcome came about; never evidence, never pooled
+  const r = READ[f.id+"\u0001"+t.id]; if(!r) return "";
+  const rv = r.review||"unreviewed";
+  return `<details class="mxs"><summary>4. Reading <span class="mut small">written by ${esc(r.by||"an assistant")}, not evidence</span></summary>`+
+    `<p class="small mut">An explanation of what happened in this cell (how the proof or the run seems to have worked). It does not enter the verdict, the counts or the plots.</p>`+
+    `<p>${txt(r.text)}</p><p class="small mut">${r.when?esc(r.when)+" · ":""}${rv==="unreviewed"?"not reviewed by a person":rv==="accepted"?"accepted by "+esc(r.reviewer||"a person"):"corrected by "+esc(r.reviewer||"a person")}</p></details>`;
+}
+function panelCell(f,t){
+  const p = pool(f.id,t.id);
+  return `<h4>${lk(f.id,f.id)} × ${lk(t.id,tName(t))}: ${outBadge(p.outcome)}${p.kind?` <span class="mut small">from ${esc(p.kind)}</span>`:""}</h4>`+
+    `<details class="mxs"><summary>1. Fact: ${mxTitle(f)}</summary>${panelFact(f,t)}</details>`+
+    `<details class="mxs"><summary>2. Principles involved (${esc(tName(t))}) <span class="mut small">experimental</span></summary>${panelPrinciples(f,t)}</details>`+
+    `<details class="mxs"><summary>3. Current test (${esc(tName(t))} on ${esc(f.id)})</summary>${panelTest(f,t)}</details>`+panelReading(f,t);
+}
+function panelBar(t){
+  const sets = layerList(), meths = LADDER.concat(["other"]);
+  const rows = sets.map(l=>({name:l.name,pred:f=>factLayer(f)===l.id})); rows.push({name:"All facts",pred:null,all:true});
+  const cell = (pred,o) => { const fs = FACTS.filter(f=>!pred||pred(f)).filter(f=>pool(f.id,t.id).outcome===o);
+    const m = {}; fs.forEach(f=>{ const k=pool(f.id,t.id).kind||"other"; const kk=LADDER.includes(k)?k:"other"; m[kk]=(m[kk]||0)+1; });
+    const parts = meths.filter(k=>m[k]).map(k=>`${esc(k)} ${m[k]}`);
+    return `<b>${fs.length}</b>${parts.length?`<br><span class="mut small">${parts.join(" · ")}</span>`:""}`; };
+  const outs = ["pass","fail","out_of_scope","pending"];
+  return `<h4>${lk(t.id,tName(t))}: summary of the outcomes</h4>`+
+    `<div class="kv2"><b>Theory</b><span>${esc(tFull(t))}${t.kind?" ("+esc(t.kind)+")":""}</span>${t.family?`<b>Family</b><span>${esc(t.family)}</span>`:""}<b>Principles</b><span>${isRaw(t)?"all facts":arr(t.principles).length}</span></div>`+
+    `<p class="small">Outcomes on the facts of this project, by set of facts (reliability set) and, in small type, by the kind of evidence that decided each cell. Pass: the theory gives the expected outcome; fail: it does not; out of scope: it cannot express the fact, or does not cover it; pending: nothing decided yet.</p>`+
+    `<div class="wrap"><table class="mxsum"><thead><tr><th></th>${outs.map(o=>`<th>${OUTNAME[o]}</th>`).join("")}<th>total</th></tr></thead><tbody>`+
+    rows.map(r=>`<tr><th>${esc(r.name)}</th>${outs.map(o=>`<td>${cell(r.pred,o)}</td>`).join("")}<td><b>${FACTS.filter(f=>!r.pred||r.pred(f)).length}</b></td></tr>`).join("")+`</tbody></table></div>`+
+    `<p class="small mut">Formal kinds (${esc(Object.keys(KFORMAL).join(", "))}) are runs or proofs; the others are informal and never shown as formal.</p>`;
+}
+function popOpen(html,key,el){
+  const pop = $("pop"); if(!pop) return;
+  if(S.mx.selEl && S.mx.selEl.classList) S.mx.selEl.classList.remove("sel");
+  pop.innerHTML = `<button class="x" data-act="closepop" title="Close (Esc)">&times;</button>${html}`;
+  pop.style.display = "block"; S.pop = key;
+  S.mx.selEl = el||null; if(el && el.classList) el.classList.add("sel");
+}
+function popClose(){
+  const pop = $("pop"); if(pop) pop.style.display = "none";
+  if(S.mx.selEl && S.mx.selEl.classList) S.mx.selEl.classList.remove("sel");
+  S.mx.selEl = null; S.pop = null;
+}
+
+/* ================= Theory cards ================= */
+const usersOfFrag = fid => { const u=arr(FUSERS[fid]); return u.length ? u : TH.filter(t=>arr(t.fragments).includes(fid)).map(t=>t.id); };
+const CARD_FILES = (D.code||{}).files||{};
+function fileHtml(x){
+  const path = typeof x==="string" ? x : (x&&(x.path||x.file))||"", text = typeof x==="string" ? CARD_FILES[x] : (x&&(x.text!=null?x.text:x.code));
+  if(text!=null && String(text)!=="") return `<details><summary class="small"><code>${esc(path)}</code></summary><div class="in"><pre class="fpre">${esc(text)}</pre></div></details>`;
+  return `<div class="small"><code>${esc(path)}</code></div>`;
+}
+function fragBlock(fid,cur,open){
+  const f=FRID[fid];
+  if(!f) return `<div class="small">fragment <code>${esc(fid)}</code> <span class="empty">is not described in the data</span></div>`;
+  const others=usersOfFrag(fid).filter(x=>x!==cur.id);
+  let h="";
+  if(f.summary) h+=`<p>${esc(f.summary)}</p>`;
+  if(f.notation) h+=`<p>${texHtml(f.notation)}</p>`;
+  const defs=arr(f.defs);
+  if(defs.length) h+=`<div class="wrap"><table><tr><th>name</th><th>in words</th><th>symbols</th></tr>${defs.map(d=>`<tr><td><b>${esc(d.label||"")}</b></td><td class="small">${esc(d.text||"")}</td><td>${d.notation?texHtml(d.notation):""}</td></tr>`).join("")}</table></div>`;
+  const files=f.files&&typeof f.files==="object"?f.files:{};
+  const langs=["python","lean","agda"].concat(Object.keys(files).filter(k=>!["python","lean","agda"].includes(k)));
+  const fl=langs.filter(l=>arr(files[l]).length);
+  if(fl.length) h+=`<div><b class="small">Files</b>${fl.map(l=>`<div class="small mut" style="margin-top:4px">${esc(l)}</div>${arr(files[l]).map(fileHtml).join("")}`).join("")}</div>`;
+  h+=`<p class="small"><b>${others.length?"also used by":"used by"}</b>: ${others.length?others.map(x=>lk(x)).join(", "):"this theory only"}</p>`;
+  h+=chLog(f.checks);
+  if(f.notes) h+=`<p class="small mut">${txt(f.notes)}</p>`;
+  return `<details class="frag" id="c-fr-${esc(fid)}"${open?" open":""}><summary><b>${esc(f.name||fid)}</b> <span class="mut small">${esc(fid)}</span> ${arr(f.checks).length?chSummary(f.checks):""}</summary><div class="in">${h}</div></details>`;
+}
+function prinRow(pid,cur){
+  const p=BYID[pid];
+  if(!p) return `<div class="prow"><code>${esc(pid)}</code> <span class="empty">not found in statements</span></div>`;
+  const lat=chLatest(p.checks);
+  const head=`<div class="prhead">${lk(pid,p.name||pid)} <span class="mut small">${esc(pid)}</span> ${p.auxiliary?badge("auxiliary","out_of_scope"):""} ${p.vocabulary?badge("vocabulary","computed"):""} ${lat?verdBadge(lat.verdict):""} ${arr(p.checks).length?chSummary(p.checks):""} ${askBtn("Explain principle "+pid+" ("+(p.name||"")+") in plain words and show how the code implements it.")}</div>`;
+  return `<div class="prow">${head}${layersHtml(p,"principle")}</div>`;
+}
+function renderAudit(){
+  const el=$("t-cards"); if(!TH.length){ el.innerHTML=""; return; }   // no theory, no cards: the block is omitted
+  const cur=THID[S.au.t]||TH[0]; S.au.t=cur.id;
+  const sec=(title,body,open)=>`<details${open?" open":""}><summary><b>${title}</b></summary><div class="in">${body}</div></details>`;
+  let h = `<hr class="cardsep"><h2 class="cardshead">Theory cards</h2>`+(TH.length>8 ? `<div class="row"><select data-in="au-sel">${TH.map(t=>`<option value="${esc(t.id)}"${t.id===cur.id?" selected":""}>${esc(tName(t))}</option>`).join("")}</select></div>` :
+    `<div class="sub">${TH.map(t=>`<button data-card="${esc(t.id)}" class="${t.id===cur.id?"on":""}" title="${esc(tFull(t))}">${esc(tName(t))}</button>`).join("")}</div>`);
+  h+=`<h2 style="margin-top:0">${esc(tFull(cur))} <span class="mut small">${tShort(cur)?esc(tShort(cur))+" · ":""}${esc(cur.id)}</span> ${askBtn(P.theory(cur))}</h2>`;
+  // (a) summary
+  let a=cur.description?`<p>${esc(cur.description)}</p>`:`<p class="empty">Here goes the theory in a few words.</p>`;
+  if(cur.notation) a+=`<p>${texHtml(cur.notation)}</p>`;
+  a+=`<p class="small">${cur.kind?badge(cur.kind,"unknown")+" ":""}${cur.family?"family: "+esc(cur.family)+" ":""}${cur.parent?"parent: "+lk(cur.parent)+" ":""}${cur.origin&&cur.origin.source?"origin: "+esc(cur.origin.source)+(cur.origin.page?" p. "+esc(cur.origin.page):""):""}</p>`;
+  h+=sec("Summary",a,true);
+  // (b) fragments
+  const frs=arr(cur.fragments);
+  h+=sec(`Fragment${frs.length===1?"":"s"} (${frs.length})`, frs.length ? frs.map((x,i)=>fragBlock(x,cur,i===0)).join("") : `<p class="empty">${FRAGS.length?"This theory declares no fragment.":"Here go the fragments (the shared language: syntax, models, entailment) this theory builds on, with definitions in words and in symbols."}</p>`,true);
+  // (c) principles
+  const bundle=arr(cur.principles), aux=bundle.filter(p=>BYID[p]&&BYID[p].auxiliary);
+  let c="";
+  if(isRaw(cur)) c=`<p class="small">Raw Facts: every fact is its own principle (baseline). See the facts in <a href="#empirical">Empirical space</a>.</p>`;
+  else c=`<div class="row"><b class="small">layers</b> ${layerToggle()} <span class="mut small">${bundle.length} principles, ${aux.length} auxiliary</span></div>`+(bundle.length?bundle.map(p=>prinRow(p,cur)).join(""):`<p class="empty">No principle yet.</p>`);
+  h+=sec(`Principles (${bundle.length})`,c,false);
+  // (d) pass/fail and problems
+  const rows=FACTS.map(f=>({f,p:pool(f.id,cur.id)}));
+  const cnt={pass:0,fail:0,pending:0,out_of_scope:0}; rows.forEach(r=>cnt[r.p.outcome]++);
+  h+=`<p>${["pass","fail","out_of_scope","pending"].map(o=>`${outBadge(o)} ${cnt[o]}`).join(" &nbsp; ")}</p>`;
+  h+=`<details><summary><b>Pass/fail table</b> (${rows.length} facts)</summary><div class="in wrap"><table><tr><th>fact</th><th>expected</th><th>outcome</th><th>from</th><th></th></tr>${rows.map(r=>`<tr${r.f.contested?' style="border-top:2px dashed var(--mut)"':""}><td>${lk(r.f.id,r.f.id+" "+(r.f.name||""))}</td><td>${esc(r.f.expected||"holds")}</td><td>${outBadge(r.p.outcome)}${r.p.conflict?" ⚑":""}${r.p.warning?" ⚠":""}</td><td class="small${kInformal(r.p.kind)?" informal-k":""}">${r.p.kind?`<span class="kk${kInformal(r.p.kind)?" informal":""}">${esc(kTag(r.p.kind))}</span> `:""}${esc(r.p.kind||"")}${kInformal(r.p.kind)?" (informal)":""}</td><td><button class="askbtn" data-cell="${esc(r.f.id)}|${esc(cur.id)}" data-act="popcell">entries</button></td></tr>`).join("")||'<tr><td colspan=5 class="empty">Here goes the table.</td></tr>'}</table></div></details>`;
+  const bad=rows.filter(r=>r.p.outcome==="fail"||r.p.conflict);
+  h+=`<details><summary><b>Problems</b> (${bad.length}: failed facts and conflicts)</summary><div class="in">`+(bad.length?bad.map(r=>`<details><summary>${lk(r.f.id,r.f.id+" "+(r.f.name||""))} ${outBadge(r.p.outcome)}${r.p.conflict?" ⚑ conflict":""}</summary><div class="in">${r.p.entries.slice().sort((x,y)=>rankOf(x)-rankOf(y)).map(e=>entryHtml(e,true)).join("")||'<span class="empty">no entries</span>'}<div class="row">${askBtn(P.cell(r.f.id,cur.id))}</div></div></details>`).join(""):'<p class="empty">No failed facts.</p>')+`</div></details>`;
+  const oos=rows.filter(r=>r.p.outcome==="out_of_scope"), pe=rows.filter(r=>r.p.outcome==="pending");
+  h+=`<details><summary><b>Out of scope</b> (${oos.length}) and <b>pending</b> (${pe.length})</summary><div class="in"><p class="small">Out of scope: ${oos.map(r=>lk(r.f.id,r.f.id)).join(", ")||"none"}<br>Pending: ${pe.map(r=>lk(r.f.id,r.f.id)).join(", ")||"none"}</p></div></details>`;
+  el.innerHTML=h;
+}
+
+/* ================= Coverage × Complexity ================= */
+/* Left box: text, data filters, theory groups. Plot: axes only, "best" arrow, observed frontier, one proxy pill on each axis.
+   The proxies are those of the project's registry (custom/registry.json: coverage_metrics, size_metrics); the data are the project's results and metrics. */
+function pareto(pts){ // minimise x, maximise y
+  return pts.filter(p=>!pts.some(q=>q!==p && q.x<=p.x && q.y>=p.y && (q.x<p.x||q.y>p.y))).sort((a,b)=>a.x-b.x);
+}
+function niceTicks(lo,hi,n){
+  const span=(hi-lo)||1, raw=span/n, mag=Math.pow(10,Math.floor(Math.log10(raw))), f=raw/mag;
+  const step=(f<1.5?1:f<3?2:f<7?5:10)*mag, out=[];
+  for(let v=Math.ceil(lo/step-1e-9)*step; v<=hi+1e-9; v+=step) out.push(Math.round(v*1e9)/1e9);
+  return out;
+}
+const exOpts = () => ({llm:S.ex.llm,system:S.ex.system,noContested:S.ex.cont==="without",onlyContested:S.ex.cont==="only",kind:S.ex.kind,layer:S.ex.layer});
+function selTheories(){ return TH.filter(t=>S.ex.sel[t.id]); }
+const GPAL = ["#e08a2e","#9b6fd0","#2e9e8f","#3b5bc4","#b5413b","#8a8a2e"], GSH = ["c","s","t"];
+function exGroups(){ // chips: families when there are two or more, else kinds of theory, else one group; Raw Facts is the baseline
+  const non = TH.filter(t=>!isRaw(t)), raw = TH.filter(isRaw);
+  const by = f => { const k=[...new Set(non.map(f).filter(Boolean))]; return k.length>=2 ? k : null; };
+  const fam = by(t=>t.family||""), kind = by(t=>t.kind||"");
+  const keyOf = fam ? (t=>t.family?("f:"+t.family):"f:other") : kind ? (t=>t.kind?("k:"+t.kind):"k:other") : (()=>"all");
+  const label = k => k==="all" ? "theories" : k==="f:other"||k==="k:other" ? "other" : k.slice(2);
+  const keys = []; non.forEach(t=>{ const k=keyOf(t); if(!keys.includes(k)) keys.push(k); });
+  const gs = keys.map((k,i)=>({key:k,label:k.startsWith("f:")?famName(label(k)):label(k),col:GPAL[i%GPAL.length],shape:GSH[i%GSH.length],raw:false}));
+  if(raw.length) gs.push({key:"__raw",label:"Raw Facts",col:"#7a7a7a",shape:"d",raw:true});
+  const of = t => isRaw(t) ? "__raw" : keyOf(t);
+  return {groups:gs,of};
+}
+function exFacts(o){ return FACTS.filter(f=>factOk(f,o)); }
+function ycap(id,o){
+  const fs = exFacts(o);
+  if(id==="passed") return fs.length;
+  if(id==="passed_over_applicable") return 1;
+  if(id==="confidence_weighted") return fs.reduce((a,f)=>a+(f.confidence==null?1:f.confidence),0);
+  return null;
+}
+function pointsFor(xm,ym){
+  const o=exOpts(), pts=[], skipped=[];
+  selTheories().forEach(t=>{ const x=metricValue(t,xm,o), y=metricValue(t,ym,o); if(x==null||y==null) skipped.push(tName(t)); else pts.push({id:t.id,t,label:tName(t),x,y,raw:isRaw(t)}); });
+  return {pts,skipped};
+}
+function metricSelect(list,key,axis,cur,cls){
+  const opt = m => `<option value="${esc(m.id)}"${m.id===cur?" selected":""}${m.ok?"":" disabled"} title="${esc(m.note)}">${esc(m.name)}${m.ok?"":" (not implemented)"}</option>`;
+  const lang = m => { const g=/^(python|lean|agda)_/.exec(m.id); return g?g[1][0].toUpperCase()+g[1].slice(1):(/^n_principles/.test(m.id)?"Principles":"Other"); };
+  const gl = [...new Set(list.map(lang))];
+  const body = gl.length>=2 ? gl.map(g=>`<optgroup label="${esc(g)}">${list.filter(m=>lang(m)===g).map(opt).join("")}</optgroup>`).join("") : list.map(opt).join("");
+  return `<select class="pill${cls?" "+cls:""}" data-in="ex-${key}-${axis}">${body}</select>`;
+}
+function marker(shape,x,y,fill,r,attrs){
+  const a = `fill="${fill}" stroke="var(--card)" stroke-width=".8" ${attrs}`;
+  if(shape==="c") return `<circle cx="${x}" cy="${y}" r="${r}" ${a}/>`;
+  if(shape==="s"){ const q=r*.86; return `<rect x="${x-q}" y="${y-q}" width="${2*q}" height="${2*q}" ${a}/>`; }
+  if(shape==="d"){ const q=r*1.3; return `<polygon points="${x},${y-q} ${x+q},${y} ${x},${y+q} ${x-q},${y}" ${a}/>`; }
+  const q=r*1.12; return `<polygon points="${x},${y-q*1.2} ${x+q*1.1},${y+q*.9} ${x-q*1.1},${y+q*.9}" ${a}/>`;
+}
+function paretoSvg(){
+  const e=S.ex, W=460, H=460, m={l:46,r:16,t:20,b:32}, pw=W-m.l-m.r, ph=H-m.t-m.b;
+  const G = exGroups(), gi = {}; G.groups.forEach(g=>gi[g.key]=g);
+  const r = pointsFor(e.a.x,e.a.y), o=exOpts();
+  const all = r.pts, vis = all.filter(p=>e.groups[G.of(p.t)]!==false);
+  S.ex.cur = {}; vis.forEach(p=>S.ex.cur[p.id]=p);
+  S.ex.skipped = r.skipped;
+  if(!all.length) return `<svg class="pareto-svg" viewBox="0 0 ${W} ${H}" role="img"><text x="${W/2}" y="${H/2}" text-anchor="middle" fill="var(--mut)" font-size="12">no theory has values for both proxies (missing metrics data, or no theory selected)</text></svg>`;
+  const xs = all.map(p=>p.x), ys = all.map(p=>p.y);
+  const xlo=Math.min.apply(null,xs), xhi=Math.max.apply(null,xs), xw=(xhi-xlo)||Math.max(Math.abs(xhi)*.5,1), xlow=Math.max(0,xlo-xw);
+  let ylo=Math.min.apply(null,ys), yhi=Math.max.apply(null,ys); const cap=ycap(e.a.y,o); if(cap!=null&&cap>yhi) yhi=cap;
+  if(cap!=null&&cap>0){ const spanY=Math.min(cap,Math.max(1.75*(cap-ylo),cap/2)); ylo=Math.max(0,Math.min(ylo,cap-spanY)); }
+  let xt=niceTicks(xlow,xhi,4), yt=niceTicks(ylo,yhi,3);
+  if(cap!=null){ const stp=yt.length>1?yt[1]-yt[0]:1; yt=yt.filter(v=>v<cap-stp*.4); yt.push(cap); }
+  let x0=xlow, x1=Math.max(xt.length?xt[xt.length-1]:xhi,xhi), y0=Math.min(yt[0],Math.min.apply(null,ys)), y1=Math.max(yt[yt.length-1],Math.max.apply(null,ys));
+  const dx=((x1-x0)||1)*.03, dy=((y1-y0)||1)*.03; x0=Math.max(0,x0-dx); x1+=dx; y0=Math.max(0,y0-dy); y1+=dy;
+  const sx=v=>m.l+(v-x0)/((x1-x0)||1)*pw, sy=v=>m.t+ph-(v-y0)/((y1-y0)||1)*ph;
+  let s=`<svg class="pareto-svg" viewBox="0 0 ${W} ${H}" data-plot="${m.l},${m.t},${pw},${ph}" role="img" aria-label="${esc(metricName(e.a.y))} against ${esc(metricName(e.a.x))}">`;
+  s+=`<line x1="${m.l}" x2="${m.l}" y1="${m.t-4}" y2="${m.t+ph}" stroke="var(--fg)" stroke-width="1.6"/><line x1="${m.l}" x2="${m.l+pw+4}" y1="${m.t+ph}" y2="${m.t+ph}" stroke="var(--fg)" stroke-width="1.6"/>`;
+  xt.forEach(v=>{ if(v<x0||v>x1) return; const X=sx(v); s+=`<line x1="${X}" x2="${X}" y1="${m.t+ph}" y2="${m.t+ph+4}" stroke="var(--fg)"/><text x="${X}" y="${m.t+ph+17}" text-anchor="middle" font-size="11" fill="var(--mut)">${esc(fmtN(v))}</text>`; });
+  yt.forEach(v=>{ if(v<y0||v>y1) return; const Y=sy(v); s+=`<line x1="${m.l-4}" x2="${m.l}" y1="${Y}" y2="${Y}" stroke="var(--fg)"/><text x="${m.l-8}" y="${Y+4}" text-anchor="end" font-size="11" fill="var(--mut)">${esc(fmtN(v))}</text>`; });
+  s+=`<path d="M${m.l+34} ${m.t+38} L${m.l+14} ${m.t+14} M${m.l+14} ${m.t+27} L${m.l+14} ${m.t+14} L${m.l+27} ${m.t+15}" fill="none" stroke="var(--bad)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" class="pareto-best"/><text x="${m.l+42}" y="${m.t+22}" font-size="15" font-weight="700" fill="var(--bad)">best</text>`;
+  const fr = pareto(vis.filter(p=>!p.raw));
+  let frontBox = null;
+  if(fr.length){
+    const edge=m.l+pw, bot=m.t+ph, last=fr[fr.length-1];
+    let d=""; fr.forEach((p,i)=>{ d+=(i?`L${sx(p.x)} ${sy(fr[i-1].y)} L`:"M")+sx(p.x)+" "+sy(p.y)+" "; }); d+=`L${edge} ${sy(last.y)}`;
+    s+=`<path d="${d}L${edge} ${bot} L${sx(fr[0].x)} ${bot} Z" fill="var(--acc)" fill-opacity=".09" stroke="none"/><path d="${d}" fill="none" stroke="var(--acc)" stroke-width="2.4" stroke-dasharray="7 5" stroke-linejoin="round" class="pareto-front"/>`;
+    s+=`<text x="${edge-4}" y="${sy(last.y)-7}" text-anchor="end" font-size="11.5" fill="var(--acc)">frontier</text>`;
+    frontBox={x0:edge-4-50,x1:edge-4,y0:sy(last.y)-7-11,y1:sy(last.y)-7+3};
+  }
+  const seen={}; vis.forEach(p=>{ const k=p.x+"|"+p.y; seen[k]=seen[k]||0; p.j=seen[k]++; }); vis.forEach(p=>{ p.nj=seen[p.x+"|"+p.y]; });
+  vis.forEach(p=>{ let px=sx(p.x), py=sy(p.y); if(p.nj>1){ const a=2*Math.PI*p.j/p.nj; px+=5*Math.cos(a); py+=5*Math.sin(a); } p.px=px; p.py=py;
+    const g=gi[G.of(p.t)]||{col:"#7a7a7a",shape:"c"};
+    s+=marker(g.shape,px,py,g.col,4.6,`data-pt="${esc(p.id)}" data-cx="${Math.round(px*100)/100}" data-cy="${Math.round(py*100)/100}" class="pareto-pt${fr.includes(p)?" fr":""}" style="cursor:pointer"`); });
+  // labels: greedy placement so that names of tied points do not overlap each other or the markers
+  const fs=9.5, CW=fs*.56, LH=11, placed=frontBox?[frontBox]:[];
+  const box=(x,y,w,an)=>{ const a=an==="end"?x-w:x; return {x0:a,x1:a+w,y0:y-LH+3,y1:y+3}; };
+  const hit=(a,b)=>a.x0<b.x1&&b.x0<a.x1&&a.y0<b.y1&&b.y0<a.y1;
+  vis.slice().sort((a,b)=>a.px-b.px||a.py-b.py).forEach(p=>{
+    const w=p.label.length*CW, cand=[]; [0,-13,13,-26,26].forEach(dy=>{ cand.push([6,dy,"start"]); cand.push([-6,dy,"end"]); });
+    let best=null;
+    for(let k=0;k<cand.length&&!best;k++){ const c=cand[k], b=box(p.px+c[0],p.py+c[1],w,c[2]);
+      if(b.x0<m.l+2||b.x1>m.l+pw-2||b.y0<m.t+1||b.y1>m.t+ph-1) continue;
+      if(!placed.some(q=>hit(b,q)) && !vis.some(q=>hit(b,{x0:q.px-8,x1:q.px+8,y0:q.py-8,y1:q.py+8}))) best={c,b}; }
+    if(!best){ const c0=p.px>m.l+pw-62?[-6,0,"end"]:[6,0,"start"]; best={c:c0,b:box(p.px+c0[0],p.py,w,c0[2])}; }
+    placed.push(best.b);
+    if(best.c[1]!==0) s+=`<line x1="${p.px}" y1="${p.py}" x2="${p.px+best.c[0]*.6}" y2="${p.py+best.c[1]+(best.c[1]>0?-8:3)}" stroke="var(--mut)" stroke-width=".7"/>`;
+    s+=`<text x="${p.px+best.c[0]}" y="${p.py+best.c[1]+3}" text-anchor="${best.c[2]}" font-size="${fs}" fill="var(--fg)" pointer-events="none">${esc(p.label)}</text>`;
+  });
+  S.ex.fr = fr.map(p=>p.id);
+  return s+`</svg>`;
+}
+const SYMG = {c:"&#9679;",s:"&#9632;",t:"&#9650;",d:"&#9670;"};
+function paretoLegend(){
+  const G=exGroups();
+  return `<div class="pareto-leg" role="group" aria-label="theory groups">${G.groups.map(g=>{ const on=S.ex.groups[g.key]!==false;
+    return `<button type="button" class="pareto-lg${on?"":" off"}" data-pgrp="${esc(g.key)}" aria-pressed="${on}" title="click to hide or show this group"><span style="color:${g.col}">${SYMG[g.shape]}</span> ${esc(g.label)}</button>`; }).join("")}</div>`+
+    `<div class="small mut pareto-key"><span><svg width="22" height="8" style="vertical-align:middle"><line x1="0" y1="4" x2="22" y2="4" stroke="var(--acc)" stroke-width="2.4" stroke-dasharray="6 4"/></svg> observed frontier</span> &nbsp; <span><svg width="12" height="10" style="vertical-align:middle"><rect width="12" height="10" fill="var(--acc)" fill-opacity=".18"/></svg> dominated</span></div>`;
+}
+function lengthTable(){
+  const ts=selTheories(), cols=["python","lean","agda"].filter(langHasData).flatMap(l=>[[l,"chars"],[l,"gzip"],[l,"lines"]]);
+  const v=(t,l,f)=>{ const x=((mOf(t)||{}).total||{})[l]; return x&&x[f]!=null?x[f]:null; };
+  if(!ts.length||!ts.some(t=>mOf(t))) return ph("the length table: size of each theory in Python and in Lean (needs data/metrics.json, built by linglab metrics).");
+  return `<div class="wrap"><table><tr><th>theory</th>${cols.map(c=>`<th>${c[0]} ${c[1]}</th>`).join("")}<th>lean / python chars</th></tr>`+ts.map(t=>{ const py=v(t,"python","chars"), le=v(t,"lean","chars");
+    return `<tr${isRaw(t)?' style="background:var(--rawbg)"':""}><td>${lk(t.id,tName(t))}</td>${cols.map(c=>`<td>${fmtN(v(t,c[0],c[1]))}</td>`).join("")}<td>${py&&le?fmtN(le/py):""}</td></tr>`; }).join("")+`</table></div>`;
+}
+function plotSvg(pts,xl,yl,front,labels){ // the two secondary plots (proxy against proxy)
+  const W=560,H=360,L=58,R=16,T=14,B=44;
+  if(!pts.length) return `<p class="empty">Nothing to plot: no theory has values for both metrics (missing metrics data, or no theory selected).</p>`;
+  let x0=Math.min.apply(null,pts.map(p=>p.x)), x1=Math.max.apply(null,pts.map(p=>p.x)), y0=Math.min.apply(null,pts.map(p=>p.y)), y1=Math.max.apply(null,pts.map(p=>p.y));
+  const pad=(a,b)=>{ const d=(b-a)||Math.abs(a)||1; return [a-d*0.08,b+d*0.08]; };
+  [x0,x1]=pad(x0,x1); [y0,y1]=pad(y0,y1);
+  const sx=v=>L+(v-x0)/(x1-x0)*(W-L-R), sy=v=>H-B-(v-y0)/(y1-y0)*(H-T-B);
+  let s=`<svg class="plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(yl)} against ${esc(xl)}">`;
+  niceTicks(x0,x1,6).forEach(v=>{ s+=`<line class="gr" x1="${sx(v)}" x2="${sx(v)}" y1="${T}" y2="${H-B}"/><text x="${sx(v)}" y="${H-B+14}" text-anchor="middle">${esc(fmtN(v))}</text>`; });
+  niceTicks(y0,y1,5).forEach(v=>{ s+=`<line class="gr" y1="${sy(v)}" y2="${sy(v)}" x1="${L}" x2="${W-R}"/><text x="${L-6}" y="${sy(v)+4}" text-anchor="end">${esc(fmtN(v))}</text>`; });
+  s+=`<line class="ax" x1="${L}" x2="${W-R}" y1="${H-B}" y2="${H-B}"/><line class="ax" x1="${L}" x2="${L}" y1="${T}" y2="${H-B}"/>`;
+  s+=`<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle">${esc(xl)}</text><text transform="rotate(-90)" x="${-(T+H-B)/2}" y="13" text-anchor="middle">${esc(yl)}</text>`;
+  const placed=[], cand=[[8,-6,"start"],[8,13,"start"],[-8,-6,"end"],[-8,13,"end"],[0,-11,"middle"],[0,18,"middle"]];
+  pts.slice().sort((a,b)=>(b.raw?1:0)-(a.raw?1:0)).forEach(p=>{
+    const px=sx(p.x), py=sy(p.y), w=p.label.length*6; let pick=cand[0];
+    for(const c of cand){ const bx=c[2]==="start"?px+c[0]:c[2]==="end"?px+c[0]-w:px-w/2, by=py+c[1]-10;
+      const inside=bx>=2&&bx+w<=W-2&&by>=2&&by+12<=H;
+      if(inside&&!placed.some(r=>bx<r[0]+r[2]&&bx+w>r[0]&&by<r[1]+12&&by+12>r[1])){ pick=c; placed.push([bx,by,w]); break; } }
+    p.lp=pick; });
+  pts.forEach(p=>{ const px=sx(p.x), py=sy(p.y), tt=`<title>${esc(p.label)}${p.raw?" (baseline)":""}: ${esc(xl)} = ${esc(fmtN(p.x))}, ${esc(yl)} = ${esc(fmtN(p.y))}</title>`;
+    s+= p.raw ? `<rect class="pt raw" x="${px-7}" y="${py-7}" width="14" height="14" transform="rotate(45 ${px} ${py})" data-pt="${esc(p.id)}">${tt}</rect>` : `<circle class="pt" cx="${px}" cy="${py}" r="5" data-pt="${esc(p.id)}">${tt}</circle>`;
+    if(labels!==false){ const c=p.lp||[8,-6,"start"]; s+=`<text class="lab${p.raw?" raw":""}" x="${px+c[0]}" y="${py+c[1]}" text-anchor="${c[2]}">${esc(p.label)}</text>`; } });
+  return s+`</svg>`;
+}
+function plotBlock(title,key,xList,yList){
+  const c=S.ex[key], r=pointsFor(c.x,c.y);
+  return `<div><h3 style="margin-top:0">${title}</h3><div class="row small">x ${metricSelect(xList,key,"x",c.x)} y ${metricSelect(yList,key,"y",c.y)}</div>${plotSvg(r.pts,metricName(c.x),metricName(c.y),false)}`+
+    (r.skipped.length?`<p class="small mut">No data for: ${esc(r.skipped.join(", "))}</p>`:"")+`</div>`;
+}
+function renderPareto(){ // the plot, its legend and the secondary plots; the left box keeps its selects (focus)
+  const pm = $("pa-plot"); if(!pm) return;
+  pm.innerHTML = paretoSvg();
+  $("pa-legend").innerHTML = paretoLegend();
+  const fs=exFacts(exOpts()); $("pa-n").textContent = fs.length===FACTS.length ? `(${fs.length})` : `(${fs.length} of ${FACTS.length})`;
+  $("pa-skip").textContent = (S.ex.skipped&&S.ex.skipped.length) ? "No data for: "+S.ex.skipped.join(", ") : "";
+  $("pa-more").innerHTML = `<p class="small mut">Two proxies against each other, to see whether the choice of proxy matters.</p><div class="two">${plotBlock("Complexity × Complexity","b",SIZEM,SIZEM)}${plotBlock("Coverage × Coverage","c",COVM,COVM)}</div><h3>Length by theory and language</h3>`+lengthTable();
+}
+function renderTheorySel(){
+  const q=S.ex.q.toLowerCase();
+  $("ex-tl").innerHTML = TH.filter(t=>!q||[t.id,t.name,t.short,t.family,t.kind].join(" ").toLowerCase().includes(q)).map(t=>`<label><input type="checkbox" data-tsel="${esc(t.id)}"${S.ex.sel[t.id]?" checked":""}> ${esc(tName(t))}${isRaw(t)?' <span class="badge" style="color:var(--raw)">baseline</span>':""}</label>`).join("") || '<span class="empty">No theory matches.</span>';
+  $("ex-n").textContent = selTheories().length+" of "+TH.length+" selected";
+}
+function renderExplorer(){ // the tab "Coverage × Complexity"
+  const e=S.ex, kinds=[...new Set(FACTS.map(factKind))], lays=layerList();
+  const pill = (key,opts,cur) => `<select class="pill sm" data-in="${key}">${opts.map(([v,n])=>`<option value="${esc(v)}"${String(cur)===String(v)?" selected":""}>${esc(n)}</option>`).join("")}</select>`;
+  $("t-pareto").innerHTML=`<div class="pareto-ui"><div class="pareto-left">
+    <div class="pareto-intro"><p class="small" style="margin:0 0 .5em">A theory aims at large coverage of the facts with little complexity (Occam's razor, minimum description length). The measures here are proxies, chosen below; the goal is to see the tradeoff, not to rank.</p><p class="small mut" style="margin:0">Each point is a theory. Hover a point for details, click to open its theory card. The frontier is observed among the theories shown; it is not a bound on what is possible.</p></div>
+    <aside class="pareto-side">
+      <div><div class="pareto-h">Data <span class="pareto-lh" id="pa-n"></span></div>
+        <label class="pp-row"><span>evidence</span>${pill("ex-llm",[["1","all entries"],["0","without llm-judged"]],e.llm?"1":"0")}</label>
+        <label class="pp-row"><span>facts</span>${pill("ex-system",[["1","language and system"],["0","language only"]],e.system?"1":"0")}</label>
+        <label class="pp-row"><span>controversial</span>${pill("ex-cont",[["all","all facts"],["without","without controversial"],["only","controversial only"]],e.cont)}</label>
+        ${lays.length>=2?`<label class="pp-row"><span>reliability</span>${pill("ex-layer",[["","all sets"]].concat(lays.map(l=>[l.id,l.name])),e.layer)}</label>`:""}
+        ${kinds.length>=2?`<label class="pp-row"><span>kind of fact</span>${pill("ex-kind",[["","all kinds"]].concat(kinds.map(k=>[k,kindTitle(k)])),e.kind)}</label>`:""}
+      </div>
+      <div><div class="pareto-h">Theories <span class="pareto-lh">click a group to hide or show it</span></div><div id="pa-legend"></div>
+        <p class="small mut" id="pa-skip" style="margin:6px 0 0"></p>
+      </div>
+    </aside></div>
+    <div class="pareto-main"><div class="pp-yrot"><span class="pp-ar">&rarr;</span><span class="pp-lab">Coverage</span>${metricSelect(COVM,"a","y",e.a.y)}<span class="pp-ar">&rarr;</span></div>
+      <div id="pa-plot"></div>
+      <div class="pp-ctl pp-x"><span class="pp-ar">&rarr;</span><span class="pp-lab">Complexity</span>${metricSelect(SIZEM,"a","x",e.a.x)}<span class="pp-ar">&rarr;</span></div></div></div>
+    <details class="mxs" style="margin-top:18px"><summary><b>Individual theories</b> <span class="mut small" id="ex-n"></span></summary><div class="row"><input data-in="ex-q" placeholder="search theories" style="flex:1;min-width:100px"><button data-act="exall">all</button><button data-act="exnone">none</button><button data-act="exnoraw">all but Raw Facts</button></div><div class="tlist" id="ex-tl"></div></details>
+    <details class="mxs"><summary><b>Does the proxy matter?</b> Proxy against proxy, and lengths by theory</summary><div class="in" id="pa-more"></div></details>`;
+  renderTheorySel(); renderPareto();
+  if(!TH.length) $("pa-plot").innerHTML=ph("the plot: Coverage × Complexity with the observed frontier (less complex is better), proxy against proxy, and the length table (need theories, results and metrics).");
+}
+
+/* ================= Findings ================= */
+function renderFindList(){
+  const f=S.fi, q=f.q.toLowerCase();
+  const l=D.findings.filter(x=>(!f.status||x.status===f.status)&&(!q||[x.id,x.title,x.text,x.evidence].join(" ").toLowerCase().includes(q)));
+  $("fi-list").innerHTML = l.length ? l.map(x=>`<details id="c-${esc(x.id)}"><summary><b>${esc(x.title||x.id)}</b> <span class="mut small">${esc(x.id)}</span> ${x.status?badge(x.status):""}</summary><div class="in"><p>${txt(x.text||"")}</p><p class="small">${x.basis?"basis: "+esc(x.basis)+" · ":""}${arr(x.principles).length?"principles: "+x.principles.map(p=>lk(p)).join(", ")+" · ":""}${arr(x.facts).length?"facts: "+x.facts.map(p=>lk(p)).join(", "):""}</p>${x.evidence?`<p class="small"><b>Evidence.</b> ${txt(x.evidence)}</p>`:""}${x.note?`<p class="small mut">${txt(x.note)}</p>`:""}<div class="row">${askBtn(P.finding(x))}</div></div></details>`).join("") : (D.findings.length?'<p class="empty">No finding matches.</p>':ph("the general results, for example “every theory with principle A and principle B fails fact F”, each with status proved / computed / argued / literature / open."));
+}
+function renderFindings(){
+  const sts=["proved","computed","argued","literature","open"];
+  $("t-findings").innerHTML=`<div class="row"><input data-in="fi-q" placeholder="search findings" style="flex:1;min-width:140px"><select data-in="fi-status"><option value="">all statuses</option>${sts.map(s=>`<option>${s}</option>`).join("")}</select></div><div id="fi-list"></div>`;
+  renderFindList();
+}
+
+/* ================= Guide ================= */
+function renderGuide(){
+  const ask=(t)=>`<div class="guideask"><div class="t">${esc(t)}</div>${askBtn(t)}</div>`;
+  const sec=(title,body)=>`<details><summary><b>${title}</b></summary><div class="in">${body}</div></details>`;
+  let h="";
+  h+=sec("Arrange your screens",`<p>Put this report in a browser window next to the chat with the agent. VS Code is recommended: the chat and the project files in one window, the report in the browser beside it. The chat is the input; this page is the output. Reload the page after the agent says it updated the data (or ask it to run <code>linglab report</code>).</p>`);
+  h+=sec("How to move forward",`<ul><li>Read the <a href="#overview">Overview</a>, then the facts in <a href="#empirical">Empirical space</a>: correct what is wrong (first drafts often are).</li><li>Check the <a href="#translations">Translations</a>: the cells are certified by a run or a proof, but only you can say whether each statement in words was translated into code faithfully. Tick each row once you have checked it, and use <b>export my ticks</b> to hand the ticks to the agent so they are recorded in the data as checks.</li><li>Look at the <a href="#matrix">matrix</a>: where do theories disagree, which facts are out of scope or pending?</li><li>Open the <a href="#cards">theory cards</a> (the last block of Theoretical Space) of the theory you care about: its fragments, then each principle in words, symbols and code, then its problems. The <b>words | symbols | code | all</b> switch chooses which layers to show.</li><li>Use <a href="#pareto">Coverage × Complexity</a> to see which theories pass much with little. Ask for fixes, new principles, new facts, or other papers.</li></ul><p class="small">Informal entries (human, paper claim, LLM reading) are a fast first step; formal ones (Python, Lean) override them when they exist, and disagreements are flagged, never hidden.</p>`);
+  h+=sec("Things you can ask",
+    ask("What can I do next? Give me options, with your recommendation.")+
+    ask("Add a theory based on paper X and run the facts against it.")+
+    ask("Which facts separate the top two theories? Propose new facts that would.")+
+    ask("Try to fix the theory that fails the most facts with the smallest change, and show what is gained and lost.")+
+    ask("Check whether any principle is idle: remove each in turn and report which facts change.")+
+    ask("Prove in Lean the fact F01 against theory T-MK and tell me what you needed.")+
+    ask("List the facts I should review first because they are controversial or low confidence.")+
+    ask("Summarize what the report says in five sentences I could tell a colleague."));
+  h+=sec("Asking for changes to the page itself",`<p>The page is a file the agent can change (a copy lives in your project, <code>report/template.html</code>; the downloaded toolkit is never edited). Describe what you want to see.</p>`+
+    ask("Add a plot of passed facts against Lean gzip size, with labels only for the Pareto frontier.")+
+    ask("Add a coverage metric that counts only formal (Lean or Python) passes.")+
+    ask("Make the matrix show confidence-weighted colors and move the controversial facts to the bottom.")+
+    ask("Add a tab that compares two theories fact by fact.")+
+    ask("Replace this report with a one-page summary for a talk.")+
+    ask("Use a different proof system for the formal checks."));
+  h+=sec("Glossary: outcomes",`<table><tr><td>${outBadge("pass")}</td><td>The fact's expected outcome was met (an expected-fail fact passes when the claim fails).</td></tr><tr><td>${outBadge("fail")}</td><td>The expected outcome was not met. The reasons (a countermodel, an argument) are in the entries.</td></tr><tr><td>${outBadge("out_of_scope")}</td><td>The theory cannot express the fact (its translation fails), makes no prediction for its type, or its source leaves the fact to a mechanism the theory does not include (the fact <code>uses</code> a notion missing from the theory's <code>primitives</code>). Not counted as applicable, not a failure.</td></tr><tr><td>${outBadge("pending")}</td><td>Nothing decided yet (no entry, or the checker does not implement this fact type).</td></tr><tr><td>⚑ conflict</td><td>Entries at the same ladder rank disagree. Shown, never blocking; the cell displays the majority (tie: fail).</td></tr><tr><td>⚠ warning</td><td>A weaker kind of entry disagrees with the displayed outcome.</td></tr></table>`);
+  const KDESC={lean:"a proof checked by Lean",agda:"a proof checked by Agda",python:"a run of the checker on models up to a stated bound",human:"a person's judgment (may flag that it is outside the fragment)","paper-claim":"what a paper says (with its presence: in source, mentioned not tested, ...)","user-claim":"what you told the agent","llm-judged":"an LLM's reading, to be checked; the weakest kind"};
+  h+=sec("Glossary: kinds of evidence (strongest first)",`<p class="small">Current ladder: ${LADDER.map(esc).join(" &gt; ")}. The displayed outcome of a cell is the outcome of the strongest kind that has an entry. In the matrix each cell carries the tag of that kind; informal kinds have a dashed border.</p><table>${LADDER.map(k=>`<tr><td><b>${esc(k)}</b> <span class="kk${kInformal(k)?" informal":""}">${esc(kTag(k))}</span></td><td>${esc(KDESC[k]||"a custom kind added in this project's ladder")}${kInformal(k)?" (informal)":""}</td></tr>`).join("")}</table>`);
+  h+=sec("Glossary: objects",`<ul class="small"><li><b>Fact</b>: an empirical datum with code and an expected outcome. <b>Principle</b>: a theoretical assumption with code. Both are statements with quotes, origins, confidence and relations.</li><li><b>Theory</b>: a set of principles. <b>Auxiliary</b>: needed but not distinguishing. <b>Vocabulary</b>: a principle that implements a shared notion (felicity, entailment).</li><li><b>Raw Facts</b>: the theory made of all the facts; full coverage, maximal size; the baseline to beat.</li><li><b>Coverage / complexity</b>: facts passed against size (principles, code length); less complex is better. A good theory passes many facts with few principles.</li></ul>`);
+  h+=sec("Glossary: layers, fragments and checks",`<ul class="small"><li><b>Layers</b>: every principle and fact can be read in <b>words</b> (the statement and its quotes), <b>symbols</b> (paper-style notation; for facts, a notation generated from the spec is marked <b>auto</b>) and <b>code</b> (Python, Lean, Agda).</li><li><b>Fragment</b>: the shared language a family of theories is stated in (syntax, models, entailment), with its definitions in words and symbols and its files. A fragment can be used by several theories.</li><li><b>Check</b>: a recorded act of comparing layers (who, when, by a person, an LLM or another route; a readback in plain English; a verdict: agrees, disagrees, partial, unclear). The latest readback is shown under the code. Checks never change a result in the matrix.</li></ul>`);
+  h+=sec("Defaults, not rules",`<p>Everything here is a starting default. By prompting you can change test types, evidence kinds, the ladder, metrics, plots, tabs, the vocabulary, even the whole report. What can change lives in small named places in your project (<code>custom/</code>, a copy of this page), never in the downloaded toolkit. The only fixed guardrails are about honesty: every result says how it was obtained, and informal is never shown as formal.</p>`);
+  // subtabs: the guide above, then the method and the technical contract (rendered from METHOD.md and docs/SPEC.md at build time)
+  const docs=(RAWD.docs||[]).filter(x=>x&&x.html);
+  if(!docs.length){ $("t-guide").innerHTML=h; return; }
+  const names=[["Guide"]].concat(docs.map(x=>[x.title]));
+  $("t-guide").innerHTML=`<div class="ctabs"><div class="ctb">${names.map((n,i)=>`<button data-ctab="${i}" class="${i?"":"on"}">${esc(n[0])}</button>`).join("")}</div><div class="cpane on" data-cpane="0">${h}</div>${docs.map((x,i)=>`<div class="cpane docpane" data-cpane="${i+1}">${x.html}</div>`).join("")}</div>`;
+}
+
+/* ================= events ================= */
+function goCard(id){ // a theory card selected inside the block: a navigation like any other (history entry, scroll to the block)
+  const nh="cards:"+encodeURIComponent(id), cur=(typeof location!=="undefined"&&location.hash||"").replace(/^#/,"");
+  if(cur===nh){ S.au.t=id; renderAudit(); route(); return; }
+  saveY(); location.hash=nh;
+}
+const closest=(t,sel)=> (t&&t.closest) ? t.closest(sel) : null;
+document.addEventListener("click",e=>{ // before the browser follows an in-page link: store the scroll position for the back button
+  const a=closest(e.target,"a[href^='#']"); if(a) saveY();
+},true);
+document.addEventListener("click",e=>{
+  const t=e.target; let b;
+  if((b=closest(t,"[data-ask]"))){ e.preventDefault(); copyText(b.getAttribute("data-ask")); return; }
+  if((b=closest(t,"[data-act=closepop]"))){ popClose(); return; }
+  if((b=closest(t,"[data-cell]"))){ showPop(b.getAttribute("data-cell"),b); return; }
+  if((b=closest(t,"[data-bar]"))){ showPop("bar|"+b.getAttribute("data-bar"),null); return; }
+  if((b=closest(t,"[data-pt]"))){ saveY(); location.hash="cards:"+encodeURIComponent(b.getAttribute("data-pt")); return; }
+  if((b=closest(t,"[data-mxtr]"))){ S.mx.tr=+b.getAttribute("data-mxtr")||0; popClose(); renderMatrix(); return; }
+  if((b=closest(t,"[data-pgrp]"))){ const g=b.getAttribute("data-pgrp"); S.ex.groups[g]=S.ex.groups[g]===false; renderPareto(); return; }
+  if((b=closest(t,"[data-card]"))){ goCard(b.getAttribute("data-card")); return; }
+  if((b=closest(t,"[data-layer]"))){ setLayer(b.getAttribute("data-layer")); return; }
+  if((b=closest(t,"[data-ctab]"))){ const box=closest(b,".ctabs"), i=b.getAttribute("data-ctab");
+    if(box&&box.querySelectorAll){ Array.from(box.querySelectorAll("[data-ctab]")).forEach(x=>x.classList.toggle("on",x.getAttribute("data-ctab")===i)); Array.from(box.querySelectorAll("[data-cpane]")).forEach(x=>x.classList.toggle("on",x.getAttribute("data-cpane")===i)); } return; }
+  if((b=closest(t,"[data-act]"))){
+    const a=b.getAttribute("data-act");
+    if(a==="trexport"){ trExport(); }
+    else if(a==="trprompt"){ const t2=trFirstPrompt(); if(t2) copyText(t2); else toast("No row to review"); }
+    else if(a==="exall"){ TH.forEach(x=>S.ex.sel[x.id]=true); renderTheorySel(); renderPareto(); }
+    else if(a==="exnone"){ TH.forEach(x=>S.ex.sel[x.id]=false); renderTheorySel(); renderPareto(); }
+    else if(a==="exnoraw"){ TH.forEach(x=>S.ex.sel[x.id]=!isRaw(x)); renderTheorySel(); renderPareto(); }
+    return;
+  }
+});
+document.addEventListener("keydown",e=>{ if(e&&e.key==="Escape") popClose(); });
+document.addEventListener("change",e=>{
+  const t=e.target; if(!t||!t.getAttribute) return;
+  const tc=t.getAttribute("data-trck"); if(tc){ S.tr.ck[tc]=!!t.checked; if(!t.checked) delete S.tr.ck[tc]; trSave(); if(S.tr.un) renderTrList(); else trCount(); return; }
+  const ts=t.getAttribute("data-tsel"); if(ts){ S.ex.sel[ts]=!!t.checked; $("ex-n").textContent=selTheories().length+" of "+TH.length+" selected"; renderPareto(); return; }
+  const k=t.getAttribute("data-in"); if(!k) return;
+  const v=t.value;
+  if(k==="tr-un"){S.tr.un=!!t.checked;renderTrList();} else
+  if(k==="em-type"){S.em.type=v;renderEmpList();} else if(k==="em-about"){S.em.about=v;renderEmpList();} else if(k==="em-cont"){S.em.cont=!!t.checked;renderEmpList();}
+  else if(k==="au-sel"){goCard(v);}
+  else if(k==="fi-status"){S.fi.status=v;renderFindList();}
+  else if(k==="ex-llm"){S.ex.llm=v!=="0";renderPareto();} else if(k==="ex-system"){S.ex.system=v!=="0";renderPareto();} else if(k==="ex-cont"){S.ex.cont=v||"all";renderPareto();}
+  else if(k==="ex-layer"){S.ex.layer=v;renderPareto();} else if(k==="ex-kind"){S.ex.kind=v;renderPareto();}
+  else { const m=/^ex-([abc])-([xy])$/.exec(k); if(m){ S.ex[m[1]][m[2]]=v; renderPareto(); } }
+});
+document.addEventListener("input",e=>{
+  const t=e.target; if(!t||!t.getAttribute) return; const k=t.getAttribute("data-in"); if(!k) return; const v=t.value;
+  if(k==="tr-q"){S.tr.q=v;renderTrList();} else if(k==="em-q"){S.em.q=v;renderEmpList();} else if(k==="pr-q"){S.pr.q=v;renderPrinList();}
+  else if(k==="fi-q"){S.fi.q=v;renderFindList();} else if(k==="ex-q"){S.ex.q=v;renderTheorySel();}
+});
+function ptInfo(id){
+  const p=(S.ex.cur||{})[id], t=THID[id]; if(!t) return "";
+  const xm=metricName(S.ex.a.x), ym=metricName(S.ex.a.y), st=covStats(t,exOpts());
+  return `<b>${esc(tName(t))}</b>${tShort(t)?` <span class="mut small">${esc(tFull(t))}</span>`:""} <span class="mut small">${esc(t.family||t.kind||"")}</span><br>x: ${esc(xm)} = <b>${p?fmtN(p.x):""}</b><br>y: ${esc(ym)} = <b>${p?fmtN(p.y):""}</b><br>pass ${st.passed}, fail ${st.failed}, out of scope ${st.oos}, pending ${st.pending} (${st.n} facts)<br>${(S.ex.fr||[]).includes(id)?"on the frontier<br>":""}<span class="mut">click to open its theory card</span>`;
+}
+document.addEventListener("mouseover",e=>{
+  const b=closest(e.target,"[data-cell]"), q=b?null:closest(e.target,"[data-pt]"), tip=$("tip");
+  if(!b&&!q){ tip.style.display="none"; return; }
+  tip.innerHTML = b ? cellInfo(b.getAttribute("data-cell"),false) : ptInfo(q.getAttribute("data-pt")); tip.style.display="block";
+  const x=e.clientX||0, y=e.clientY||0, w=(typeof innerWidth==="number"?innerWidth:1000), h=(typeof innerHeight==="number"?innerHeight:800);
+  tip.style.left=Math.max(4,Math.min(x+12,w-390))+"px"; tip.style.top=(y+16>h-200?Math.max(4,y-180):y+16)+"px";
+});
+document.addEventListener("mouseout",e=>{ if(!closest(e.relatedTarget,"[data-cell]")&&!closest(e.relatedTarget,"[data-pt]")) $("tip").style.display="none"; });
+window.addEventListener("popstate",e=>{ HIST.y = (e&&e.state&&e.state.y!=null) ? e.state.y : null; });
+window.addEventListener("hashchange",route);
+window.addEventListener("resize",stick);
+try{ if(typeof ResizeObserver==="function"){ const ro=new ResizeObserver(stick); const tp=$("top"); if(tp&&tp.nodeType) ro.observe(tp); const bd=$("band"); if(bd&&bd.nodeType) ro.observe(bd); } }catch(e){}
+
+/* ================= boot ================= */
+const meta=D.meta;
+/* page title, subtitle and warning band are configurable (meta.page_title, meta.subtitle, meta.paper, meta.banner, meta.banner_title, meta.banner_points) */
+const PAGE_TITLE = (typeof meta.page_title==="string" && meta.page_title.trim()) || "linglab: benchmarking and constructing theories with AI and verifiers";
+function paperOf(){ // the paper the project relates to: meta.paper {title, authors, year, url}, else the first of meta.papers with role "target"
+  if(meta.paper && typeof meta.paper==="object" && !Array.isArray(meta.paper) && meta.paper.title) return meta.paper;
+  const t = arr(meta.papers).find(x=>x && x.role==="target");
+  return t ? {title:t.title||t.id, authors:"", year:"", url:t.url||"", cite:t.title?t.id:""} : null;
+}
+function subtitleHtml(){
+  if(typeof meta.subtitle==="string" && meta.subtitle.trim()) return esc(meta.subtitle);
+  const p = paperOf();
+  if(p){
+    const ttl = /^https?:\/\//.test(String(p.url||"")) ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.title)}</a>` : esc(p.title);
+    const who = [p.authors,p.year].filter(x=>x!=null&&String(x).trim()!=="").join(", ") || p.cite || "";
+    return `Proof of concept related to ${ttl}${who?" ("+esc(who)+")":""}`;
+  }
+  return meta.title ? esc(meta.title) : "";
+}
+document.title = PAGE_TITLE + ((meta.title && meta.title!==PAGE_TITLE) ? " \u2013 "+meta.title : "");
+$("ttl").textContent = PAGE_TITLE;
+$("subttl").innerHTML = subtitleHtml(); if(!$("subttl").innerHTML) $("subttl").style.display="none";
+$("upd").textContent = meta.updated ? "updated "+meta.updated : "";
+$("foot").textContent = "Beta. Produced with AI assistance. Results may be wrong: check them (especially the Translations tab) before drawing scientific conclusions. Amend them by hand where needed. Iterate. \u00b7 Data updated: "+(meta.updated||"unknown")+" \u00b7 linglab report"+((RAWD.toolkit&&RAWD.toolkit.version)?(" v"+RAWD.toolkit.version+(RAWD.toolkit.built?(", built "+RAWD.toolkit.built):"")):"")+" (defaults, not rules: ask the agent to change this page)";
+/* one calm band: tracked title line, then the key sentence (bold) and the caveats in small type; sticky; "" hides it */
+const bandKey = typeof meta.banner==="string" ? meta.banner : "Results may be wrong: check them before drawing scientific conclusions.";
+const bandTitle = (typeof meta.banner_title==="string") ? meta.banner_title : "Work in progress";
+const bandPts = Array.isArray(meta.banner_points) ? meta.banner_points.filter(x=>typeof x==="string"&&x.trim()) :
+  ["Beta, produced with AI assistance.","Each verdict says how it was obtained; informal evidence is never shown as formal.","Check the translation of statements into code (Translations tab) before drawing conclusions."];
+if(bandKey.trim()){
+  $("bandt").textContent = bandTitle; if(!bandTitle.trim()) $("bandt").style.display="none";
+  $("band").innerHTML = `<div class="bk">${esc(bandKey)}</div>`+(bandPts.length?`<ul>${bandPts.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:"");
+} else { $("band").style.display="none"; $("bandt").style.display="none"; }
+window.__linglab={mxCls,mxCell,LADDER,tName,mxTheoryGroups,mxFactGroups,layerList,factKind}; /* test hook */
+renderOverview(); renderEmpirical(); renderPrinciples(); renderTranslations(); renderMatrix(); renderAudit(); renderExplorer(); renderFindings(); renderGuide();
+stick(); route();
+})();
+</script>
+</body>
+</html>

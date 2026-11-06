@@ -1,0 +1,4 @@
+[
+  {"fact": "F01", "theory": "T-SK", "text": "Under Strong Kleene the second conjunct 'the king is bald' has a value only where there is a king, and the first conjunct 'there is a king' already settles that, so the sentence is felicitous. Lean and Agda prove it by computing over the finite models; the Python run found no countermodel.", "by": "assistant", "when": "2026-10-12", "review": "unreviewed"},
+  {"fact": "F02", "theory": "T-SK", "text": "Strong Kleene does not care about the order of the conjuncts, so it does not derive that 'the king is bald and there is a king' is infelicitous. The fact expects that failure to derive, which is why the proofs of the negation (the _fail theorems) count as a pass. The llm-judged entry argues the same from the literature and is the weakest evidence in the cell.", "by": "assistant", "when": "2026-10-12", "review": "unreviewed"}
+]

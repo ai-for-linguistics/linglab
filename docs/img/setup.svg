@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="374" viewBox="0 -34 640 374" role="img" aria-label="A computer screen showing two app windows side by side: a chat window with human icons inside two left-aligned prompt bubbles and a robot icon inside a right-aligned response bubble, and a report window with tabs, cells and a plot"><style>/* svg palette */
+.s-ink{stroke:#1d2742} .t{fill:#1d2742;font-family:system-ui,sans-serif} .tm{fill:#4a5572;font-family:system-ui,sans-serif}
+.card{fill:#ffffff;stroke:#c9cfdd;stroke-width:2}
+.pass{fill:#d4f0e2;stroke:#1f8a5b;stroke-width:2} .fail{fill:#f8dad8;stroke:#c63d37;stroke-width:2}
+.pend{fill:#e6e8ee;stroke:#4a5572;stroke-width:2;stroke-dasharray:4 3} .oos{fill:#ffffff;stroke:#4a5572;stroke-width:2;stroke-dasharray:2 4}
+.conf{fill:#fbebc4;stroke:#b87800;stroke-width:2}
+.blue{fill:#dbe6fb;stroke:#2f5fc4;stroke-width:2}
+.ln{stroke:#1d2742;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.lm{stroke:#4a5572;stroke-width:2;fill:none;stroke-linecap:round}
+.gT{stroke:#1f8a5b;stroke-width:4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.rT{stroke:#c63d37;stroke-width:4;fill:none;stroke-linecap:round}
+.aT{stroke:#b87800;stroke-width:4;fill:none;stroke-linecap:round}
+</style><svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="linguist" viewBox="0 0 100 135">
+      <path d="M26 125v-40q0-18 24-18t24 18v40z" fill="#2f5fc4" stroke="#1d2742" stroke-width="2.5" stroke-linejoin="round" />
+      <circle cx="50" cy="40" r="22" fill="#f2c9a0" stroke="#1d2742" stroke-width="2.5" />
+      <path d="M27 38q0-24 23-24t23 24q-10-10-23-9t-23 9z" fill="#1d2742" />
+      <circle cx="41" cy="42" r="7" fill="none" stroke="#1d2742" stroke-width="2.5" />
+      <circle cx="59" cy="42" r="7" fill="none" stroke="#1d2742" stroke-width="2.5" />
+      <path d="M48 42h4M43 54q7 6 14 0" fill="none" stroke="#1d2742" stroke-width="2.5" stroke-linecap="round" />
+      <rect x="58" y="88" width="30" height="22" rx="3" fill="#fbebc4" stroke="#1d2742" stroke-width="2.5" />
+      <path d="M62 95h22M62 101h16" stroke="#1d2742" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="robot" viewBox="0 0 100 135">
+      <path d="M50 14v10" stroke="#1d2742" stroke-width="2.5" /><circle cx="50" cy="11" r="5" fill="#b87800" stroke="#1d2742" stroke-width="2" />
+      <rect x="20" y="24" width="60" height="46" rx="12" fill="#cdd7ea" stroke="#1d2742" stroke-width="2.5" />
+      <circle cx="38" cy="45" r="7" fill="#ffffff" stroke="#1d2742" stroke-width="2.5" /><circle cx="62" cy="45" r="7" fill="#ffffff" stroke="#1d2742" stroke-width="2.5" />
+      <circle cx="39" cy="46" r="3" fill="#1d2742" /><circle cx="63" cy="46" r="3" fill="#1d2742" />
+      <path d="M40 60h20" stroke="#1d2742" stroke-width="2.5" stroke-linecap="round" />
+      <rect x="28" y="74" width="44" height="44" rx="10" fill="#cdd7ea" stroke="#1d2742" stroke-width="2.5" />
+      <rect x="38" y="84" width="24" height="14" rx="3" fill="#ffffff" stroke="#1d2742" stroke-width="2" />
+      <path d="M28 84l-10 14M72 84l10 14" stroke="#1d2742" stroke-width="3" stroke-linecap="round" />
+    </symbol>
+    <symbol id="ok" viewBox="0 0 20 20"><path d="M4 10l4 4 8-9" class="gT" /></symbol>
+    <symbol id="no" viewBox="0 0 20 20"><path d="M4 4l12 12M16 4L4 16" class="rT" /></symbol>
+    <symbol id="doc" viewBox="0 0 40 50"><path d="M4 2h24l8 8v38H4z" fill="#ffffff" stroke="#1d2742" stroke-width="2.5" stroke-linejoin="round" /><path d="M10 18h20M10 25h20M10 32h14" stroke="#4a5572" stroke-width="2.5" stroke-linecap="round" /></symbol>
+  </defs>
+</svg>
+      <text x="116" y="-12" text-anchor="middle" font-size="15" font-weight="700" class="t">The Chat</text>
+      <text x="430" y="-12" text-anchor="middle" font-size="15" font-weight="700" class="t">The Dashboard</text>
+      <rect x="6" y="0" width="628" height="334" rx="14" class="card" style="stroke:#1d2742;stroke-width:3" />
+      <rect x="14" y="10" width="204" height="314" class="card" /><rect x="234" y="10" width="392" height="314" class="card" />
+      <rect x="14" y="10" width="204" height="28" style="fill:#e6e8ee;stroke:#c9cfdd;stroke-width:2" /><rect x="234" y="10" width="392" height="28" style="fill:#e6e8ee;stroke:#c9cfdd;stroke-width:2" />
+
+      <circle cx="28" cy="24" r="4.5" style="fill:#c63d37" /><circle cx="43" cy="24" r="4.5" style="fill:#b87800" /><circle cx="58" cy="24" r="4.5" style="fill:#1f8a5b" />
+      <text x="116" y="30" text-anchor="middle" font-size="14" font-weight="700" class="t">Assistant</text>
+      <circle cx="248" cy="24" r="4.5" style="fill:#c63d37" /><circle cx="263" cy="24" r="4.5" style="fill:#b87800" /><circle cx="278" cy="24" r="4.5" style="fill:#1f8a5b" />
+      <text x="430" y="30" text-anchor="middle" font-size="14" font-weight="700" class="t">Browser</text>
+      <rect x="24" y="56" width="176" height="56" rx="10" class="blue" />
+<use href="#linguist" x="31" y="68" width="20" height="27" />
+<text x="57" y="78" font-size="11" class="t">Add this paper facts</text><text x="57" y="95" font-size="11" class="t">and principles to the tests</text>
+<rect x="61" y="132" width="147" height="56" rx="10" class="pass" />
+<use href="#robot" x="68" y="144" width="20" height="27" />
+<text x="94" y="154" font-size="11" class="t">Done, 6 facts added,</text><text x="94" y="171" font-size="11" class="t">1 new theory column</text>
+<rect x="24" y="208" width="160" height="56" rx="10" class="blue" />
+<use href="#linguist" x="31" y="220" width="20" height="27" />
+<text x="57" y="230" font-size="11" class="t">Propose a fix to</text><text x="57" y="247" font-size="11" class="t">Principle A of Theory Y</text>
+<g transform="translate(234 38) scale(1.281046 1.117647) translate(-320 -38)"><path d="M320 82H626" style="fill:none;stroke:#c9cfdd;stroke-width:2" /><path d="M328 82V54Q328 46 336 46H390Q398 46 398 54V82Z" style="fill:#e6e8ee;stroke:#c9cfdd;stroke-width:2" /><path d="M400 82V54Q400 46 408 46H462Q470 46 470 54V82Z" style="fill:#e6e8ee;stroke:#c9cfdd;stroke-width:2" /><path d="M472 82V54Q472 46 480 46H534Q542 46 542 54V82Z" style="fill:#ffffff;stroke:none" /><path d="M473 82H541" style="stroke:#ffffff;stroke-width:4" /><path d="M472 82V54Q472 46 480 46H534Q542 46 542 54V82" style="fill:none;stroke:#c9cfdd;stroke-width:2" /><path d="M544 82V54Q544 46 552 46H606Q614 46 614 54V82Z" style="fill:#e6e8ee;stroke:#c9cfdd;stroke-width:2" /><g font-size="10" class="t"><text x="363.0" y="62" text-anchor="middle">Empirical</text><text x="363.0" y="74" text-anchor="middle">Space</text><text x="435.0" y="62" text-anchor="middle">Theoretical</text><text x="435.0" y="74" text-anchor="middle">Space</text><text x="507.0" y="62" text-anchor="middle" font-weight="700">Theories</text><text x="507.0" y="74" text-anchor="middle" font-weight="700">x Facts</text><text x="579.0" y="62" text-anchor="middle" font-style="italic">your</text><text x="579.0" y="74" text-anchor="middle" font-style="italic">idea</text></g>
+      </g><g transform="translate(258.0 140) scale(1.158748552) translate(-332 -132)"><rect x="364" y="132" width="106.08" height="28" rx="5" class="blue" /><text x="417.04" y="151" text-anchor="middle" font-size="13" font-weight="700" class="t">Theories</text><rect x="332" y="164" width="28" height="106.08" rx="5" class="blue" /><text transform="translate(351 217.04) rotate(-90)" text-anchor="middle" font-size="13" font-weight="700" class="t">Facts</text><g transform="translate(364 164) scale(.78) translate(-332 -142)"><rect x="332" y="142" width="28" height="28" rx="4" class="pass" /><rect x="368" y="142" width="28" height="28" rx="4" class="fail" /><rect x="404" y="142" width="28" height="28" rx="4" class="pass" /><rect x="440" y="142" width="28" height="28" rx="4" class="conf" /><rect x="332" y="178" width="28" height="28" rx="4" class="pass" /><rect x="368" y="178" width="28" height="28" rx="4" class="pend" /><rect x="404" y="178" width="28" height="28" rx="4" class="pass" /><rect x="440" y="178" width="28" height="28" rx="4" class="oos" /><rect x="332" y="214" width="28" height="28" rx="4" class="pass" /><rect x="368" y="214" width="28" height="28" rx="4" class="pass" /><rect x="404" y="214" width="28" height="28" rx="4" class="fail" /><rect x="440" y="214" width="28" height="28" rx="4" class="pass" /><rect x="332" y="250" width="28" height="28" rx="4" class="pass" /><rect x="368" y="250" width="28" height="28" rx="4" class="pend" /><rect x="404" y="250" width="28" height="28" rx="4" class="pend" /><rect x="440" y="250" width="28" height="28" rx="4" class="pass" /></g>
+      </g><g transform="translate(442.0 140) scale(1.176470588) translate(-482 -142)"><rect x="482" y="142" width="136" height="136" rx="8" class="card" /><defs><marker id="am5" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c63d37" /></marker></defs><path d="M494 152V266H608" class="ln" /><text x="498" y="170" font-size="11" font-weight="700" class="t" style="fill:#c63d37">best</text><path d="M528 202L512 184" class="ln" style="stroke:#c63d37;stroke-width:2" marker-end="url(#am5)" /><path d="M512 252H538V232H566V206H600V176" fill="none" stroke="#1f8a5b" stroke-width="2.5" stroke-dasharray="5 4" /><circle cx="600" cy="168" r="7" style="fill:#6a49c2;stroke:#1d2742;stroke-width:1.5" /><circle cx="566" cy="206" r="5.5" class="pass" /><circle cx="538" cy="232" r="5.5" class="pass" /><circle cx="512" cy="252" r="5.5" class="pass" /><circle cx="583" cy="219" r="5.5" class="pend" /><circle cx="566" cy="252" r="5.5" class="pend" />
+    </g></svg>

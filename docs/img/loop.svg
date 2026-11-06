@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 360 344" width="340" height="340" role="img" aria-label="Facts and theories checked by verifiers, with two grow arrows"><style>/* svg palette */
+.s-ink{stroke:#1d2742} .t{fill:#1d2742;font-family:system-ui,sans-serif} .tm{fill:#4a5572;font-family:system-ui,sans-serif}
+.card{fill:#ffffff;stroke:#c9cfdd;stroke-width:2}
+.pass{fill:#d4f0e2;stroke:#1f8a5b;stroke-width:2} .fail{fill:#f8dad8;stroke:#c63d37;stroke-width:2}
+.pend{fill:#e6e8ee;stroke:#4a5572;stroke-width:2;stroke-dasharray:4 3} .oos{fill:#ffffff;stroke:#4a5572;stroke-width:2;stroke-dasharray:2 4}
+.conf{fill:#fbebc4;stroke:#b87800;stroke-width:2}
+.blue{fill:#dbe6fb;stroke:#2f5fc4;stroke-width:2}
+.ln{stroke:#1d2742;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.lm{stroke:#4a5572;stroke-width:2;fill:none;stroke-linecap:round}
+.gT{stroke:#1f8a5b;stroke-width:4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.rT{stroke:#c63d37;stroke-width:4;fill:none;stroke-linecap:round}
+.aT{stroke:#b87800;stroke-width:4;fill:none;stroke-linecap:round}
+</style><svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="linguist" viewBox="0 0 100 135">
+      <path d="M26 125v-40q0-18 24-18t24 18v40z" fill="#2f5fc4" stroke="#1d2742" stroke-width="2.5" stroke-linejoin="round"/>
+      <circle cx="50" cy="40" r="22" fill="#f2c9a0" stroke="#1d2742" stroke-width="2.5"/>
+      <path d="M27 38q0-24 23-24t23 24q-10-10-23-9t-23 9z" fill="#1d2742"/>
+      <circle cx="41" cy="42" r="7" fill="none" stroke="#1d2742" stroke-width="2.5"/>
+      <circle cx="59" cy="42" r="7" fill="none" stroke="#1d2742" stroke-width="2.5"/>
+      <path d="M48 42h4M43 54q7 6 14 0" fill="none" stroke="#1d2742" stroke-width="2.5" stroke-linecap="round"/>
+      <rect x="58" y="88" width="30" height="22" rx="3" fill="#fbebc4" stroke="#1d2742" stroke-width="2.5"/>
+      <path d="M62 95h22M62 101h16" stroke="#1d2742" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="robot" viewBox="0 0 100 135">
+      <path d="M50 14v10" stroke="#1d2742" stroke-width="2.5"/><circle cx="50" cy="11" r="5" fill="#b87800" stroke="#1d2742" stroke-width="2"/>
+      <rect x="20" y="24" width="60" height="46" rx="12" fill="#cdd7ea" stroke="#1d2742" stroke-width="2.5"/>
+      <circle cx="38" cy="45" r="7" fill="#ffffff" stroke="#1d2742" stroke-width="2.5"/><circle cx="62" cy="45" r="7" fill="#ffffff" stroke="#1d2742" stroke-width="2.5"/>
+      <circle cx="39" cy="46" r="3" fill="#1d2742"/><circle cx="63" cy="46" r="3" fill="#1d2742"/>
+      <path d="M40 60h20" stroke="#1d2742" stroke-width="2.5" stroke-linecap="round"/>
+      <rect x="28" y="74" width="44" height="44" rx="10" fill="#cdd7ea" stroke="#1d2742" stroke-width="2.5"/>
+      <rect x="38" y="84" width="24" height="14" rx="3" fill="#ffffff" stroke="#1d2742" stroke-width="2"/>
+      <path d="M28 84l-10 14M72 84l10 14" stroke="#1d2742" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="ok" viewBox="0 0 20 20"><path d="M4 10l4 4 8-9" class="gT"/></symbol>
+    <symbol id="no" viewBox="0 0 20 20"><path d="M4 4l12 12M16 4L4 16" class="rT"/></symbol>
+    <symbol id="doc" viewBox="0 0 40 50"><path d="M4 2h24l8 8v38H4z" fill="#ffffff" stroke="#1d2742" stroke-width="2.5" stroke-linejoin="round"/><path d="M10 18h20M10 25h20M10 32h14" stroke="#4a5572" stroke-width="2.5" stroke-linecap="round"/></symbol>
+  </defs>
+</svg><rect x="-9" y="-9" width="358" height="342" rx="16" class="card"/><defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#ed7d31"/></marker></defs><g transform="translate(20 20) scale(.8) translate(5 5)"><rect x="65" y="-5" width="230" height="54" rx="10" class="blue"/><text x="180" y="29" text-anchor="middle" font-size="22" class="t">Theories</text><rect x="-5" y="65" width="54" height="230" rx="10" class="blue"/><text transform="translate(29 180) rotate(-90)" text-anchor="middle" font-size="22" class="t">Facts</text><g transform="translate(30 30)"><rect x="35" y="35" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="48" y="48" width="24" height="24"/><rect x="95" y="35" width="50" height="50" rx="8" class="fail"/><use href="#no" x="108" y="48" width="24" height="24"/><rect x="155" y="35" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="168" y="48" width="24" height="24"/><rect x="215" y="35" width="50" height="50" rx="8" class="pend"/><rect x="35" y="95" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="48" y="108" width="24" height="24"/><rect x="95" y="95" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="108" y="108" width="24" height="24"/><rect x="155" y="95" width="50" height="50" rx="8" class="conf"/><path d="M168 132l12-22 12 22z" class="aT" style="stroke-width:3.5"/><rect x="215" y="95" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="228" y="108" width="24" height="24"/><rect x="35" y="155" width="50" height="50" rx="8" class="fail"/><use href="#no" x="48" y="168" width="24" height="24"/><rect x="95" y="155" width="50" height="50" rx="8" class="oos"/><rect x="155" y="155" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="168" y="168" width="24" height="24"/><rect x="215" y="155" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="228" y="168" width="24" height="24"/><rect x="35" y="215" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="48" y="228" width="24" height="24"/><rect x="95" y="215" width="50" height="50" rx="8" class="pend"/><rect x="155" y="215" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="168" y="228" width="24" height="24"/><rect x="215" y="215" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="228" y="228" width="24" height="24"/><rect x="40" y="167" width="220" height="85" rx="15" fill="#ffffff" stroke="#1d2742" stroke-width="1.2"/><text x="150" y="208" text-anchor="middle" font-size="24" font-weight="700" class="tm">Verifiers</text><text x="150" y="232" text-anchor="middle" font-size="15.5" font-weight="600" class="tm">Lean, Python, humans…</text></g></g><path d="M260 168H290V42H264" fill="none" stroke="#ed7d31" stroke-width="3" stroke-dasharray="9 6" marker-end="url(#ar)"/><text x="298" y="133" font-size="13" class="t">grow</text><path d="M168 260V294H42V264" fill="none" stroke="#ed7d31" stroke-width="3" stroke-dasharray="9 6" marker-end="url(#ar)"/><text x="105" y="313" text-anchor="middle" font-size="13" class="t">grow</text></svg>

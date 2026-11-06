@@ -1,0 +1,794 @@
+[
+  {
+    "id": "F01",
+    "role": "fact",
+    "name": "Filtering by first conjunct",
+    "text": "There is a king and the king is bald: felicitous.",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "Peters 1979",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [],
+    "code": {
+      "python": null,
+      "lean": null
+    },
+    "notes": "",
+    "type": "felicity",
+    "expected": "holds",
+    "context": "null",
+    "about": "language",
+    "contested": false,
+    "spec": {
+      "discourse": [
+        [
+          "and",
+          "s",
+          "a"
+        ]
+      ]
+    },
+    "layer": "core"
+  },
+  {
+    "id": "F02",
+    "role": "fact",
+    "name": "Order asymmetry",
+    "text": "The king is bald and there is a king: infelicitous.",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "Beaver and Krahmer 2001",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [],
+    "code": {
+      "python": null,
+      "lean": null
+    },
+    "notes": "",
+    "type": "felicity",
+    "expected": "fails",
+    "context": "null",
+    "about": "language",
+    "contested": false,
+    "spec": {
+      "discourse": [
+        [
+          "and",
+          "a",
+          "s"
+        ]
+      ]
+    },
+    "layer": "core"
+  },
+  {
+    "id": "F03",
+    "role": "fact",
+    "name": "Bare trigger",
+    "text": "The king is bald (null context): not felicitous.",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "Kleene 1952",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [],
+    "code": {
+      "python": null,
+      "lean": null
+    },
+    "notes": "",
+    "type": "felicity",
+    "expected": "fails",
+    "context": "null",
+    "about": "language",
+    "contested": false,
+    "spec": {
+      "discourse": [
+        "a"
+      ]
+    },
+    "layer": "core"
+  },
+  {
+    "id": "F04",
+    "role": "fact",
+    "name": "Filtering in disjunction",
+    "text": "Either there is no king or the king is bald: felicitous.",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "Beaver and Krahmer 2001",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [],
+    "code": {
+      "python": null,
+      "lean": null
+    },
+    "notes": "",
+    "type": "felicity",
+    "expected": "holds",
+    "context": "null",
+    "about": "language",
+    "contested": false,
+    "spec": {
+      "discourse": [
+        [
+          "or",
+          [
+            "not",
+            "s"
+          ],
+          "a"
+        ]
+      ]
+    },
+    "layer": "core"
+  },
+  {
+    "id": "F05a",
+    "role": "fact",
+    "name": "Conjunction commutes (forward)",
+    "text": "p and q entails q and p.",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "Kleene 1952",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [],
+    "code": {
+      "python": null,
+      "lean": null
+    },
+    "notes": "",
+    "type": "entailment",
+    "expected": "holds",
+    "context": "null",
+    "about": "language",
+    "contested": false,
+    "spec": {
+      "premises": [
+        [
+          "and",
+          "p",
+          "q"
+        ]
+      ],
+      "conclusion": [
+        "and",
+        "q",
+        "p"
+      ]
+    },
+    "group": "G-comm",
+    "notation": "p \\land q \\;\\vDash\\; q \\land p",
+    "layer": "core",
+    "requires": "FR-TOY"
+  },
+  {
+    "id": "F05b",
+    "role": "fact",
+    "name": "Conjunction commutes (backward)",
+    "text": "q and p entails p and q.",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "Kleene 1952",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [],
+    "code": {
+      "python": null,
+      "lean": null
+    },
+    "notes": "",
+    "type": "entailment",
+    "expected": "holds",
+    "context": "null",
+    "about": "language",
+    "contested": false,
+    "spec": {
+      "premises": [
+        [
+          "and",
+          "q",
+          "p"
+        ]
+      ],
+      "conclusion": [
+        "and",
+        "p",
+        "q"
+      ]
+    },
+    "group": "G-comm",
+    "layer": "core",
+    "requires": "FR-TOY"
+  },
+  {
+    "id": "F06",
+    "role": "fact",
+    "name": "No entailment to a conjunction",
+    "text": "p does not entail p and q.",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "user",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [],
+    "code": {
+      "python": null,
+      "lean": null
+    },
+    "notes": "",
+    "type": "entailment",
+    "expected": "fails",
+    "context": "null",
+    "about": "language",
+    "contested": false,
+    "spec": {
+      "premises": [
+        "p"
+      ],
+      "conclusion": [
+        "and",
+        "p",
+        "q"
+      ]
+    },
+    "layer": "core",
+    "requires": "FR-TOY"
+  },
+  {
+    "id": "F07",
+    "role": "fact",
+    "name": "Excluded middle fails",
+    "text": "a or not a is not valid when a has a presupposition.",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "Kleene 1952",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [],
+    "code": {
+      "python": null,
+      "lean": null
+    },
+    "notes": "",
+    "type": "entailment",
+    "expected": "fails",
+    "context": "null",
+    "about": "language",
+    "contested": false,
+    "spec": {
+      "premises": [],
+      "conclusion": [
+        "or",
+        "a",
+        [
+          "not",
+          "a"
+        ]
+      ]
+    },
+    "layer": "core",
+    "requires": "FR-TOY"
+  },
+  {
+    "id": "F08",
+    "role": "fact",
+    "name": "Contradictory premises",
+    "text": "s and not s are not jointly satisfiable.",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "user",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [],
+    "code": {
+      "python": null,
+      "lean": null
+    },
+    "notes": "",
+    "type": "consistency",
+    "expected": "fails",
+    "context": "null",
+    "about": "language",
+    "contested": false,
+    "spec": {
+      "premises": [
+        "s",
+        [
+          "not",
+          "s"
+        ]
+      ]
+    },
+    "layer": "core"
+  },
+  {
+    "id": "F09",
+    "role": "fact",
+    "name": "Conjunction with presupposed conjunct",
+    "text": "s and a is true exactly when a is true.",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "Peters 1979",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [],
+    "code": {
+      "python": null,
+      "lean": null
+    },
+    "notes": "",
+    "type": "truth",
+    "expected": "holds",
+    "context": "null",
+    "about": "language",
+    "contested": false,
+    "spec": {
+      "sentence": [
+        "and",
+        "s",
+        "a"
+      ],
+      "relation": "equals",
+      "target": "a"
+    },
+    "layer": "core",
+    "parses": [
+      {
+        "id": "swapped",
+        "label": "conjuncts in the other order",
+        "spec": {
+          "sentence": [
+            "and",
+            "a",
+            "s"
+          ],
+          "relation": "equals",
+          "target": "a"
+        }
+      }
+    ]
+  },
+  {
+    "id": "F10",
+    "role": "fact",
+    "name": "Graded order judgment",
+    "text": "Speakers find 'a and s' worse than 's and a' (graded judgment).",
+    "confidence": 0.6,
+    "origins": [
+      {
+        "source": "Beaver and Krahmer 2001",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [],
+    "code": {
+      "python": null,
+      "lean": null
+    },
+    "notes": "No code: results come from reports only.",
+    "type": "other",
+    "expected": "holds",
+    "context": "null",
+    "about": "language",
+    "contested": true,
+    "layer": "disputed"
+  },
+  {
+    "id": "F11",
+    "role": "fact",
+    "name": "Preference for presupposing conjunct first",
+    "text": "'s and a' is preferred over 'a'; declared, not implemented in the beta runner (pending).",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "user",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [],
+    "code": {
+      "python": null,
+      "lean": null
+    },
+    "notes": "",
+    "type": "preference",
+    "expected": "holds",
+    "context": "null",
+    "about": "language",
+    "contested": false,
+    "spec": {
+      "sentence": [
+        "and",
+        "s",
+        "a"
+      ],
+      "preferred": [
+        "and",
+        "s",
+        "a"
+      ],
+      "over": "a"
+    },
+    "layer": "core"
+  },
+  {
+    "id": "P-NEG",
+    "role": "principle",
+    "name": "Negation",
+    "text": "Negation swaps true and false and leaves undefined undefined.",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "Kleene 1952",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [],
+    "code": {
+      "python": "P-NEG",
+      "lean": "P-NEG"
+    },
+    "notes": "",
+    "auxiliary": false,
+    "vocabulary": false,
+    "notation": "\\llbracket \\neg A \\rrbracket = 1 - \\llbracket A \\rrbracket \\ (\\#\\mapsto\\#)"
+  },
+  {
+    "id": "P-AND-SK",
+    "role": "principle",
+    "name": "Strong Kleene and",
+    "text": "False if either conjunct is false, true if both true, else undefined.",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "Kleene 1952",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [
+      {
+        "rel": "incompatible",
+        "to": "P-AND-WK",
+        "note": "same connective, different table"
+      },
+      {
+        "rel": "incompatible",
+        "to": "P-AND-MK",
+        "note": "same connective, different table"
+      }
+    ],
+    "code": {
+      "python": "P-AND-SK",
+      "lean": "P-AND-SK"
+    },
+    "notes": "",
+    "auxiliary": false,
+    "vocabulary": false,
+    "notation": "\\llbracket A \\land B \\rrbracket = \\begin{cases} 0 & \\text{if } 0\\in\\{\\llbracket A\\rrbracket,\\llbracket B\\rrbracket\\} \\\\ 1 & \\text{if both } 1 \\\\ \\# & \\text{otherwise}\\end{cases}",
+    "checks": [
+      {
+        "by": "llm",
+        "who": "assistant",
+        "when": "2026-10-09",
+        "what": "readback",
+        "verdict": "agrees",
+        "readback": "Returns 0 whenever either argument is 0; returns 1 only when both are 1; in every other case the value is undefined.",
+        "note": "",
+        "ref": "python/principles.py"
+      }
+    ]
+  },
+  {
+    "id": "P-AND-WK",
+    "role": "principle",
+    "name": "Weak Kleene and",
+    "text": "Undefined if either conjunct is undefined, else classical.",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "Kleene 1952",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [
+      {
+        "rel": "incompatible",
+        "to": "P-AND-MK",
+        "note": "same connective, different table"
+      }
+    ],
+    "code": {
+      "python": "P-AND-WK",
+      "lean": "P-AND-WK"
+    },
+    "notes": "",
+    "auxiliary": false,
+    "vocabulary": false,
+    "notation": "\\llbracket A \\land B \\rrbracket = \\begin{cases} \\# & \\text{if } \\#\\in\\{\\llbracket A\\rrbracket,\\llbracket B\\rrbracket\\} \\\\ \\llbracket A\\rrbracket\\cdot\\llbracket B\\rrbracket & \\text{otherwise}\\end{cases}"
+  },
+  {
+    "id": "P-AND-MK",
+    "role": "principle",
+    "name": "Middle Kleene and",
+    "text": "Left to right: a false or undefined left conjunct settles the value; otherwise the value of the right conjunct.",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "Peters 1979",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [],
+    "code": {
+      "python": "P-AND-MK",
+      "lean": "P-AND-MK"
+    },
+    "notes": "",
+    "auxiliary": false,
+    "vocabulary": false,
+    "notation": "\\llbracket A \\land B \\rrbracket = \\begin{cases} \\llbracket A\\rrbracket & \\text{if } \\llbracket A\\rrbracket\\in\\{0,\\#\\} \\\\ \\llbracket B\\rrbracket & \\text{otherwise}\\end{cases}",
+    "checks": [
+      {
+        "by": "llm",
+        "who": "assistant",
+        "when": "2026-10-09",
+        "what": "readback",
+        "verdict": "agrees",
+        "readback": "The Python function returns the left value x when x is 0 or undefined, and the right value y otherwise. So a false or undefined left conjunct settles the result, and only a true left conjunct hands the decision to the right one.",
+        "note": "Read from python/principles.py before looking at the statement text.",
+        "ref": "python/principles.py"
+      },
+      {
+        "by": "human",
+        "who": "E. Chemla",
+        "when": "2026-10-10",
+        "what": "readback",
+        "verdict": "agrees",
+        "readback": "",
+        "note": "Matches Peters 1979.",
+        "ref": ""
+      }
+    ]
+  },
+  {
+    "id": "P-OR-SK",
+    "role": "principle",
+    "name": "Strong Kleene or",
+    "text": "True if either disjunct is true, false if both false, else undefined.",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "Kleene 1952",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [
+      {
+        "rel": "incompatible",
+        "to": "P-OR-WK",
+        "note": ""
+      },
+      {
+        "rel": "incompatible",
+        "to": "P-OR-MK",
+        "note": ""
+      }
+    ],
+    "code": {
+      "python": "P-OR-SK",
+      "lean": "P-OR-SK"
+    },
+    "notes": "",
+    "auxiliary": false,
+    "vocabulary": false,
+    "notation": "\\llbracket A \\lor B \\rrbracket = \\begin{cases} 1 & \\text{if } 1\\in\\{\\llbracket A\\rrbracket,\\llbracket B\\rrbracket\\} \\\\ 0 & \\text{if both } 0 \\\\ \\# & \\text{otherwise}\\end{cases}"
+  },
+  {
+    "id": "P-OR-WK",
+    "role": "principle",
+    "name": "Weak Kleene or",
+    "text": "Undefined if either disjunct is undefined, else classical.",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "Kleene 1952",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [
+      {
+        "rel": "incompatible",
+        "to": "P-OR-MK",
+        "note": ""
+      }
+    ],
+    "code": {
+      "python": "P-OR-WK",
+      "lean": "P-OR-WK"
+    },
+    "notes": "Not used by any theory yet: a candidate for completing T-WK (it currently has no disjunction, so F04 and F07 are out of scope).",
+    "auxiliary": false,
+    "vocabulary": false,
+    "notation": "\\llbracket A \\lor B \\rrbracket = \\begin{cases} \\# & \\text{if } \\#\\in\\{\\llbracket A\\rrbracket,\\llbracket B\\rrbracket\\} \\\\ \\max(\\llbracket A\\rrbracket,\\llbracket B\\rrbracket) & \\text{otherwise}\\end{cases}"
+  },
+  {
+    "id": "P-OR-MK",
+    "role": "principle",
+    "name": "Middle Kleene or",
+    "text": "Left to right: a true or undefined left disjunct settles the value; otherwise the value of the right disjunct.",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "Peters 1979",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [],
+    "code": {
+      "python": "P-OR-MK",
+      "lean": "P-OR-MK"
+    },
+    "notes": "",
+    "auxiliary": false,
+    "vocabulary": false,
+    "notation": "\\llbracket A \\lor B \\rrbracket = \\begin{cases} \\llbracket A\\rrbracket & \\text{if } \\llbracket A\\rrbracket\\in\\{1,\\#\\} \\\\ \\llbracket B\\rrbracket & \\text{otherwise}\\end{cases}"
+  },
+  {
+    "id": "P-ENT-T",
+    "role": "principle",
+    "name": "Truth-preserving entailment",
+    "text": "The conclusion is true in every model where all premises are true.",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "Beaver and Krahmer 2001",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [],
+    "code": {
+      "python": "P-ENT-T",
+      "lean": "P-ENT-T"
+    },
+    "notes": "",
+    "auxiliary": false,
+    "vocabulary": true,
+    "notation": "\\Gamma \\vDash C \\iff \\forall M\\,\\big(\\llbracket \\Gamma\\rrbracket^M = 1 \\Rightarrow \\llbracket C\\rrbracket^M = 1\\big)"
+  },
+  {
+    "id": "P-FELIC-DEF",
+    "role": "principle",
+    "name": "Felicity as definedness everywhere",
+    "text": "A discourse is felicitous iff it is defined in every model.",
+    "confidence": 0.9,
+    "origins": [
+      {
+        "source": "Beaver and Krahmer 2001",
+        "page": "",
+        "quote": ""
+      }
+    ],
+    "relations": [
+      {
+        "rel": "incompatible",
+        "to": "P-FELIC-SOME",
+        "note": "every model vs some model"
+      }
+    ],
+    "code": {
+      "python": "P-FELIC-DEF",
+      "lean": "P-FELIC-DEF"
+    },
+    "notes": "",
+    "auxiliary": false,
+    "vocabulary": true,
+    "notation": "\\mathrm{felic}(D) \\iff \\forall M\\;\\llbracket D\\rrbracket^M \\neq \\#"
+  },
+  {
+    "id": "P-FELIC-SOME",
+    "role": "principle",
+    "name": "Felicity as definedness somewhere",
+    "text": "A discourse is felicitous iff it is defined in some model.",
+    "confidence": 0.4,
+    "origins": [],
+    "relations": [
+      {
+        "rel": "incompatible",
+        "to": "P-FELIC-DEF",
+        "note": "every model vs some model"
+      }
+    ],
+    "code": {
+      "python": "P-FELIC-SOME",
+      "lean": "P-FELIC-SOME"
+    },
+    "notes": "",
+    "auxiliary": false,
+    "vocabulary": true,
+    "notation": "\\mathrm{felic}(D) \\iff \\exists M\\;\\llbracket D\\rrbracket^M \\neq \\#",
+    "checks": [
+      {
+        "by": "llm",
+        "who": "assistant",
+        "when": "2026-10-09",
+        "what": "readback",
+        "verdict": "partial",
+        "readback": "The code accepts a discourse when at least one model gives it a defined value. It does not look at whether the discourse is also true there, which the statement text leaves open.",
+        "note": "Wording of the statement is ambiguous between 'defined' and 'true'.",
+        "ref": "python/principles.py"
+      },
+      {
+        "by": "human",
+        "who": "E. Chemla",
+        "when": "2026-10-10",
+        "what": "translation",
+        "verdict": "partial",
+        "readback": "",
+        "note": "Candidate fix, low confidence; not from a paper.",
+        "ref": ""
+      }
+    ]
+  },
+  {
+    "id": "P-AUX-PRESUP",
+    "role": "principle",
+    "name": "Presupposition constraint",
+    "text": "Auxiliary: a is undefined exactly when there is no king.",
+    "confidence": 0.9,
+    "origins": [],
+    "relations": [],
+    "code": {
+      "python": "P-AUX-PRESUP",
+      "lean": "P-AUX-PRESUP"
+    },
+    "notes": "",
+    "auxiliary": true,
+    "vocabulary": false,
+    "notation": "\\llbracket a\\rrbracket^M = \\# \\iff \\llbracket s\\rrbracket^M = 0"
+  }
+]

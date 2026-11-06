@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -20 460 460" width="340" height="340">
+<style>
+.t{fill:#1d2742;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.card{fill:#fff;stroke:#c9cfdd;stroke-width:2}
+.pass{fill:#d4f0e2;stroke:#1f8a5b;stroke-width:2}
+.pend{fill:#e6e8ee;stroke:#4a5572;stroke-width:2;stroke-dasharray:4 3}
+.fail{fill:#f8dad8;stroke:#c63d37;stroke-width:2}
+.blue{fill:#dbe6fb;stroke:#2f5fc4;stroke-width:2}
+.ln{stroke:#1d2742;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+</style>
+<rect x="1" y="-19" width="458" height="458" rx="16" fill="#fff" stroke="#c9cfdd" stroke-width="2"/>
+
+      <defs><marker id="am" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c63d37"/></marker></defs>
+      <path d="M92 20V350H422" class="ln"/>
+      <text x="104" y="50" font-size="16" font-weight="700" class="t" style="fill:#c63d37">best</text>
+      <path d="M152 106L120 68" class="ln" style="stroke:#c63d37;stroke-width:2.5" marker-end="url(#am)"/>
+      <path d="M116 279H160V232H222V138H372V92" fill="none" stroke="#1f8a5b" stroke-width="3" stroke-dasharray="7 5"/>
+      <text x="290" y="158" font-size="13" class="t" style="fill:#1f8a5b">frontier</text>
+      <circle cx="372" cy="79" r="11" style="fill:#6a49c2;stroke:#1d2742;stroke-width:2"/><text x="358" y="62" font-size="14" class="t" text-anchor="end">Raw Facts (baseline)</text>
+      <circle cx="222" cy="138" r="10" class="pass"/><text x="236" y="118" font-size="14" class="t">Theory 3</text>
+      <circle cx="160" cy="232" r="10" class="pass"/><text x="140" y="212" font-size="14" class="t">Theory 2</text>
+      <circle cx="116" cy="279" r="10" class="pass"/><text x="130" y="304" font-size="14" class="t">Theory 1</text>
+      <circle cx="276" cy="185" r="10" class="pend"/><text x="290" y="206" font-size="14" class="t">Theory 4</text>
+      <circle cx="222" cy="279" r="10" class="pend"/><text x="236" y="299" font-size="14" class="t">Theory 5</text>
+      <text x="257" y="374" text-anchor="middle" font-size="15" class="t">Complexity &#8594;</text>
+      <g id="ddx" class="dd" role="button" tabindex="0" aria-label="Change the complexity proxy" style="cursor:pointer"><rect x="157" y="382" width="200" height="26" rx="6" class="card"/><text id="ddx-t" x="257" y="400" text-anchor="middle" font-size="13" class="t">change proxy &#9662;</text></g>
+      <g transform="translate(30 185) rotate(-90)"><text x="0" y="0" text-anchor="middle" font-size="15" class="t">Coverage &#8594;</text><g id="ddy" class="dd" role="button" tabindex="0" aria-label="Change the coverage proxy" style="cursor:pointer"><rect x="-100" y="8" width="200" height="26" rx="6" class="card"/><text id="ddy-t" x="0" y="26" text-anchor="middle" font-size="13" class="t">change proxy &#9662;</text></g></g>
+    
+</svg>

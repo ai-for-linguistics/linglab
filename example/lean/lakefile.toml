@@ -1,0 +1,5 @@
+name = "linglab"
+defaultTargets = ["Linglab"]
+
+[[lean_lib]]
+name = "Linglab"

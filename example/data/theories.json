@@ -1,0 +1,146 @@
+[
+  {
+    "id": "T-SK",
+    "name": "Strong Kleene",
+    "short": "SK",
+    "description": "Strong Kleene: a connective is undefined only when its other argument cannot settle the value. Felicity requires the discourse to be defined in every model.",
+    "principles": [
+      "P-NEG",
+      "P-AND-SK",
+      "P-OR-SK",
+      "P-ENT-T",
+      "P-FELIC-DEF",
+      "P-AUX-PRESUP"
+    ],
+    "parent": null,
+    "kind": "original",
+    "origin": {
+      "source": "Kleene 1952",
+      "page": ""
+    },
+    "family": "Kleene",
+    "generated": null,
+    "notes": "",
+    "fragments": [
+      "FR-TOY",
+      "FR-CONSEQ"
+    ],
+    "notation": "T_{SK}=\\{\\neg,\\land_{SK},\\lor_{SK},\\vDash_T,\\mathrm{felic}_\\forall\\}"
+  },
+  {
+    "id": "T-WK",
+    "name": "Weak Kleene",
+    "short": "WK",
+    "description": "Weak Kleene: any undefined part makes the whole undefined. Only conjunction is defined here, so facts with 'or' are out of scope.",
+    "principles": [
+      "P-NEG",
+      "P-AND-WK",
+      "P-ENT-T",
+      "P-FELIC-DEF",
+      "P-AUX-PRESUP"
+    ],
+    "parent": null,
+    "kind": "original",
+    "origin": {
+      "source": "Kleene 1952",
+      "page": ""
+    },
+    "family": "Kleene",
+    "generated": null,
+    "notes": "",
+    "fragments": [
+      "FR-TOY",
+      "FR-CONSEQ"
+    ],
+    "predicts": [
+      "entailment",
+      "felicity",
+      "truth",
+      "consistency",
+      "property",
+      "other"
+    ]
+  },
+  {
+    "id": "T-MK",
+    "name": "Middle Kleene",
+    "short": "MK",
+    "description": "Middle Kleene (Peters): connectives evaluated left to right, so a left conjunct can protect the right one. Felicity as definedness in every model.",
+    "principles": [
+      "P-NEG",
+      "P-AND-MK",
+      "P-OR-MK",
+      "P-ENT-T",
+      "P-FELIC-DEF",
+      "P-AUX-PRESUP"
+    ],
+    "parent": null,
+    "kind": "original",
+    "origin": {
+      "source": "Peters 1979",
+      "page": ""
+    },
+    "family": "Peters",
+    "generated": null,
+    "notes": "",
+    "fragments": [
+      "FR-TOY",
+      "FR-CONSEQ"
+    ]
+  },
+  {
+    "id": "T-MK-some",
+    "name": "Middle Kleene, felicity somewhere",
+    "short": "MK-some",
+    "description": "Fix of Middle Kleene: same connectives, but felicity is definedness in some model, which repairs one failing felicity fact and breaks another.",
+    "principles": [
+      "P-NEG",
+      "P-AND-MK",
+      "P-OR-MK",
+      "P-ENT-T",
+      "P-FELIC-SOME",
+      "P-AUX-PRESUP"
+    ],
+    "parent": "T-MK",
+    "kind": "fix",
+    "origin": {
+      "source": "",
+      "page": ""
+    },
+    "family": "Peters",
+    "generated": null,
+    "notes": "",
+    "fragments": [
+      "FR-TOY",
+      "FR-CONSEQ"
+    ]
+  },
+  {
+    "id": "RAW",
+    "name": "Raw Facts",
+    "description": "The theory made of all the facts, one by one. Maximal coverage and maximal complexity; the baseline every theory should beat.",
+    "principles": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05a",
+      "F05b",
+      "F06",
+      "F07",
+      "F08",
+      "F09",
+      "F10",
+      "F11"
+    ],
+    "parent": null,
+    "kind": "reference",
+    "origin": {
+      "source": "",
+      "page": ""
+    },
+    "family": "",
+    "generated": "listing",
+    "notes": ""
+  }
+]

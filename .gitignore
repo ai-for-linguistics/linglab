@@ -1,0 +1,45 @@
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Dropbox
+*conflicted copy*
+.dropbox*
+.AU.*.nosync
+Icon?
+
+# Lean build output (regenerable; do not sync or commit)
+.lake/
+**/build/
+**/out/
+*.olean
+*.ilean
+*.trace
+*.hash
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+*.pkl
+
+# Logs and backups
+*.log
+*.bak
+tmp/
+scratch/
+
+
+# Claude Code local state
+.claude/
+
+# tool caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+
+# build output: rebuilt by `linglab zip` and `linglab site`
+dist/

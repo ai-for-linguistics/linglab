@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>linglab: prompt it</title>
+<style>
+:root{
+  --bg:#f7f5ef; --card:#ffffff; --ink:#1d2742; --mute:#4a5572; --line:#c9cfdd;
+  --blue:#2f5fc4; --blue-l:#dbe6fb; --green:#1f8a5b; --green-l:#d4f0e2;
+  --red:#c63d37; --red-l:#f8dad8; --amber:#b87800; --amber-l:#fbebc4;
+  --grey-l:#e6e8ee; --purple:#6a49c2; --skin:#f2c9a0; --robot:#cdd7ea; --accent:#2f5fc4;
+}
+:root{color-scheme:light}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#deck{height:100vh;height:100dvh;position:relative;overflow:hidden}
+.slide{display:none;position:absolute;inset:0;padding:clamp(14px,3vw,40px) clamp(16px,5vw,64px) 56px;overflow:auto}
+.slide.active{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(12px,3vw,40px);align-content:center;align-items:center}
+.slide .txt{min-width:0}
+.slide h2{font-size:clamp(1.5rem,3.4vw,2.6rem);line-height:1.1;margin:0 0 .5em}
+.slide p{font-size:clamp(1.05rem,2vw,1.5rem);line-height:1.4;margin:.3em 0;color:var(--mute)}
+.slide .num{font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.slide figure{margin:0;min-width:0}
+.slide svg.fig{width:100%;height:auto;max-height:68vh;display:block;background:var(--card);border:1px solid var(--line);border-radius:16px}
+.slide.title.active{grid-template-columns:minmax(0,6fr) minmax(0,6fr)}
+.slide.s9 .head{grid-column:1/-1}
+.slide.s9.active{align-content:center;row-gap:clamp(8px,2vh,24px)}
+.slide.title h2{font-size:clamp(1.8rem,4vw,3.2rem)}
+@media (max-width:760px){.slide.active{grid-template-columns:1fr;align-content:start}.slide svg.fig{max-height:none}}
+code,pre{font-family:ui-monospace,Menlo,Consolas,monospace}
+pre.prompt{background:var(--card);border:2px solid var(--accent);border-radius:12px;padding:12px 14px;font-size:clamp(.85rem,1.6vw,1.15rem);white-space:pre-wrap;color:var(--ink);margin:.6em 0}
+button.copy{font:inherit;font-size:.9rem;padding:4px 10px;border-radius:8px;border:1px solid var(--accent);background:var(--card);color:var(--accent);cursor:pointer}
+.notes{display:none;position:fixed;left:0;right:0;bottom:0;max-height:45vh;overflow:auto;background:var(--card);color:var(--ink);border-top:3px solid var(--accent);padding:12px clamp(16px,5vw,64px) 60px;font-size:1.05rem;line-height:1.45;z-index:5}
+body.shownotes .slide.active .notes{display:block}
+#bar{position:fixed;left:0;top:0;height:5px;background:var(--accent);width:0;z-index:9;transition:width .2s}
+#ui{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 14px;font-size:.9rem;color:var(--mute);z-index:8;background:linear-gradient(transparent,var(--bg) 40%)}
+#ui button.nav:disabled{opacity:.3;cursor:default}
+#ui button.nav{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:700;padding:8px 18px;min-height:40px}
+#ui button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer;min-height:36px}
+#ui .fmid{flex:1;display:flex;align-items:center;justify-content:center;gap:18px;font-size:.72rem;line-height:1.35;color:var(--mute);margin:0 14px}
+#ui .fq,#ui .fd{text-align:left}
+#ui .fb{display:flex;flex-direction:column;align-items:stretch;gap:3px}
+#ui .fbtn{font:inherit;font-size:.72rem;display:block;padding:2px 10px;min-height:0;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--mute);text-decoration:none;cursor:pointer;text-align:center;line-height:1.25}
+#ui .fbtn:hover{color:var(--ink);border-color:var(--mute)}
+#ui .copybtn:hover::after,#ui .copybtn:focus-visible::after{top:auto;bottom:calc(100% + 8px);left:auto;right:0;text-align:left}
+@media (max-width:760px){#ui .hint{display:none}}
+.try{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.try .lab{font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.chip{font:inherit;font-size:clamp(.82rem,1.45vw,1.02rem);text-align:left;padding:7px 12px;border-radius:12px;border:1px solid var(--accent);background:var(--card);color:var(--ink);cursor:pointer;line-height:1.3}
+.chip:hover{background:var(--blue-l)}
+.chip.done::after{content:"  copied";color:var(--green);font-size:.8em}
+.slide.menu .txt p{font-size:clamp(.95rem,1.7vw,1.25rem)}
+.slide .sub{font-size:clamp(1.1rem,2.2vw,1.6rem);color:var(--accent);font-weight:600;margin:-.3em 0 .6em}
+.btns{display:flex;flex-direction:row;flex-wrap:wrap;gap:10px;margin:.8em 0;max-width:36em}
+.btns .btn{flex:1 1 11em;width:auto}
+.btns .copybtn:hover::after,.btns .copybtn:focus-visible::after{left:auto;right:0}
+.btn{font:inherit;font-weight:700;font-size:clamp(.9rem,1.6vw,1.1rem);padding:10px 16px;border-radius:10px;border:2px solid var(--accent);background:var(--accent);color:var(--bg);cursor:pointer;text-decoration:none;display:block;width:100%;text-align:left}
+.btn.alt{background:var(--card);color:var(--accent)}
+.copybtn{position:relative}
+.copybtn:hover::after,.copybtn:focus-visible::after{content:attr(data-tip);position:absolute;left:0;top:calc(100% + 8px);z-index:30;width:min(34em,86vw);white-space:pre-wrap;background:var(--ink);color:var(--bg);padding:10px 12px;border-radius:8px;font:normal .82rem/1.35 ui-monospace,Menlo,Consolas,monospace;text-align:left;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.qbox{border:2px dashed var(--accent);border-radius:14px;padding:10px 16px 12px;margin:1em auto 0;max-width:36em;background:var(--card)}
+.qbox .btns{max-width:none;flex-direction:row;flex-wrap:wrap}
+.qbox .btn{flex:1 1 14em;width:auto;font-size:.95rem;padding:8px 12px;display:flex;align-items:center;gap:10px}
+.qn{flex:none;width:2.1em;height:2.1em;border-radius:50%;border:2px solid currentColor;display:grid;place-items:center;font-weight:800;font-size:1.3rem;line-height:1}
+.qbox .copybtn:hover::after,.qbox .copybtn:focus-visible::after{left:auto;right:0}
+.ver{font-weight:400;text-transform:none;letter-spacing:0;opacity:.8}
+.qbox .copybtn:hover::after,.qbox .copybtn:focus-visible::after{top:auto;bottom:calc(100% + 8px)}
+.learn{display:block;margin:10px auto 0;font:inherit;font-weight:600;font-size:clamp(1.05rem,2vw,1.5rem);background:transparent;border:0;color:var(--ink);text-decoration:none;cursor:pointer;padding:6px 8px}
+.qbox .lab{font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:6px}
+.tip{font-size:clamp(.9rem,1.5vw,1.1rem);font-weight:700;color:var(--ink);margin:0 0 .5em;text-align:center}
+/* svg palette */
+.s-ink{stroke:var(--ink)} .t{fill:var(--ink);font-family:system-ui,sans-serif} .tm{fill:var(--mute);font-family:system-ui,sans-serif}
+.card{fill:var(--card);stroke:var(--line);stroke-width:2}
+.pass{fill:var(--green-l);stroke:var(--green);stroke-width:2} .fail{fill:var(--red-l);stroke:var(--red);stroke-width:2}
+.pend{fill:var(--grey-l);stroke:var(--mute);stroke-width:2;stroke-dasharray:4 3} .oos{fill:var(--card);stroke:var(--mute);stroke-width:2;stroke-dasharray:2 4}
+.conf{fill:var(--amber-l);stroke:var(--amber);stroke-width:2}
+.blue{fill:var(--blue-l);stroke:var(--blue);stroke-width:2}
+.ln{stroke:var(--ink);stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.lm{stroke:var(--mute);stroke-width:2;fill:none;stroke-linecap:round}
+.gT{stroke:var(--green);stroke-width:4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.rT{stroke:var(--red);stroke-width:4;fill:none;stroke-linecap:round}
+.aT{stroke:var(--amber);stroke-width:4;fill:none;stroke-linecap:round}
+@media print{
+  @page{size:landscape;margin:10mm}
+  html,body{height:auto;background:#fff}
+  #deck{height:auto;overflow:visible}
+  .slide,.slide.active{display:grid;position:static;break-after:page;page-break-after:always;min-height:180mm;overflow:visible;padding:0}
+  #ui,#bar{display:none} .notes,body.shownotes .slide.active .notes{display:none}
+  button.copy{display:none}
+}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+
+<!-- shared characters -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="linguist" viewBox="0 0 100 135">
+      <path d="M26 125v-40q0-18 24-18t24 18v40z" fill="var(--blue)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>
+      <circle cx="50" cy="40" r="22" fill="var(--skin)" stroke="var(--ink)" stroke-width="2.5"/>
+      <path d="M27 38q0-24 23-24t23 24q-10-10-23-9t-23 9z" fill="var(--ink)"/>
+      <circle cx="41" cy="42" r="7" fill="none" stroke="var(--ink)" stroke-width="2.5"/>
+      <circle cx="59" cy="42" r="7" fill="none" stroke="var(--ink)" stroke-width="2.5"/>
+      <path d="M48 42h4M43 54q7 6 14 0" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round"/>
+      <rect x="58" y="88" width="30" height="22" rx="3" fill="var(--amber-l)" stroke="var(--ink)" stroke-width="2.5"/>
+      <path d="M62 95h22M62 101h16" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="robot" viewBox="0 0 100 135">
+      <path d="M50 14v10" stroke="var(--ink)" stroke-width="2.5"/><circle cx="50" cy="11" r="5" fill="var(--amber)" stroke="var(--ink)" stroke-width="2"/>
+      <rect x="20" y="24" width="60" height="46" rx="12" fill="var(--robot)" stroke="var(--ink)" stroke-width="2.5"/>
+      <circle cx="38" cy="45" r="7" fill="var(--card)" stroke="var(--ink)" stroke-width="2.5"/><circle cx="62" cy="45" r="7" fill="var(--card)" stroke="var(--ink)" stroke-width="2.5"/>
+      <circle cx="39" cy="46" r="3" fill="var(--ink)"/><circle cx="63" cy="46" r="3" fill="var(--ink)"/>
+      <path d="M40 60h20" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round"/>
+      <rect x="28" y="74" width="44" height="44" rx="10" fill="var(--robot)" stroke="var(--ink)" stroke-width="2.5"/>
+      <rect x="38" y="84" width="24" height="14" rx="3" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/>
+      <path d="M28 84l-10 14M72 84l10 14" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="ok" viewBox="0 0 20 20"><path d="M4 10l4 4 8-9" class="gT"/></symbol>
+    <symbol id="no" viewBox="0 0 20 20"><path d="M4 4l12 12M16 4L4 16" class="rT"/></symbol>
+    <symbol id="doc" viewBox="0 0 40 50"><path d="M4 2h24l8 8v38H4z" fill="var(--card)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/><path d="M10 18h20M10 25h20M10 32h14" stroke="var(--mute)" stroke-width="2.5" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<main id="deck">
+
+<section class="slide title" data-title="linglab: prompt it">
+  <div class="txt">
+    <div class="num">Beta</div>
+    <h2>linglab:<br>prompt it</h2>
+    <p>Turn theories and data into code. They come alive. <span style="white-space:nowrap">You steer.</span></p>
+    <p style="font-size:.9em">linglab: <a href="https://lingbuzz.net/lingbuzz/010379" target="_blank" rel="noopener" style="color:var(--accent)">Companion paper on lingbuzz</a><br>linglib: <a href="https://github.com/linglib-community/linglib" target="_blank" rel="noopener" style="color:var(--accent)">Supporting library on GitHub</a></p>
+  </div>
+  <figure><svg class="fig" viewBox="0 0 640 336" role="img" aria-label="Two panels: the matrix of facts by theories with verifiers (Lean, Python, humans), and the plot of coverage by complexity with a frontier"><defs><marker id="am1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--red)"/></marker></defs><g transform="translate(10 8)"><rect x="0" y="0" width="300" height="300" rx="16" class="card"/><g transform="translate(35 35) scale(.766667) translate(5 5)"><rect x="65" y="-5" width="230" height="54" rx="10" class="blue"/><text x="180" y="29" text-anchor="middle" font-size="22" class="t">Theories</text><rect x="-5" y="65" width="54" height="230" rx="10" class="blue"/><text transform="translate(29 180) rotate(-90)" text-anchor="middle" font-size="22" class="t">Facts</text><g transform="translate(30 30)"><rect x="35" y="35" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="48" y="48" width="24" height="24"/><rect x="95" y="35" width="50" height="50" rx="8" class="fail"/><use href="#no" x="108" y="48" width="24" height="24"/><rect x="155" y="35" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="168" y="48" width="24" height="24"/><rect x="215" y="35" width="50" height="50" rx="8" class="pend"/><rect x="35" y="95" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="48" y="108" width="24" height="24"/><rect x="95" y="95" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="108" y="108" width="24" height="24"/><rect x="155" y="95" width="50" height="50" rx="8" class="conf"/><path d="M168 132l12-22 12 22z" class="aT" style="stroke-width:3.5"/><rect x="215" y="95" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="228" y="108" width="24" height="24"/><rect x="35" y="155" width="50" height="50" rx="8" class="fail"/><use href="#no" x="48" y="168" width="24" height="24"/><rect x="95" y="155" width="50" height="50" rx="8" class="oos"/><rect x="155" y="155" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="168" y="168" width="24" height="24"/><rect x="215" y="155" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="228" y="168" width="24" height="24"/><rect x="35" y="215" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="48" y="228" width="24" height="24"/><rect x="95" y="215" width="50" height="50" rx="8" class="pend"/><rect x="155" y="215" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="168" y="228" width="24" height="24"/><rect x="215" y="215" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="228" y="228" width="24" height="24"/><rect x="40" y="167" width="220" height="85" rx="15" fill="var(--card)" stroke="var(--ink)" stroke-width="1.2"/><text x="150" y="208" text-anchor="middle" font-size="24" font-weight="700" class="tm">Verifiers</text><text x="150" y="232" text-anchor="middle" font-size="15.5" font-weight="600" class="tm">Lean, Python, humans…</text></g></g></g><g transform="translate(330 8)"><rect x="0" y="0" width="300" height="300" rx="16" class="card"/><path d="M48 18V256H284" class="ln"/><text x="58" y="38" font-size="13" font-weight="700" class="t" style="fill:var(--red)">best</text><path d="M83 55L71 43" class="ln" style="stroke:var(--red);stroke-width:2" marker-end="url(#am1)"/><path d="M88 222H128V194H172V148H262V68" fill="none" stroke="var(--green)" stroke-width="3.5" stroke-dasharray="8 6"/><circle cx="262" cy="54" r="14" style="fill:var(--purple);stroke:var(--ink);stroke-width:2.5"/><circle cx="172" cy="148" r="11" class="pass"/><circle cx="128" cy="194" r="11" class="pass"/><circle cx="88" cy="222" r="11" class="pass"/><circle cx="217" cy="171" r="11" class="pend"/><circle cx="172" cy="222" r="11" class="pend"/><text x="166" y="280" text-anchor="middle" font-size="12" class="t">Complexity &#8594;</text><text transform="translate(38 140) rotate(-90)" text-anchor="middle" font-size="12" class="t">Coverage &#8594;</text></g><text x="160" y="330" text-anchor="middle" font-size="14" class="tm">facts x theories</text><text x="480" y="330" text-anchor="middle" font-size="14" class="tm">coverage x complexity</text></svg></figure>
+  <div style="text-align:center;grid-column:2"><button class="learn" id="learnmore" type="button">or learn more: use keyboard arrows &rarr;</button></div>
+  <aside class="notes"><b>~30 s.</b> Introduce the one-line promise. This is a beta; the people in the room are linguists, not programmers, and nothing here requires you to write or read code: the assistant does the typing, you keep the decisions. The grid in the picture is the whole product: every other slide explains one part of it. Say who you are working with: an AI assistant running on your computer, which creates and edits files and runs commands.</aside>
+</section>
+
+<section class="slide" data-title="The matrix">
+  <div class="txt">
+    <div class="num">1 / The idea</div>
+    <h2>A matrix of tests</h2>
+    <p>Rows are facts. Columns are theories.<br>Each cell is a test certified in Lean: <i>pass, fail, pending, out of scope.</i></p><p style="font-size:.8em">Raw Facts is a distinguished theory: it is the stipulation of all facts. It passes all tests, by construction.</p>
+  </div>
+  <figure>
+    <svg class="fig" viewBox="0 0 460 404" role="img" aria-label="A matrix with facts as rows and theories as columns; cells are green pass, red fail, grey pending, dotted out of scope, amber conflict"><rect x="130" y="8" width="300" height="38" rx="6" class="blue"/><text x="280.0" y="33" text-anchor="middle" font-size="18" font-weight="700" class="t">Theories</text><rect x="14" y="92" width="38" height="300" rx="6" class="blue"/><text transform="translate(39 242.0) rotate(-90)" text-anchor="middle" font-size="18" font-weight="700" class="t">Facts</text><g font-size="14" class="t"><text x="164.5" y="66" text-anchor="middle" font-weight="700">Raw Facts</text><text x="164.5" y="82" text-anchor="middle" font-size="12" class="tm">(baseline)</text><text x="241.5" y="78" text-anchor="middle" font-weight="700">Theory 1</text><text x="318.5" y="78" text-anchor="middle" font-weight="700">Theory 2</text><text x="395.5" y="78" text-anchor="middle" font-weight="700">Theory 3</text><text x="60" y="123.8" font-weight="700">Fact 1</text><text x="60" y="185.4" font-weight="700">Fact 2</text><text x="60" y="247.0" font-weight="700">Fact 3</text><text x="60" y="308.6" font-weight="700">Fact 4</text><text x="60" y="370.2" font-weight="700">Fact 5</text></g><g id="cells"></g></svg>
+  </figure>
+  <aside class="notes"><b>~60 s.</b> Walk one row and one column. Take one row: a sentence and a verdict about it; some theories accept it, others do not. A theory whose language cannot say a sentence at all gets "out of scope", which is different from "failed". Pending means nobody has tested it yet. The first column, Raw Facts, is a distinguished theory: it passes every test, because it simply stipulates each fact. It is the baseline (all coverage, all complexity), and a check that the facts are consistent. Only two things add to the matrix: a new fact (row) or a new principle or theory (column).</aside>
+</section>
+
+<section class="slide" data-title="The loop">
+  <div class="txt">
+    <div class="num">2 / A free circuit</div>
+    <h2>Create. Compute. Visualize.</h2>
+    <p>Theories are bundles of principles. Facts are tests. Create or co-create them, and loop.</p>
+    <p>Research is fully manual, fully AI, or a hybrid.</p><svg class="fig" viewBox="0 0 340 324" style="max-height:34vh;margin-top:.8em" role="img" aria-label="The facts by theories matrix with verifiers (Lean, Python, humans); two grow arrows feed results back to theories and facts"><defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#ed7d31"/></marker></defs><g transform="translate(20 20) scale(.8) translate(5 5)"><rect x="65" y="-5" width="230" height="54" rx="10" class="blue"/><text x="180" y="29" text-anchor="middle" font-size="22" class="t">Theories</text><rect x="-5" y="65" width="54" height="230" rx="10" class="blue"/><text transform="translate(29 180) rotate(-90)" text-anchor="middle" font-size="22" class="t">Facts</text><g transform="translate(30 30)"><rect x="35" y="35" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="48" y="48" width="24" height="24"/><rect x="95" y="35" width="50" height="50" rx="8" class="fail"/><use href="#no" x="108" y="48" width="24" height="24"/><rect x="155" y="35" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="168" y="48" width="24" height="24"/><rect x="215" y="35" width="50" height="50" rx="8" class="pend"/><rect x="35" y="95" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="48" y="108" width="24" height="24"/><rect x="95" y="95" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="108" y="108" width="24" height="24"/><rect x="155" y="95" width="50" height="50" rx="8" class="conf"/><path d="M168 132l12-22 12 22z" class="aT" style="stroke-width:3.5"/><rect x="215" y="95" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="228" y="108" width="24" height="24"/><rect x="35" y="155" width="50" height="50" rx="8" class="fail"/><use href="#no" x="48" y="168" width="24" height="24"/><rect x="95" y="155" width="50" height="50" rx="8" class="oos"/><rect x="155" y="155" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="168" y="168" width="24" height="24"/><rect x="215" y="155" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="228" y="168" width="24" height="24"/><rect x="35" y="215" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="48" y="228" width="24" height="24"/><rect x="95" y="215" width="50" height="50" rx="8" class="pend"/><rect x="155" y="215" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="168" y="228" width="24" height="24"/><rect x="215" y="215" width="50" height="50" rx="8" class="pass"/><use href="#ok" x="228" y="228" width="24" height="24"/><rect x="40" y="167" width="220" height="85" rx="15" fill="var(--card)" stroke="var(--ink)" stroke-width="1.2"/><text x="150" y="208" text-anchor="middle" font-size="24" font-weight="700" class="tm">Verifiers</text><text x="150" y="232" text-anchor="middle" font-size="15.5" font-weight="600" class="tm">Lean, Python, humans…</text></g></g><path d="M260 168H290V42H264" fill="none" stroke="#ed7d31" stroke-width="3" stroke-dasharray="9 6" marker-end="url(#ar)"/><text x="298" y="133" font-size="13" class="t">grow</text><path d="M168 260V294H42V264" fill="none" stroke="#ed7d31" stroke-width="3" stroke-dasharray="9 6" marker-end="url(#ar)"/><text x="105" y="313" text-anchor="middle" font-size="13" class="t">grow</text></svg>
+  </div>
+  <figure>
+    <svg class="fig" viewBox="0 0 640 344" role="img" aria-label="Eight tiles listing the things you can ask for"><defs><marker id="a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--ink)"/></marker></defs><rect x="14" y="12" width="298" height="66" rx="12" class="blue"/><text x="30" y="42" font-size="16" font-weight="700" class="t">1. Look for principles</text><text x="46" y="64" font-size="13" class="tm">extract, propose, request, compress</text><rect x="330" y="12" width="298" height="66" rx="12" class="blue"/><text x="346" y="42" font-size="16" font-weight="700" class="t">2. Revise a theory</text><text x="362" y="64" font-size="13" class="tm">fully manual, fully AI, or hybrid</text><rect x="14" y="92" width="298" height="66" rx="12" class="conf"/><text x="30" y="122" font-size="16" font-weight="700" class="t">3. Compare theories</text><text x="46" y="144" font-size="13" class="tm">by fact, by principle, find generalities</text><rect x="330" y="92" width="298" height="66" rx="12" class="conf"/><text x="346" y="114" font-size="16" font-weight="700" class="t">4. Recombine theories</text><text x="362" y="132" font-size="13" class="tm">cross-over, mix principles,</text><text x="362" y="146" font-size="13" class="tm">weight outcomes</text><rect x="14" y="172" width="298" height="66" rx="12" class="pass"/><text x="30" y="202" font-size="16" font-weight="700" class="t">5. Expand empirical work</text><text x="46" y="224" font-size="13" class="tm">identify and design crucial tests</text><rect x="330" y="172" width="298" height="66" rx="12" class="pass"/><text x="346" y="202" font-size="16" font-weight="700" class="t">6. Add scientific sources</text><text x="362" y="224" font-size="13" class="tm">extract facts, principles</text><rect x="14" y="252" width="298" height="66" rx="12" style="fill:color-mix(in srgb,var(--purple) 16%,var(--card));stroke:var(--purple);stroke-width:2"/><text x="30" y="282" font-size="16" font-weight="700" class="t">7. Find generalities</text><text x="46" y="304" font-size="13" class="tm">what can and cannot go together</text><rect x="330" y="252" width="298" height="66" rx="12" style="fill:color-mix(in srgb,var(--purple) 16%,var(--card));stroke:var(--purple);stroke-width:2"/><text x="346" y="282" font-size="16" font-weight="700" class="t">8. New report, new view</text><text x="362" y="304" font-size="13" class="tm">tables &amp; plots, slides &amp; LaTeX</text><text x="320" y="338" text-anchor="middle" font-size="13" class="tm">prompt in plain language, in any order</text></svg>
+  </figure>
+  <aside class="notes"><b>~60 s.</b> Walk the eight tiles quickly: each is a kind of request you can make, in plain language and in any order. Look for principles in a paper; ask which judgment would matter most; compare theories; find what cannot go together; ask for a new report or view; revise a theory; check the work of the assistant; add data, papers and your own judgments. You choose how much the assistant does: fully manual, fully AI, or a hybrid. These are examples, not limits: anything else you ask can be tried. Underneath it is a circuit: theories are bundles of principles, facts are tests, you create or co-create them, the tests run, the matrix shows where things agree, and you go round again. The same eight, with prompts to copy, are in examples.html.</aside>
+</section>
+
+<section class="slide" data-title="Compression">
+  <div class="txt">
+    <div class="num">3 / Research becomes visible</div>
+    <h2>Proxies for Research</h2>
+    <p>The Coverage vs Complexity plot lets you compare theories. You can switch between different metrics, all imperfect proxies for coverage and complexity.</p><p>A good theory passes many facts with few, simple principles.</p>
+    <p style="font-size:.75em">Coverage: e.g. # successes, weighted successes<br>Complexity: e.g. # principles, compressed size of the Lean code</p>
+  </div>
+  <figure>
+    <svg class="fig" viewBox="0 0 460 420" role="img" aria-label="Scatter plot in a square plotting area with complexity on the horizontal axis and coverage on the vertical axis, each axis with a change-proxy dropdown; a stepped Pareto frontier; Raw Facts is at the top right, the most complex and most covering">
+      <defs><marker id="am" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--red)"/></marker></defs>
+      <path d="M92 20V350H422" class="ln"/>
+      <text x="104" y="50" font-size="16" font-weight="700" class="t" style="fill:var(--red)">best</text>
+      <path d="M152 106L120 68" class="ln" style="stroke:var(--red);stroke-width:2.5" marker-end="url(#am)"/>
+      <path d="M116 279H160V232H222V138H372V92" fill="none" stroke="var(--green)" stroke-width="3" stroke-dasharray="7 5"/>
+      <text x="290" y="158" font-size="13" class="t" style="fill:var(--green)">frontier</text>
+      <circle cx="372" cy="79" r="11" style="fill:var(--purple);stroke:var(--ink);stroke-width:2"/><text x="358" y="62" font-size="14" class="t" text-anchor="end">Raw Facts (baseline)</text>
+      <circle cx="222" cy="138" r="10" class="pass"/><text x="236" y="118" font-size="14" class="t">Theory 3</text>
+      <circle cx="160" cy="232" r="10" class="pass"/><text x="140" y="212" font-size="14" class="t">Theory 2</text>
+      <circle cx="116" cy="279" r="10" class="pass"/><text x="130" y="304" font-size="14" class="t">Theory 1</text>
+      <circle cx="276" cy="185" r="10" class="pend"/><text x="290" y="206" font-size="14" class="t">Theory 4</text>
+      <circle cx="222" cy="279" r="10" class="pend"/><text x="236" y="299" font-size="14" class="t">Theory 5</text>
+      <text x="257" y="374" text-anchor="middle" font-size="15" class="t">Complexity &#8594;</text>
+      <g id="ddx" class="dd" role="button" tabindex="0" aria-label="Change the complexity proxy" style="cursor:pointer"><rect x="157" y="382" width="200" height="26" rx="6" class="card"/><text id="ddx-t" x="257" y="400" text-anchor="middle" font-size="13" class="t">change proxy &#9662;</text></g><g id="ddx-m" style="display:none"></g>
+      <g transform="translate(30 185) rotate(-90)"><text x="0" y="0" text-anchor="middle" font-size="15" class="t">Coverage &#8594;</text><g id="ddy" class="dd" role="button" tabindex="0" aria-label="Change the coverage proxy" style="cursor:pointer"><rect x="-100" y="8" width="200" height="26" rx="6" class="card"/><text id="ddy-t" x="0" y="26" text-anchor="middle" font-size="13" class="t">change proxy &#9662;</text></g><g id="ddy-m" style="display:none"></g></g>
+    </svg>
+  </figure>
+  <aside class="notes"><b>~60 s.</b> Raw Facts has the highest coverage and the highest complexity: it is the baseline. A good theory sits near the frontier: nearly as much coverage, with far fewer principles. None of the measures is the truth: they are proxies for coverage and complexity, and they can disagree (in the earlier Anaphora work, code-size rankings in two proof assistants barely agreed). So each axis has a dropdown: coverage (facts passed, passed over applicable, confidence-weighted, with or without LLM judgments) and complexity (number of principles, with or without auxiliary ones, code length). Two side-by-side plots and a length table let you see whether the choice changes the story. Positions here are illustrative, not results.</aside>
+</section>
+
+<section class="slide" data-title="Quickstart">
+  <div class="txt">
+    <div class="num">4 / Quickstart</div>
+    <h2>you can start now</h2>
+    <pre class="prompt" id="theprompt" hidden style="display:none">I want to start a linglab project.
+1. Ask me for the project name and the folder.
+2. Create the project folder. Find linglab-beta.zip (look in my Downloads folder and in the current folder; if it is not there, ask me for its path or web address) unzip it, and rename the folder it contains (linglab) to utils inside the project, so that &lt;project&gt;/utils/BOOTSTRAP.md exists.
+3. Read utils/BOOTSTRAP.md and follow it.</pre>
+    <p>You need an AI assistant running on your computer that can create and edit files and run commands, not in the browser, typically a paid plan from a general provider.</p>
+    <p style="font-size:.9em"><b>Heads up:</b> this can use up credits or tokens quickly, especially long jobs. Ask "what will this cost?" before big steps, and set a budget.</p>
+  </div>
+  <figure>
+    <svg class="fig" style="max-height:52vh" viewBox="0 0 640 360" role="img" aria-label="A robot with a beta sign surrounded by speech bubbles with example requests">
+      <use href="#robot" x="270" y="116" width="100" height="135"/>
+      <rect x="280" y="60" width="80" height="36" rx="6" class="conf"/><text x="320" y="84" text-anchor="middle" font-size="17" font-weight="700" class="t">BETA</text><path d="M320 96v22" class="ln"/>
+      <g font-size="14" class="t">
+        <rect x="14" y="14" width="250" height="44" rx="14" class="blue"/><text x="26" y="42">Add a new metric.</text>
+        <rect x="376" y="14" width="250" height="44" rx="14" class="pass"/><text x="388" y="42">Fix this fact's wording.</text>
+        <rect x="14" y="76" width="236" height="44" rx="14" class="conf"/><text x="26" y="104">Make me slides.</text>
+        <rect x="390" y="76" width="236" height="44" rx="14" class="blue"/><text x="402" y="104">Why does Theory 2 fail F01?</text>
+        <rect x="14" y="138" width="236" height="62" rx="14" class="pass"/><text x="26" y="164">Add a histogram of number of</text><text x="26" y="184">principles per theory in a new tab.</text>
+        <rect x="390" y="138" width="236" height="62" rx="14" class="conf"/><text x="402" y="164">Show only the conflicts, and</text><text x="402" y="184">what would resolve them.</text>
+        <rect x="14" y="218" width="250" height="44" rx="14" class="blue"/><text x="26" y="246">Use another proof system.</text>
+        <rect x="376" y="218" width="250" height="44" rx="14" class="pass"/><text x="388" y="246">Find a critical case for T-MK.</text>
+        <rect x="14" y="280" width="290" height="62" rx="14" class="conf"/><text x="26" y="306">I write a principle myself:</text><text x="26" y="326">add it to Theory 1 and test it.</text>
+        <rect x="336" y="280" width="290" height="62" rx="14" class="blue"/><text x="348" y="306">Propose a fix for Theory 3, and</text><text x="348" y="326">tell me what it gains and loses.</text>
+      </g>
+    </svg>
+  </figure>
+  <aside class="notes"><b>~70 s.</b> Two buttons. Download the zip, then copy the prompt and paste it in your assistant: it looks for the zip in your Downloads folder or the current folder, asks you if it cannot find it, creates the project folder, reads utils/BOOTSTRAP.md, interviews you and builds the first page. What you need: an AI assistant that runs on your computer and can create and edit files and run commands (not a browser chat), typically a paid plan from a general provider. Python 3 is required; Lean is optional. Screens: chat on one side, the report page (report/index.html) on the other, in whatever window arrangement you like; reload the page after each step. Credits: the assistant works through your plan, so long jobs can use a lot; the assistant is told to state the cost of big steps first, and you can set a budget at any time. What you will see in your folder: brief.md, data/, report/, literature/, custom/, utils/, plus two small pointer files (AGENTS.md, CLAUDE.md). What you change by prompting lives in your project (custom/ and a copy of the page template in report/), never in utils/. For a hosted version, change ZIP_URL in the slide script.</aside>
+</section>
+
+<section class="slide" data-title="Beta and alive">
+  <div class="txt">
+    <div class="num">A beta, and alive</div>
+    <h2>Fix or change anything</h2>
+    <p>Use prompts to change scientific and visualization aspects alike.</p>
+    <p style="font-size:.85em">Produced with AI assistance. Results may be wrong: check them before drawing scientific conclusions. Amend them by hand where needed. Iterate.</p>
+  </div>
+  <figure>
+    <p class="tip">Pro tip: set up your screen so you can switch easily<br>between</p>
+    <svg class="fig" xmlns="http://www.w3.org/2000/svg" width="640" height="374" viewBox="0 -34 640 374" role="img" aria-label="A computer screen showing two app windows side by side: a chat window with human icons inside two left-aligned prompt bubbles and a robot icon inside a right-aligned response bubble, and a report window with tabs, cells and a plot"><style>/* svg palette */
+.s-ink{stroke:#1d2742} .t{fill:#1d2742;font-family:system-ui,sans-serif} .tm{fill:#4a5572;font-family:system-ui,sans-serif}
+.card{fill:#ffffff;stroke:#c9cfdd;stroke-width:2}
+.pass{fill:#d4f0e2;stroke:#1f8a5b;stroke-width:2} .fail{fill:#f8dad8;stroke:#c63d37;stroke-width:2}
+.pend{fill:#e6e8ee;stroke:#4a5572;stroke-width:2;stroke-dasharray:4 3} .oos{fill:#ffffff;stroke:#4a5572;stroke-width:2;stroke-dasharray:2 4}
+.conf{fill:#fbebc4;stroke:#b87800;stroke-width:2}
+.blue{fill:#dbe6fb;stroke:#2f5fc4;stroke-width:2}
+.ln{stroke:#1d2742;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.lm{stroke:#4a5572;stroke-width:2;fill:none;stroke-linecap:round}
+.gT{stroke:#1f8a5b;stroke-width:4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.rT{stroke:#c63d37;stroke-width:4;fill:none;stroke-linecap:round}
+.aT{stroke:#b87800;stroke-width:4;fill:none;stroke-linecap:round}
+</style><svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="setup0-linguist" viewBox="0 0 100 135">
+      <path d="M26 125v-40q0-18 24-18t24 18v40z" fill="#2f5fc4" stroke="#1d2742" stroke-width="2.5" stroke-linejoin="round" />
+      <circle cx="50" cy="40" r="22" fill="#f2c9a0" stroke="#1d2742" stroke-width="2.5" />
+      <path d="M27 38q0-24 23-24t23 24q-10-10-23-9t-23 9z" fill="#1d2742" />
+      <circle cx="41" cy="42" r="7" fill="none" stroke="#1d2742" stroke-width="2.5" />
+      <circle cx="59" cy="42" r="7" fill="none" stroke="#1d2742" stroke-width="2.5" />
+      <path d="M48 42h4M43 54q7 6 14 0" fill="none" stroke="#1d2742" stroke-width="2.5" stroke-linecap="round" />
+      <rect x="58" y="88" width="30" height="22" rx="3" fill="#fbebc4" stroke="#1d2742" stroke-width="2.5" />
+      <path d="M62 95h22M62 101h16" stroke="#1d2742" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="setup0-robot" viewBox="0 0 100 135">
+      <path d="M50 14v10" stroke="#1d2742" stroke-width="2.5" /><circle cx="50" cy="11" r="5" fill="#b87800" stroke="#1d2742" stroke-width="2" />
+      <rect x="20" y="24" width="60" height="46" rx="12" fill="#cdd7ea" stroke="#1d2742" stroke-width="2.5" />
+      <circle cx="38" cy="45" r="7" fill="#ffffff" stroke="#1d2742" stroke-width="2.5" /><circle cx="62" cy="45" r="7" fill="#ffffff" stroke="#1d2742" stroke-width="2.5" />
+      <circle cx="39" cy="46" r="3" fill="#1d2742" /><circle cx="63" cy="46" r="3" fill="#1d2742" />
+      <path d="M40 60h20" stroke="#1d2742" stroke-width="2.5" stroke-linecap="round" />
+      <rect x="28" y="74" width="44" height="44" rx="10" fill="#cdd7ea" stroke="#1d2742" stroke-width="2.5" />
+      <rect x="38" y="84" width="24" height="14" rx="3" fill="#ffffff" stroke="#1d2742" stroke-width="2" />
+      <path d="M28 84l-10 14M72 84l10 14" stroke="#1d2742" stroke-width="3" stroke-linecap="round" />
+    </symbol>
+    <symbol id="setup0-ok" viewBox="0 0 20 20"><path d="M4 10l4 4 8-9" class="gT" /></symbol>
+    <symbol id="setup0-no" viewBox="0 0 20 20"><path d="M4 4l12 12M16 4L4 16" class="rT" /></symbol>
+    <symbol id="setup0-doc" viewBox="0 0 40 50"><path d="M4 2h24l8 8v38H4z" fill="#ffffff" stroke="#1d2742" stroke-width="2.5" stroke-linejoin="round" /><path d="M10 18h20M10 25h20M10 32h14" stroke="#4a5572" stroke-width="2.5" stroke-linecap="round" /></symbol>
+  </defs>
+</svg>
+      <text x="116" y="-12" text-anchor="middle" font-size="15" font-weight="700" class="t">The Chat</text>
+      <text x="430" y="-12" text-anchor="middle" font-size="15" font-weight="700" class="t">The Dashboard</text>
+      <rect x="6" y="0" width="628" height="334" rx="14" class="card" style="stroke:#1d2742;stroke-width:3" />
+      <rect x="14" y="10" width="204" height="314" class="card" /><rect x="234" y="10" width="392" height="314" class="card" />
+      <rect x="14" y="10" width="204" height="28" style="fill:#e6e8ee;stroke:#c9cfdd;stroke-width:2" /><rect x="234" y="10" width="392" height="28" style="fill:#e6e8ee;stroke:#c9cfdd;stroke-width:2" />
+
+      <circle cx="28" cy="24" r="4.5" style="fill:#c63d37" /><circle cx="43" cy="24" r="4.5" style="fill:#b87800" /><circle cx="58" cy="24" r="4.5" style="fill:#1f8a5b" />
+      <text x="116" y="30" text-anchor="middle" font-size="14" font-weight="700" class="t">Assistant</text>
+      <circle cx="248" cy="24" r="4.5" style="fill:#c63d37" /><circle cx="263" cy="24" r="4.5" style="fill:#b87800" /><circle cx="278" cy="24" r="4.5" style="fill:#1f8a5b" />
+      <text x="430" y="30" text-anchor="middle" font-size="14" font-weight="700" class="t">Browser</text>
+      <rect x="24" y="56" width="176" height="56" rx="10" class="blue" />
+<use href="#setup0-linguist" x="31" y="68" width="20" height="27" />
+<text x="57" y="78" font-size="11" class="t">Add this paper facts</text><text x="57" y="95" font-size="11" class="t">and principles to the tests</text>
+<rect x="61" y="132" width="147" height="56" rx="10" class="pass" />
+<use href="#setup0-robot" x="68" y="144" width="20" height="27" />
+<text x="94" y="154" font-size="11" class="t">Done, 6 facts added,</text><text x="94" y="171" font-size="11" class="t">1 new theory column</text>
+<rect x="24" y="208" width="160" height="56" rx="10" class="blue" />
+<use href="#setup0-linguist" x="31" y="220" width="20" height="27" />
+<text x="57" y="230" font-size="11" class="t">Propose a fix to</text><text x="57" y="247" font-size="11" class="t">Principle A of Theory Y</text>
+<g transform="translate(234 38) scale(1.281046 1.117647) translate(-320 -38)"><path d="M320 82H626" style="fill:none;stroke:#c9cfdd;stroke-width:2" /><path d="M328 82V54Q328 46 336 46H390Q398 46 398 54V82Z" style="fill:#e6e8ee;stroke:#c9cfdd;stroke-width:2" /><path d="M400 82V54Q400 46 408 46H462Q470 46 470 54V82Z" style="fill:#e6e8ee;stroke:#c9cfdd;stroke-width:2" /><path d="M472 82V54Q472 46 480 46H534Q542 46 542 54V82Z" style="fill:#ffffff;stroke:none" /><path d="M473 82H541" style="stroke:#ffffff;stroke-width:4" /><path d="M472 82V54Q472 46 480 46H534Q542 46 542 54V82" style="fill:none;stroke:#c9cfdd;stroke-width:2" /><path d="M544 82V54Q544 46 552 46H606Q614 46 614 54V82Z" style="fill:#e6e8ee;stroke:#c9cfdd;stroke-width:2" /><g font-size="10" class="t"><text x="363.0" y="62" text-anchor="middle">Empirical</text><text x="363.0" y="74" text-anchor="middle">Space</text><text x="435.0" y="62" text-anchor="middle">Theoretical</text><text x="435.0" y="74" text-anchor="middle">Space</text><text x="507.0" y="62" text-anchor="middle" font-weight="700">Theories</text><text x="507.0" y="74" text-anchor="middle" font-weight="700">x Facts</text><text x="579.0" y="62" text-anchor="middle" font-style="italic">your</text><text x="579.0" y="74" text-anchor="middle" font-style="italic">idea</text></g>
+      </g><g transform="translate(258.0 140) scale(1.158748552) translate(-332 -132)"><rect x="364" y="132" width="106.08" height="28" rx="5" class="blue" /><text x="417.04" y="151" text-anchor="middle" font-size="13" font-weight="700" class="t">Theories</text><rect x="332" y="164" width="28" height="106.08" rx="5" class="blue" /><text transform="translate(351 217.04) rotate(-90)" text-anchor="middle" font-size="13" font-weight="700" class="t">Facts</text><g transform="translate(364 164) scale(.78) translate(-332 -142)"><rect x="332" y="142" width="28" height="28" rx="4" class="pass" /><rect x="368" y="142" width="28" height="28" rx="4" class="fail" /><rect x="404" y="142" width="28" height="28" rx="4" class="pass" /><rect x="440" y="142" width="28" height="28" rx="4" class="conf" /><rect x="332" y="178" width="28" height="28" rx="4" class="pass" /><rect x="368" y="178" width="28" height="28" rx="4" class="pend" /><rect x="404" y="178" width="28" height="28" rx="4" class="pass" /><rect x="440" y="178" width="28" height="28" rx="4" class="oos" /><rect x="332" y="214" width="28" height="28" rx="4" class="pass" /><rect x="368" y="214" width="28" height="28" rx="4" class="pass" /><rect x="404" y="214" width="28" height="28" rx="4" class="fail" /><rect x="440" y="214" width="28" height="28" rx="4" class="pass" /><rect x="332" y="250" width="28" height="28" rx="4" class="pass" /><rect x="368" y="250" width="28" height="28" rx="4" class="pend" /><rect x="404" y="250" width="28" height="28" rx="4" class="pend" /><rect x="440" y="250" width="28" height="28" rx="4" class="pass" /></g>
+      </g><g transform="translate(442.0 140) scale(1.176470588) translate(-482 -142)"><rect x="482" y="142" width="136" height="136" rx="8" class="card" /><defs><marker id="setup0-am5" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c63d37" /></marker></defs><path d="M494 152V266H608" class="ln" /><text x="498" y="170" font-size="11" font-weight="700" class="t" style="fill:#c63d37">best</text><path d="M528 202L512 184" class="ln" style="stroke:#c63d37;stroke-width:2" marker-end="url(#setup0-am5)" /><path d="M512 252H538V232H566V206H600V176" fill="none" stroke="#1f8a5b" stroke-width="2.5" stroke-dasharray="5 4" /><circle cx="600" cy="168" r="7" style="fill:#6a49c2;stroke:#1d2742;stroke-width:1.5" /><circle cx="566" cy="206" r="5.5" class="pass" /><circle cx="538" cy="232" r="5.5" class="pass" /><circle cx="512" cy="252" r="5.5" class="pass" /><circle cx="583" cy="219" r="5.5" class="pend" /><circle cx="566" cy="252" r="5.5" class="pend" />
+    </g></svg>
+  </figure>
+  <aside class="notes"><b>~45 s.</b> This is a beta, validated on one toy fragment, and informed by the Anaphora project. Nothing here is frozen: the tool is a set of small files the assistant edits on request (a metric, a plot, a tab, the vocabulary, the whole report), and whatever you change lives in custom/. Anything wrong, missing or ugly: say so in plain words. Close with questions and how to get the zip.</aside>
+</section>
+
+<section class="slide" data-title="Appendix" style="text-align:center">
+  <div class="txt" style="grid-column:1/-1">
+    <h2 style="font-size:clamp(2.4rem,7vw,5rem);margin:0">Appendix</h2>
+  </div>
+</section>
+
+<section class="slide" data-title="Evidence ladder">
+  <div class="txt">
+    <div class="num">Appendix / Honest evidence</div>
+    <h2>Every result says how it was obtained</h2>
+    <p>All current evidence is stored. Stronger evidence wins, stronger verification wins.</p>
+  </div>
+  <figure>
+    <svg class="fig" viewBox="0 0 560 360" role="img" aria-label="Two scales: stronger evidence (proof verifier, simulation, paper claim) and stronger verification (human, LLM, none)"><path d="M64 20v320M176 20v320" fill="none" stroke="#a3703a" stroke-width="12" stroke-linecap="round"/><g font-size="16" class="t" font-weight="600"><rect x="40" y="50" width="160" height="50" rx="8" style="fill:var(--blue);stroke:var(--blue);stroke-width:2"/><text x="120" y="73"  fill="var(--bg)" text-anchor="middle" font-size="15">proof verifier</text><text x="120" y="90"  fill="var(--bg)" text-anchor="middle" font-size="12" font-weight="400">(e.g., Lean, Agda)</text><rect x="40" y="150" width="160" height="50" rx="8" style="fill:color-mix(in srgb,var(--blue) 50%,var(--blue-l));stroke:var(--blue);stroke-width:2"/><text x="120" y="173"  fill="var(--ink)" text-anchor="middle" font-size="15">simulation</text><text x="120" y="190"  fill="var(--ink)" text-anchor="middle" font-size="12" font-weight="400">(e.g., Python)</text><rect x="40" y="250" width="160" height="50" rx="8" style="fill:var(--blue-l);stroke:var(--blue);stroke-width:2"/><text x="120" y="281"  fill="var(--ink)" text-anchor="middle" font-size="15">paper claim</text></g><path d="M232 340V40" class="ln"/><path d="M220 54l12-16 12 16" class="ln"/><text x="246" y="190" font-size="14" class="tm" transform="rotate(-90 246 190)" text-anchor="middle">stronger evidence</text><path d="M344 20v320M456 20v320" fill="none" stroke="#a3703a" stroke-width="12" stroke-linecap="round"/><g font-size="16" class="t" font-weight="600"><rect x="320" y="50" width="160" height="50" rx="8" style="fill:var(--blue);stroke:var(--blue);stroke-width:2"/><text x="400" y="81"  fill="var(--bg)" text-anchor="middle" font-size="15">human</text><rect x="320" y="150" width="160" height="50" rx="8" style="fill:color-mix(in srgb,var(--blue) 50%,var(--blue-l));stroke:var(--blue);stroke-width:2"/><text x="400" y="181"  fill="var(--ink)" text-anchor="middle" font-size="15">LLM</text><rect x="320" y="250" width="160" height="50" rx="8" style="fill:var(--blue-l);stroke:var(--blue);stroke-width:2"/><text x="400" y="281"  fill="var(--ink)" text-anchor="middle" font-size="15">none</text></g><path d="M512 340V40" class="ln"/><path d="M500 54l12-16 12 16" class="ln"/><text x="526" y="190" font-size="14" class="tm" transform="rotate(-90 526 190)" text-anchor="middle">stronger verification</text></svg>
+  </figure>
+  <aside class="notes"><b>~75 s.</b> This is the honesty guardrail. A result can hold several pieces of evidence, and all of them are stored. Two scales apply. Evidence: a proof checked by a verifier (e.g., Lean, Agda) beats a simulation (e.g., Python), which beats what a paper claims. Verification: a person who checked the translation beats an LLM check, which beats none. The page shows the strongest evidence, and the verification status next to it. If entries disagree, you get a marker, never a block. Informal is never shown as formal. Weaker checks are skipped when a stronger one already passed, unless you ask. The order is a default; you can change it by prompting.</aside>
+</section>
+
+<section class="slide" data-title="Raw Facts">
+  <div class="txt">
+    <div class="num">Appendix / The baseline</div>
+    <h2>Raw Facts: the theory that just lists the facts</h2>
+    <p>It is pure stipulation: the sum of all facts. It passes all tests, by construction, and is in principle the most complex theory. It also flags facts that duplicate or contradict each other.</p>
+  </div>
+  <figure>
+    <svg class="fig" viewBox="0 0 640 340" role="img" aria-label="The Raw Facts column of the matrix: every fact ticked green; a robot with a speech bubble on the right says that every fact passes by construction and that contradicting facts are flagged"><g transform="translate(-155 0)">
+      <text x="372" y="34" text-anchor="middle" font-size="17" font-weight="700" class="t">Raw Facts</text>
+      <rect x="318" y="50" width="108" height="44" rx="10" class="pass"/><use href="#ok" x="360" y="60" width="24" height="24"/>
+      <rect x="318" y="106" width="108" height="44" rx="10" class="pass"/><use href="#ok" x="360" y="116" width="24" height="24"/>
+      <rect x="318" y="162" width="108" height="44" rx="10" class="pass"/><use href="#ok" x="360" y="172" width="24" height="24"/>
+      <rect x="318" y="218" width="108" height="44" rx="10" class="pass"/><use href="#ok" x="360" y="228" width="24" height="24"/>
+      <rect x="318" y="274" width="108" height="44" rx="10" class="pass"/><use href="#ok" x="360" y="284" width="24" height="24"/>
+      <rect x="446" y="40" width="186" height="118" rx="14" class="conf"/>
+      <text x="458" y="66" font-size="14" class="t">Every fact passes here,</text><text x="458" y="88" font-size="14" class="t">by construction.</text><text x="458" y="116" font-size="14" class="t">Two facts that contradict</text><text x="458" y="138" font-size="14" class="t">each other are flagged.</text>
+      <path d="M520 158l10 24" class="ln"/>
+      <use href="#robot" x="496" y="182" width="96" height="130"/></g>
+    </svg>
+  </figure>
+  <aside class="notes"><b>~45 s.</b> Raw Facts is a column like any other, built automatically from the fact list. It plays two roles. First, a check: every fact must be trivially provable there, so it catches facts that duplicate or contradict each other early. It does not check that a fact was translated into code correctly: that is the Translations tab (in the appendix). Second, a reference point: maximal coverage, maximal size. It is the point on the later plot that real theories must beat.</aside>
+</section>
+
+<section class="slide" data-title="Facts and principles are code">
+  <div class="txt">
+    <div class="num">Appendix / The pieces</div>
+    <h2>Facts and principles are small pieces of code</h2>
+    <p>Each has words, quotes from papers, a confidence, and code the machine can run. A theory is a set of principles.</p>
+  </div>
+  <figure>
+    <svg class="fig" viewBox="0 0 640 340" role="img" aria-label="Two cards: a fact card and a principle card, each with a statement, a source and a code snippet">
+      <g>
+        <rect x="14" y="20" width="298" height="290" rx="14" class="blue"/>
+        <text x="30" y="52" font-size="18" font-weight="700" class="t">FACT F02</text>
+        <text x="30" y="78" font-size="15" class="t">"The king is bald, and there</text><text x="30" y="98" font-size="15" class="t">is a king" sounds odd.</text>
+        <text x="30" y="128" font-size="13" class="tm">type: felicity   expected: fails</text>
+        <text x="30" y="148" font-size="13" class="tm">source: paper, page, quote</text>
+        <text x="30" y="168" font-size="13" class="tm">confidence: 0.9</text>
+        <rect x="26" y="186" width="274" height="108" rx="8" class="card"/>
+        <g font-family="ui-monospace,monospace" font-size="13" class="t"><text x="36" y="212">"spec": {"discourse":</text><text x="36" y="234">  [["and","a","s"]]}</text><text x="36" y="258" class="tm">// the discourse, as data</text></g>
+      </g>
+      <g>
+        <rect x="328" y="20" width="298" height="290" rx="14" class="pass"/>
+        <text x="344" y="52" font-size="18" font-weight="700" class="t">PRINCIPLE P-AND-MK</text>
+        <text x="344" y="78" font-size="15" class="t">"and" is read left to right:</text><text x="344" y="98" font-size="15" class="t">the left part sets the context.</text>
+        <text x="344" y="128" font-size="13" class="tm">on / off in any theory</text>
+        <text x="344" y="148" font-size="13" class="tm">relations: weaker than ...</text>
+        <text x="344" y="168" font-size="13" class="tm">code: Python, Lean, Agda</text>
+        <rect x="340" y="186" width="274" height="108" rx="8" class="card"/>
+        <g font-family="ui-monospace,monospace" font-size="13" class="t"><text x="350" y="212">@principle("P-AND-MK")</text><text x="350" y="234">def and_mk(b): ...</text><text x="350" y="258" class="tm"># left 0 -> 0, left # -> #</text></g>
+      </g>
+    </svg>
+  </figure>
+  <aside class="notes"><b>~60 s.</b> The key move: a fact (a datum) and a principle (an assumption) are the same kind of object, a statement with code. Facts come from data, principles from theories. A theory is just a list of principles switched on. Principles are independent of any framework family; a bad combination simply breaks or scores poorly, and that is itself a result. You never need to read the code: the assistant writes it, and the page shows the statement in plain words. The code is what lets the cell be a real test.</aside>
+</section>
+
+<section class="slide s9" data-title="What you check">
+  <div class="head"><div class="num">Appendix / What you check</div><h2>Cells are certified. The translation is not.</h2></div>
+  <div class="txt l1"><p><b>Check:</b> Is the code statement faithful? An LLM wrote that translation. Review through an LLM, or ideally a person.</p></div>
+  <figure><svg class="fig" viewBox="0 0 640 134" style="background:none;border:none" role="img" aria-label="A flow from a statement in words, through a translation that you check, to code, then through a run or a verifier that is certified, to a cell">
+      <defs><marker id="ac" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--ink)"/></marker></defs>
+      <rect x="4" y="4" width="632" height="126" rx="14" class="card"/>
+      <g font-size="14" class="t">
+        <rect x="16" y="50" width="150" height="62" rx="12" class="blue"/><text x="91" y="76" text-anchor="middle" font-weight="700">Statement</text><text x="91" y="96" text-anchor="middle" font-size="12">in words</text>
+        <rect x="245" y="50" width="150" height="62" rx="12" class="card"/><text x="320" y="76" text-anchor="middle" font-weight="700">Code</text><text x="320" y="96" text-anchor="middle" font-size="12">Python, Lean, Agda...</text>
+        <rect x="474" y="50" width="150" height="62" rx="12" class="pass"/><text x="549" y="76" text-anchor="middle" font-weight="700">Cell</text><text x="549" y="96" text-anchor="middle" font-size="12">pass / fail</text>
+      </g>
+      <path d="M168 81H243" class="ln" style="stroke-width:2.5" marker-end="url(#ac)"/><path d="M397 81H472" class="ln" style="stroke-width:2.5" marker-end="url(#ac)"/>
+      <rect x="152" y="18" width="106" height="24" rx="12" class="conf"/><text x="205" y="35" text-anchor="middle" font-size="12" font-weight="700" class="t">MUST CHECK</text>
+      <rect x="388" y="18" width="96" height="24" rx="12" class="pass"/><text x="436" y="35" text-anchor="middle" font-size="12" font-weight="700" class="t">certified</text>
+      </svg></figure>
+  <div class="txt l2"><p>A Translations tab puts words next to code, for you to check.</p><p>Not convenient? Ask for another visual helper for this step.</p></div>
+  <figure><svg class="fig" viewBox="0 160 640 246" style="background:none;border:none" role="img" aria-label="A mock of the Translations tab with words on the left, code on the right and tick boxes"><rect x="4" y="164" width="632" height="238" rx="14" style="fill:color-mix(in srgb,var(--card) 88%,var(--blue-l));stroke:var(--line);stroke-width:2"/>
+      <rect x="18" y="206" width="604" height="184" class="card" style="stroke:none"/>
+      <path d="M18 206V184Q18 174 28 174H258Q268 174 268 184V206" style="fill:var(--card);stroke:none"/>
+      <path d="M268 206H622V390H18V206" style="fill:none;stroke:var(--line);stroke-width:2"/>
+      <path d="M18 206V184Q18 174 28 174H258Q268 174 268 184V206" style="fill:none;stroke:var(--line);stroke-width:2"/>
+      <text x="32" y="195" font-size="14" font-weight="700" class="t">Translations</text><text x="124" y="195" font-size="12" class="tm">(checked 1/19)</text>
+      <g font-size="12" class="t"><text x="32" y="230" font-weight="700">In words</text><text x="332" y="230" font-weight="700">In code</text></g>
+      <g font-size="13" class="t">
+        <rect x="28" y="238" width="290" height="64" rx="8" class="card"/><text x="40" y="262">"and" is read left to right:</text><text x="40" y="282">the left part sets the context.</text>
+        <rect x="328" y="238" width="246" height="64" rx="8" class="card"/><g font-family="ui-monospace,monospace" font-size="12"><text x="340" y="258">@principle("P-AND-MK")</text><text x="340" y="274">  left 0 -&gt; 0, left # -&gt; #</text><text x="340" y="290">  left 1 -&gt; right</text></g>
+        <rect x="584" y="257" width="26" height="26" rx="5" class="pass"/><use href="#ok" x="587" y="260" width="20" height="20"/>
+        <rect x="28" y="314" width="290" height="58" rx="8" class="card"/><text x="40" y="338">F02: "a and s" is odd (expected: fails)</text><text x="40" y="358" font-size="12" class="tm">spec: discourse a and s</text>
+        <rect x="328" y="314" width="246" height="58" rx="8" class="card"/><g font-family="ui-monospace,monospace" font-size="12"><text x="340" y="338">theorem F02_fail : ...</text><text x="340" y="358" class="tm">Lean snippet, folded</text></g>
+        <rect x="584" y="330" width="26" height="26" rx="5" class="pend"/>
+      </g>
+    </svg></figure>
+  <aside class="notes"><b>~60 s.</b> Be clear about what the machine does and does not guarantee. A cell is certified: a verifier (Lean, Agda) or a run (a simulation) produced pass or fail, and the page says which; a simulation is exact only for the models it covered, and the cell says so. What nobody certifies is the step before: that the statement in words was translated into code faithfully. An LLM wrote that translation, and an LLM can double-check it, often successfully, but a subtly wrong translation gives a certified but meaningless cell, and only a person checking by hand fully certifies the result. That is why every fact and principle is shown in words next to its code in the Translations tab, with a tick per row (kept in your browser only). You can also ask for a translation sheet, for the paper's own examples to be reproduced, or for an independent reviewer. If the default tab is not convenient, ask for another one: this is the critical manual step.</aside>
+</section>
+
+<section class="slide" data-title="Beta and alive" data-repeat="6">
+  <div class="txt">
+    <div class="num">A beta, and alive</div>
+    <h2>Fix or change anything</h2>
+    <p>Use prompts to change scientific and visualization aspects alike.</p>
+    <p style="font-size:.85em">Produced with AI assistance. Results may be wrong: check them before drawing scientific conclusions. Amend them by hand where needed. Iterate.</p>
+  </div>
+  <figure>
+    <p class="tip">Pro tip: set up your screen so you can switch easily<br>between</p>
+    <svg class="fig" xmlns="http://www.w3.org/2000/svg" width="640" height="374" viewBox="0 -34 640 374" role="img" aria-label="A computer screen showing two app windows side by side: a chat window with human icons inside two left-aligned prompt bubbles and a robot icon inside a right-aligned response bubble, and a report window with tabs, cells and a plot"><style>/* svg palette */
+.s-ink{stroke:#1d2742} .t{fill:#1d2742;font-family:system-ui,sans-serif} .tm{fill:#4a5572;font-family:system-ui,sans-serif}
+.card{fill:#ffffff;stroke:#c9cfdd;stroke-width:2}
+.pass{fill:#d4f0e2;stroke:#1f8a5b;stroke-width:2} .fail{fill:#f8dad8;stroke:#c63d37;stroke-width:2}
+.pend{fill:#e6e8ee;stroke:#4a5572;stroke-width:2;stroke-dasharray:4 3} .oos{fill:#ffffff;stroke:#4a5572;stroke-width:2;stroke-dasharray:2 4}
+.conf{fill:#fbebc4;stroke:#b87800;stroke-width:2}
+.blue{fill:#dbe6fb;stroke:#2f5fc4;stroke-width:2}
+.ln{stroke:#1d2742;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.lm{stroke:#4a5572;stroke-width:2;fill:none;stroke-linecap:round}
+.gT{stroke:#1f8a5b;stroke-width:4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.rT{stroke:#c63d37;stroke-width:4;fill:none;stroke-linecap:round}
+.aT{stroke:#b87800;stroke-width:4;fill:none;stroke-linecap:round}
+</style><svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="setup1-linguist" viewBox="0 0 100 135">
+      <path d="M26 125v-40q0-18 24-18t24 18v40z" fill="#2f5fc4" stroke="#1d2742" stroke-width="2.5" stroke-linejoin="round" />
+      <circle cx="50" cy="40" r="22" fill="#f2c9a0" stroke="#1d2742" stroke-width="2.5" />
+      <path d="M27 38q0-24 23-24t23 24q-10-10-23-9t-23 9z" fill="#1d2742" />
+      <circle cx="41" cy="42" r="7" fill="none" stroke="#1d2742" stroke-width="2.5" />
+      <circle cx="59" cy="42" r="7" fill="none" stroke="#1d2742" stroke-width="2.5" />
+      <path d="M48 42h4M43 54q7 6 14 0" fill="none" stroke="#1d2742" stroke-width="2.5" stroke-linecap="round" />
+      <rect x="58" y="88" width="30" height="22" rx="3" fill="#fbebc4" stroke="#1d2742" stroke-width="2.5" />
+      <path d="M62 95h22M62 101h16" stroke="#1d2742" stroke-width="2" stroke-linecap="round" />
+    </symbol>
+    <symbol id="setup1-robot" viewBox="0 0 100 135">
+      <path d="M50 14v10" stroke="#1d2742" stroke-width="2.5" /><circle cx="50" cy="11" r="5" fill="#b87800" stroke="#1d2742" stroke-width="2" />
+      <rect x="20" y="24" width="60" height="46" rx="12" fill="#cdd7ea" stroke="#1d2742" stroke-width="2.5" />
+      <circle cx="38" cy="45" r="7" fill="#ffffff" stroke="#1d2742" stroke-width="2.5" /><circle cx="62" cy="45" r="7" fill="#ffffff" stroke="#1d2742" stroke-width="2.5" />
+      <circle cx="39" cy="46" r="3" fill="#1d2742" /><circle cx="63" cy="46" r="3" fill="#1d2742" />
+      <path d="M40 60h20" stroke="#1d2742" stroke-width="2.5" stroke-linecap="round" />
+      <rect x="28" y="74" width="44" height="44" rx="10" fill="#cdd7ea" stroke="#1d2742" stroke-width="2.5" />
+      <rect x="38" y="84" width="24" height="14" rx="3" fill="#ffffff" stroke="#1d2742" stroke-width="2" />
+      <path d="M28 84l-10 14M72 84l10 14" stroke="#1d2742" stroke-width="3" stroke-linecap="round" />
+    </symbol>
+    <symbol id="setup1-ok" viewBox="0 0 20 20"><path d="M4 10l4 4 8-9" class="gT" /></symbol>
+    <symbol id="setup1-no" viewBox="0 0 20 20"><path d="M4 4l12 12M16 4L4 16" class="rT" /></symbol>
+    <symbol id="setup1-doc" viewBox="0 0 40 50"><path d="M4 2h24l8 8v38H4z" fill="#ffffff" stroke="#1d2742" stroke-width="2.5" stroke-linejoin="round" /><path d="M10 18h20M10 25h20M10 32h14" stroke="#4a5572" stroke-width="2.5" stroke-linecap="round" /></symbol>
+  </defs>
+</svg>
+      <text x="116" y="-12" text-anchor="middle" font-size="15" font-weight="700" class="t">The Chat</text>
+      <text x="430" y="-12" text-anchor="middle" font-size="15" font-weight="700" class="t">The Dashboard</text>
+      <rect x="6" y="0" width="628" height="334" rx="14" class="card" style="stroke:#1d2742;stroke-width:3" />
+      <rect x="14" y="10" width="204" height="314" class="card" /><rect x="234" y="10" width="392" height="314" class="card" />
+      <rect x="14" y="10" width="204" height="28" style="fill:#e6e8ee;stroke:#c9cfdd;stroke-width:2" /><rect x="234" y="10" width="392" height="28" style="fill:#e6e8ee;stroke:#c9cfdd;stroke-width:2" />
+
+      <circle cx="28" cy="24" r="4.5" style="fill:#c63d37" /><circle cx="43" cy="24" r="4.5" style="fill:#b87800" /><circle cx="58" cy="24" r="4.5" style="fill:#1f8a5b" />
+      <text x="116" y="30" text-anchor="middle" font-size="14" font-weight="700" class="t">Assistant</text>
+      <circle cx="248" cy="24" r="4.5" style="fill:#c63d37" /><circle cx="263" cy="24" r="4.5" style="fill:#b87800" /><circle cx="278" cy="24" r="4.5" style="fill:#1f8a5b" />
+      <text x="430" y="30" text-anchor="middle" font-size="14" font-weight="700" class="t">Browser</text>
+      <rect x="24" y="56" width="176" height="56" rx="10" class="blue" />
+<use href="#setup1-linguist" x="31" y="68" width="20" height="27" />
+<text x="57" y="78" font-size="11" class="t">Add this paper facts</text><text x="57" y="95" font-size="11" class="t">and principles to the tests</text>
+<rect x="61" y="132" width="147" height="56" rx="10" class="pass" />
+<use href="#setup1-robot" x="68" y="144" width="20" height="27" />
+<text x="94" y="154" font-size="11" class="t">Done, 6 facts added,</text><text x="94" y="171" font-size="11" class="t">1 new theory column</text>
+<rect x="24" y="208" width="160" height="56" rx="10" class="blue" />
+<use href="#setup1-linguist" x="31" y="220" width="20" height="27" />
+<text x="57" y="230" font-size="11" class="t">Propose a fix to</text><text x="57" y="247" font-size="11" class="t">Principle A of Theory Y</text>
+<g transform="translate(234 38) scale(1.281046 1.117647) translate(-320 -38)"><path d="M320 82H626" style="fill:none;stroke:#c9cfdd;stroke-width:2" /><path d="M328 82V54Q328 46 336 46H390Q398 46 398 54V82Z" style="fill:#e6e8ee;stroke:#c9cfdd;stroke-width:2" /><path d="M400 82V54Q400 46 408 46H462Q470 46 470 54V82Z" style="fill:#e6e8ee;stroke:#c9cfdd;stroke-width:2" /><path d="M472 82V54Q472 46 480 46H534Q542 46 542 54V82Z" style="fill:#ffffff;stroke:none" /><path d="M473 82H541" style="stroke:#ffffff;stroke-width:4" /><path d="M472 82V54Q472 46 480 46H534Q542 46 542 54V82" style="fill:none;stroke:#c9cfdd;stroke-width:2" /><path d="M544 82V54Q544 46 552 46H606Q614 46 614 54V82Z" style="fill:#e6e8ee;stroke:#c9cfdd;stroke-width:2" /><g font-size="10" class="t"><text x="363.0" y="62" text-anchor="middle">Empirical</text><text x="363.0" y="74" text-anchor="middle">Space</text><text x="435.0" y="62" text-anchor="middle">Theoretical</text><text x="435.0" y="74" text-anchor="middle">Space</text><text x="507.0" y="62" text-anchor="middle" font-weight="700">Theories</text><text x="507.0" y="74" text-anchor="middle" font-weight="700">x Facts</text><text x="579.0" y="62" text-anchor="middle" font-style="italic">your</text><text x="579.0" y="74" text-anchor="middle" font-style="italic">idea</text></g>
+      </g><g transform="translate(258.0 140) scale(1.158748552) translate(-332 -132)"><rect x="364" y="132" width="106.08" height="28" rx="5" class="blue" /><text x="417.04" y="151" text-anchor="middle" font-size="13" font-weight="700" class="t">Theories</text><rect x="332" y="164" width="28" height="106.08" rx="5" class="blue" /><text transform="translate(351 217.04) rotate(-90)" text-anchor="middle" font-size="13" font-weight="700" class="t">Facts</text><g transform="translate(364 164) scale(.78) translate(-332 -142)"><rect x="332" y="142" width="28" height="28" rx="4" class="pass" /><rect x="368" y="142" width="28" height="28" rx="4" class="fail" /><rect x="404" y="142" width="28" height="28" rx="4" class="pass" /><rect x="440" y="142" width="28" height="28" rx="4" class="conf" /><rect x="332" y="178" width="28" height="28" rx="4" class="pass" /><rect x="368" y="178" width="28" height="28" rx="4" class="pend" /><rect x="404" y="178" width="28" height="28" rx="4" class="pass" /><rect x="440" y="178" width="28" height="28" rx="4" class="oos" /><rect x="332" y="214" width="28" height="28" rx="4" class="pass" /><rect x="368" y="214" width="28" height="28" rx="4" class="pass" /><rect x="404" y="214" width="28" height="28" rx="4" class="fail" /><rect x="440" y="214" width="28" height="28" rx="4" class="pass" /><rect x="332" y="250" width="28" height="28" rx="4" class="pass" /><rect x="368" y="250" width="28" height="28" rx="4" class="pend" /><rect x="404" y="250" width="28" height="28" rx="4" class="pend" /><rect x="440" y="250" width="28" height="28" rx="4" class="pass" /></g>
+      </g><g transform="translate(442.0 140) scale(1.176470588) translate(-482 -142)"><rect x="482" y="142" width="136" height="136" rx="8" class="card" /><defs><marker id="setup1-am5" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c63d37" /></marker></defs><path d="M494 152V266H608" class="ln" /><text x="498" y="170" font-size="11" font-weight="700" class="t" style="fill:#c63d37">best</text><path d="M528 202L512 184" class="ln" style="stroke:#c63d37;stroke-width:2" marker-end="url(#setup1-am5)" /><path d="M512 252H538V232H566V206H600V176" fill="none" stroke="#1f8a5b" stroke-width="2.5" stroke-dasharray="5 4" /><circle cx="600" cy="168" r="7" style="fill:#6a49c2;stroke:#1d2742;stroke-width:1.5" /><circle cx="566" cy="206" r="5.5" class="pass" /><circle cx="538" cy="232" r="5.5" class="pass" /><circle cx="512" cy="252" r="5.5" class="pass" /><circle cx="583" cy="219" r="5.5" class="pend" /><circle cx="566" cy="252" r="5.5" class="pend" />
+    </g></svg>
+  </figure>
+  <aside class="notes"><b>~45 s.</b> This is a beta, validated on one toy fragment, and informed by the Anaphora project. Nothing here is frozen: the tool is a set of small files the assistant edits on request (a metric, a plot, a tab, the vocabulary, the whole report), and whatever you change lives in custom/. Anything wrong, missing or ugly: say so in plain words. Close with questions and how to get the zip.</aside>
+</section>
+
+</main>
+
+<div id="ui">
+  <button id="prev" class="nav" type="button" aria-label="Previous slide">&larr; Previous</button>
+  <div class="fmid">
+    <div class="fb"><a class="fbtn dlbtn" href="../dist/linglab-beta.zip" download="linglab-beta.zip">1 Download</a><button class="fbtn copybtn" type="button">2 Click to copy prompt, and run it</button></div>
+    <div class="fq"><span><b>Quickstart</b> <span class="ver">{{VERSION}}</span>.<br>non-dev members: we recommend waiting for the next version</span></div>
+    <div class="fd"><span>Beta. AI assisted.<br>Results may be wrong, check before using.</span></div>
+  </div>
+  <span id="count">1 / 10</span>
+  <button id="next" class="nav" type="button" aria-label="Next slide">Next &rarr;</button>
+</div>
+
+<script>
+(function(){
+  [].slice.call(document.querySelectorAll('.ver')).forEach(function(e){ if(e.textContent.indexOf('{'+'{VERSION}}')>=0) e.textContent='(development build)'; });
+  var ZIP_URL='../dist/linglab-beta.zip'; // change here when the zip is hosted
+  (function(){var pr=document.getElementById('theprompt');if(pr){[].slice.call(document.querySelectorAll('.copybtn')).forEach(function(b){b.setAttribute('data-tip','Clicking will copy this prompt for you:\n\n'+pr.textContent)})}})();
+  [].slice.call(document.querySelectorAll('.dlbtn')).forEach(function(a){a.setAttribute('href',ZIP_URL);a.setAttribute('download','linglab-beta.zip')});
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var i=0, N=slides.length;
+  var bar=document.getElementById('bar'), count=document.getElementById('count');
+  // build matrix cells for slide 2
+  var NS='http://www.w3.org/2000/svg';
+  var g=document.getElementById('cells');
+  var rows=[['p','p','f','p'],['p','f','p','p'],['p','p','o','p'],['p','x','x','c'],['p','x','x','x']];
+  var cls={p:'pass',f:'fail',x:'pend',o:'oos',c:'conf'};
+  var xs=[130,207,284,361];
+  rows.forEach(function(r,ri){r.forEach(function(c,ci){
+    var y=92+ri*61.6;
+    var rect=document.createElementNS(NS,'rect');
+    rect.setAttribute('x',xs[ci]);rect.setAttribute('y',y);rect.setAttribute('width',69);rect.setAttribute('height',53.6);rect.setAttribute('rx',6);rect.setAttribute('class',cls[c]);
+    g.appendChild(rect);
+    var sym=null;
+    if(c==='p')sym='#ok'; if(c==='f')sym='#no';
+    if(sym){var u=document.createElementNS(NS,'use');u.setAttribute('href',sym);u.setAttribute('x',xs[ci]+24.5);u.setAttribute('y',y+16.8);u.setAttribute('width',20);u.setAttribute('height',20);g.appendChild(u);}
+    if(c==='c'){var p=document.createElementNS(NS,'path');p.setAttribute('d','M'+(xs[ci]+22.5)+' '+(y+36.8)+'l12-20 12 20z');p.setAttribute('class','aT');p.setAttribute('style','stroke-width:3');g.appendChild(p);}
+  });});
+
+  // proxy dropdowns on the Coverage x Complexity slide
+  (function(){
+    var NS='http://www.w3.org/2000/svg';
+    var spec=[
+      {id:'ddx',x:157,w:200,up:true,y0:382,opts:['# principles','# principles + auxiliary','# characters of Lean code','compressed Lean size','# characters of Python']},
+      {id:'ddy',x:-100,w:200,up:false,y0:8,opts:['# successes','weighted successes','successes / applicable','confidence-weighted','without LLM judgments']}
+    ];
+    var all=[];
+    spec.forEach(function(d){
+      var menu=document.getElementById(d.id+'-m'), box=document.getElementById(d.id), lab=document.getElementById(d.id+'-t');
+      if(!menu||!box||!lab) return;
+      var n=d.opts.length, h=26, top=d.up? d.y0-2-n*h : d.y0+h+2;
+      var frame=document.createElementNS(NS,'rect');
+      frame.setAttribute('x',d.x);frame.setAttribute('y',top);frame.setAttribute('width',d.w);frame.setAttribute('height',n*h);frame.setAttribute('rx',6);frame.setAttribute('class','card');
+      menu.appendChild(frame);
+      d.opts.forEach(function(o,i){
+        var g=document.createElementNS(NS,'g'); g.style.cursor='pointer';
+        var r=document.createElementNS(NS,'rect');
+        r.setAttribute('x',d.x+2);r.setAttribute('y',top+i*h+1);r.setAttribute('width',d.w-4);r.setAttribute('height',h-2);r.setAttribute('rx',4);r.setAttribute('fill','transparent');
+        var t=document.createElementNS(NS,'text');
+        t.setAttribute('x',d.x+d.w/2);t.setAttribute('y',top+i*h+18);t.setAttribute('text-anchor','middle');t.setAttribute('font-size','13');t.setAttribute('class','t');t.textContent=o;
+        g.appendChild(r);g.appendChild(t);
+        g.addEventListener('mouseenter',function(){r.setAttribute('fill','var(--blue-l)')});
+        g.addEventListener('mouseleave',function(){r.setAttribute('fill','transparent')});
+        g.addEventListener('click',function(e){e.stopPropagation();lab.textContent=o+' \u25BE';menu.style.display='none'});
+        menu.appendChild(g);
+      });
+      function toggle(e){if(e)e.stopPropagation();var open=menu.style.display!=='none';all.forEach(function(m){m.style.display='none'});menu.style.display=open?'none':'block'}
+      box.addEventListener('click',toggle);
+      box.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();toggle()}});
+      all.push(menu);
+    });
+    document.addEventListener('click',function(){all.forEach(function(m){m.style.display='none'})});
+  })();
+  function show(n){
+    i=Math.max(0,Math.min(N-1,n));
+    slides.forEach(function(s,k){s.classList.toggle('active',k===i)});
+    bar.style.width=((i+1)/N*100)+'%';
+    var D=slides.findIndex(function(x){return x.getAttribute('data-title')==='Appendix'});
+    var A=slides.filter(function(x,k){return k>D && !x.hasAttribute('data-repeat')}).length;
+    var cur=slides[i], txt;
+    if(D<0){txt=(i+1)+' / '+N}
+    else if(cur.hasAttribute('data-repeat')){txt=cur.getAttribute('data-repeat')+' / '+D}
+    else if(i<D){txt=(i+1)+' / '+D}
+    else {txt='appendix:\n'+(i-D)+' / '+A}
+    count.style.whiteSpace='pre-line';count.style.textAlign='right';count.style.lineHeight='1.2';
+    count.textContent=txt;
+    document.getElementById('prev').disabled=(i===0);
+    document.getElementById('next').disabled=(i===N-1);
+    try{history.replaceState(null,'','#'+(i+1))}catch(e){}
+    document.title='linglab - '+(slides[i].getAttribute('data-title')||'');
+  }
+  document.getElementById('prev').onclick=function(){show(i-1)};
+  var lm=document.getElementById('learnmore'); if(lm) lm.onclick=function(){show(i+1)};
+  document.getElementById('next').onclick=function(){show(i+1)};
+  document.addEventListener('keydown',function(e){
+    if(e.ctrlKey||e.metaKey||e.altKey)return;
+    var k=e.key;
+    if(k==='ArrowRight'||k===' '||k==='PageDown'||k==='Enter'){e.preventDefault();show(i+1)}
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){e.preventDefault();show(i-1)}
+    else if(k==='Home'){e.preventDefault();show(0)}
+    else if(k==='End'){e.preventDefault();show(N-1)}
+    else if(k==='n'||k==='N'){document.body.classList.toggle('shownotes')}
+
+  });
+  var tx=null;
+  document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX},{passive:true});
+  document.addEventListener('touchend',function(e){if(tx===null)return;var d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>60)show(i+(d<0?1:-1));tx=null},{passive:true});
+  document.addEventListener('click',function(e){var c=e.target.closest&&e.target.closest('.chip'); if(!c)return;
+    var t=c.textContent.replace(/\s+copied$/,'');
+    var ok=function(){c.classList.add('done');setTimeout(function(){c.classList.remove('done')},1600)};
+    try{navigator.clipboard.writeText(t).then(ok,function(){window.prompt('Copy this prompt:',t)})}catch(err){window.prompt('Copy this prompt:',t)}});
+  [].slice.call(document.querySelectorAll('.copybtn')).forEach(function(cb){var orig=cb.textContent;
+    cb.onclick=function(){var t=document.getElementById('theprompt').textContent;
+      var ok=function(){cb.textContent='Copied! Now paste it in your assistant';setTimeout(function(){cb.textContent=orig},2500)};
+      try{navigator.clipboard.writeText(t).then(ok,function(){window.prompt('Copy this prompt:',t)})}catch(e){window.prompt('Copy this prompt:',t)}}});
+  var h=parseInt((location.hash||'').slice(1),10);
+  show(isNaN(h)?0:h-1);
+})();
+</script>
+</body>
+</html>
